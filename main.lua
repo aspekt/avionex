@@ -230,10 +230,13 @@ function love.update(dt)
 				end
 				score = score + 1
 				
+				-- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
+				
 				if (score % 10 == 0) then
 					sfxCombos[math.random(4)]:play()
 				end
 
+				-- fixme: when do we need to change levels? every N kills?
 				if (score % 20 == 0) then 
 					sfxPerfect:play()
 					--if (playerLevel < 5) then
@@ -258,7 +261,7 @@ function love.update(dt)
 	--player.x = love.mouse.getX() 
 	--player.y = love.mouse.getY() 
 	
-  --camera:setPosition(love.mouse.getX() * 2, love.mouse.getY() * 2)
+  	--camera:setPosition(love.mouse.getX() * 2, love.mouse.getY() * 2)
 
 	isTurningLeft = false
 	isTurningRight= false
@@ -324,6 +327,7 @@ function love.update(dt)
 		shotsFired = shotsFired + 1
 		table.insert(bullets, newBullet1)
 
+		-- fixme: player levels are static (hacks) and need to be 100% dynamic
 		if (playerLevel == 2) then
 			shotsFired = shotsFired + 1
 			newBullet2 = { x = player.x + (player.img:getWidth()/2 ), y = player.y, img = bulletImgs[2], speed = bulletSpeed }

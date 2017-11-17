@@ -13,6 +13,7 @@ createEnemyTimer = createEnemyTimerMax
 --bulletSpeed = 400
 enemySpeed = 150
 playerSpeed = 250
+kamikazeSpeed = 50
 baseBulletSpeed = 250
 
 -- Player Object
@@ -33,8 +34,9 @@ isKill = false
 playerLevel = 1
 isTurningRight = false
 isTurningLeft = false
-bulletSpeeds = {250, 300, 400, 500, 600}
-bulletShootTimer = {0.4, 0.3, 0.2, 0.15, 0.1}
+
+bulletSpeeds = {250, 300, 400, 500, 500} -- FIXME: Cambiar esto por algo decente y que sea dinamico
+bulletShootTimer = {0.4, 0.35, 0.30, 0.25, 0.20} -- FIXME: Igual que arriba
 -- music
 missedEnemies = 0
 osName = love.system.getOS()
@@ -56,8 +58,23 @@ function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
          y2 < ((y1+ h1))
 end
 
+function CheckCollisionEnemy(enemy, x2,y2,w2,h2)
+  
+  for i, box in ipairs(enemyBoxes[enemy.num]) do
+    if CheckCollision(enemy.x+box[1], enemy.y+box[2], box[3], box[4], x2, y2, w2, h2) then
+      return true
+    end
+	end
+  
+  return false
+
+end
+
 -- Loading
 function love.load(arg)
+  
+  if arg[#arg] == "-debug" then require("mobdebug").start() end
+  
 --	love.window.setFullscreen(true, "desktop")
 	-- love.window.setMode(0,0,{resizable = true,vsync = true}) 
     local joysticks = love.joystick.getJoysticks()
@@ -74,6 +91,15 @@ function love.load(arg)
 				gfx.newImage('assets/aircraft04.png'),
 				gfx.newImage('assets/aircraft07.png'),
 				gfx.newImage('assets/aircraft08.png')}
+
+  enemyBoxes = {
+                { {42,3,26,87}, {4,47,101,30} },
+                { {42,5,26,79}, {4,42,103,26} },
+                { {43,5,26,80}, {5,42,102,22} },
+                { {44,5,21,76}, {5,34,101,22} },
+                { {46,4,20,74}, {5,36,101,27} },
+                { {38,6,19,67}, {6,37,82,20} }
+              }
 
 	bulletImgs = {gfx.newImage('assets/bullet.png'),
 				gfx.newImage('assets/bullet_orange.png'),
@@ -154,8 +180,9 @@ function love.update(dt)
 		randomNumber = math.random(10, gfx.getWidth() - 100)
 		randomSpeed = math.random(10, (50 * playerLevel));
 		randomImg = math.random(6);
+    kamikaze = math.random() < 0.5
 
-		newEnemy = { x = randomNumber, y = -50, img = enemyImgs[randomImg] , speed = enemySpeed + randomSpeed}
+		newEnemy = { x = randomNumber, y = -50, img = enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, speed = enemySpeed + randomSpeed}
 		table.insert(enemies, newEnemy)
 	end
 
@@ -172,6 +199,14 @@ function love.update(dt)
 	-- update the positions of enemies
 	for i, enemy in ipairs(enemies) do
 		enemy.y = enemy.y + (enemy.speed * dt)
+    
+    if enemy.isKamikaze then
+      if (enemy.x < player.x) then
+        enemy.x = enemy.x + kamikazeSpeed * dt
+      else
+        enemy.x = enemy.x - kamikazeSpeed * dt
+      end
+    end
 
 		if enemy.y > screenHeight then -- remove enemies when they pass off the screen
 			table.remove(enemies, i)
@@ -184,7 +219,7 @@ function love.update(dt)
 	-- Also, we need to see if the enemies hit our player
 	for i, enemy in ipairs(enemies) do
 		for j, bullet in ipairs(bullets) do
-			if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), bullet.x, bullet.y, bullet.img:getWidth(), bullet.img:getHeight()) then
+			if CheckCollisionEnemy(enemy, bullet.x, bullet.y, bullet.img:getWidth(), bullet.img:getHeight()) then
 				table.remove(bullets, j)
 				table.remove(enemies, i)
 				isKill = true;
@@ -228,6 +263,7 @@ function love.update(dt)
 	isTurningLeft = false
 	isTurningRight= false
 
+  if joystick ~= nil then
 
    if joystick:isGamepadDown("dpleft") then
       	if player.x > 0 then -- binds us to the map
@@ -249,7 +285,7 @@ function love.update(dt)
 		end
     end
 
-
+  end
 	
 	if love.keyboard.isDown('left','a') then
 		isTurningLeft = true
@@ -279,7 +315,7 @@ function love.update(dt)
 		player.speed = 250
 	end
 
-	if canShoot and (joystick:isDown(1) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
+	if canShoot and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
 		-- Create some bullets
 
 		bulletSpeed = baseBulletSpeed + (playerLevel * 20)
@@ -422,7 +458,7 @@ function love.draw(dt)
 		gfx.print("Press 'R' to restart", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
 	end
 
-	gfx.print("KILLER PLANES", gfx:getWidth()/2-60, 10)
+	gfx.print("AVIONEX", gfx:getWidth()/2-60, 10)
 
 	if debug then
 		fps = tostring(love.timer.getFPS())

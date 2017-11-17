@@ -117,8 +117,10 @@ function love.load(arg)
 	explodePlayer = love.audio.newSource("assets/explode.wav", "static")
 --	masterCombo = love.audio.newSource("assets/master_combo.mp3", "static")
 	comboBreaker = love.audio.newSource("assets/KI_Sounds_Combo_Breaker.mp3", "static")
---	killerCombo = love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static")
---	ultraCombo = love.audio.newSource("assets/KI_Sounds_Ultra_Combo.mp3", "static")
+	--killerCombo = love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static")
+	--ultraCombo = love.audio.newSource("assets/KI_Sounds_Ultra_Combo.mp3", "static")
+	showNoMercy = love.audio.newSource("assets/ShowNoMercy.wav", "static")
+	
 	sfxReady = love.audio.newSource("assets/Ready.mp3", "static")
 	sfxGameOver = love.audio.newSource("assets/GameOver.mp3", "static")
 
@@ -128,10 +130,10 @@ function love.load(arg)
 					love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static"),
 					love.audio.newSource("assets/master_combo.mp3", "static"),
 					love.audio.newSource("assets/KI_Sounds_Ultra_Combo.mp3", "static"),
-					love.audio.newSource("assets/KI_Sounds_Brutal_Combo.mp3", "static")}
-	
+					love.audio.newSource("assets/KI_Sounds_Brutal_Combo.mp3", "static"),
+					love.audio.newSource("assets/ShowNoMercy.wav", "static")}
 
-	music = love.audio.newSource("assets/music.wav") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
+	music = love.audio.newSource("assets/22.-trailblazer-original-arcade-soundtrack-.mp3") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
 	music:setLooping(true)
 	music:play()
 
@@ -233,17 +235,17 @@ function love.update(dt)
 				-- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
 				
 				if (score % 10 == 0) then
-					sfxCombos[math.random(4)]:play()
+					sfxCombos[math.random(6)]:play()
 				end
 
 				-- fixme: when do we need to change levels? every N kills?
 				if (score % 20 == 0) then 
 					sfxPerfect:play()
-					--if (playerLevel < 5) then
+					if (playerLevel < 5) then -- fixme: solo tenes 5 levels... 
 						playerLevel = playerLevel + 1
 						showNewLevel = true					
 						changedLevel = true;
-					--end
+					end
 				end
 			end
 		end

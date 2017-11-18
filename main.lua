@@ -1,6 +1,10 @@
 --require "audio"
 local gfx = love.graphics
 
+-- https://github.com/kikito/anim8
+local anim8 = require 'anim8/anim8'
+local spritesheet1, animPlane
+
 debug = true
 
 -- Timers
@@ -77,9 +81,17 @@ function love.load(arg)
   
 --	love.window.setFullscreen(true, "desktop")
 	-- love.window.setMode(0,0,{resizable = true,vsync = true}) 
-    local joysticks = love.joystick.getJoysticks()
-    joystick = joysticks[1]
+	local joysticks = love.joystick.getJoysticks()
+	if (table.getn(joysticks) > 0) then 
+		joystick = joysticks[1] -- get first stick 
+	end
+	
 
+	spritesheet1 = love.graphics.newImage('assets/1945.png')
+	local g64 = anim8.newGrid(64,64, 1024,768, 299,101, 2)
+	--animation = anim8.newAnimation(g('1-8',1), 0.1)
+	animPlane = anim8.newAnimation(g64(1,'1-3'), 0.1)
+	animPlane:flipV() -- look down
 
 	player.img = gfx.newImage('assets/player.png')
 	player.img_right =  gfx.newImage('assets/player-right.png')
@@ -160,7 +172,7 @@ function love.update(dt)
 
 	screenHeight = gfx:getHeight()
 	--psystem:update(dt)
-
+	animPlane:update(dt)
 
 	-- I always start with an easy way to exit the game
 	if love.keyboard.isDown('escape') then
@@ -182,7 +194,7 @@ function love.update(dt)
 		randomNumber = math.random(10, gfx.getWidth() - 100)
 		randomSpeed = math.random(10, (50 * playerLevel));
 		randomImg = math.random(6);
-    kamikaze = math.random() < 0.5
+    	kamikaze = math.random() < 0.5
 
 		newEnemy = { x = randomNumber, y = -50, img = enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, speed = enemySpeed + randomSpeed}
 		table.insert(enemies, newEnemy)
@@ -268,29 +280,31 @@ function love.update(dt)
 	isTurningLeft = false
 	isTurningRight= false
 
-  if joystick ~= nil then
 
-   if joystick:isGamepadDown("dpleft") then
-      	if player.x > 0 then -- binds us to the map
-			player.x = player.x - (player.speed*dt)
-		end
-    elseif joystick:isGamepadDown("dpright") then
-     	if player.x < (gfx.getWidth() - player.img:getWidth()) then
-			player.x = player.x + (player.speed*dt)
-		end
-    end
+	-- check joystick
+	if joystick ~= nil then
 
-  	 if joystick:isGamepadDown("dpup") then
-       	if player.y > 50 then
-			player.y = player.y - (player.speed*dt)
-		end
-    elseif joystick:isGamepadDown("dpdown") then
-       	if player.y < (gfx.getHeight() - 55) then
-			player.y = player.y + (player.speed*dt)
-		end
-    end
+		if joystick:isGamepadDown("dpleft") then
+				if player.x > 0 then -- binds us to the map
+					player.x = player.x - (player.speed*dt)
+				end
+			elseif joystick:isGamepadDown("dpright") then
+				if player.x < (gfx.getWidth() - player.img:getWidth()) then
+					player.x = player.x + (player.speed*dt)
+				end
+			end
 
-  end
+			if joystick:isGamepadDown("dpup") then
+				if player.y > 50 then
+					player.y = player.y - (player.speed*dt)
+				end
+			elseif joystick:isGamepadDown("dpdown") then
+				if player.y < (gfx.getHeight() - 55) then
+					player.y = player.y + (player.speed*dt)
+				end
+			end
+
+	end
 	
 	if love.keyboard.isDown('left','a') then
 		isTurningLeft = true
@@ -402,7 +416,6 @@ function love.draw(dt)
 
 	gfx.draw(backgroundImage, 0,0)
 
-
 	if showNewLevel then
 		gfx.print("LEVEL " .. tostring(playerLevel), gfx:getWidth() / 2 - 40, gfx:getHeight()/2 - 50)
 		newLevelFramesShown = newLevelFramesShown + 1
@@ -436,7 +449,8 @@ function love.draw(dt)
 	end
 
 	for i, enemy in ipairs(enemies) do
-		gfx.draw(enemy.img, enemy.x, enemy.y)
+		animPlane:draw( spritesheet1, enemy.x, enemy.y)
+		--gfx.draw(enemy.img, enemy.x, enemy.y)
 	
 	end
 

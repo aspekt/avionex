@@ -48,6 +48,8 @@ changedLevel = false
 
 expireAfterFrames = {} -- things that expire
 
+explosions = {}
+
 -- sfx
 
 
@@ -73,6 +75,36 @@ function CheckCollisionEnemy(enemy, x2,y2,w2,h2)
   return false
 
 end
+
+--https://dev.to/jeansberg/make-a-shooter-in-lualove2d---animations-and-particles
+function getBlast(size)
+	local blast = love.graphics.newCanvas(size, size)
+	love.graphics.setCanvas(blast)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.circle("fill", size/2, size/2, size/2)
+	love.graphics.setCanvas()
+	return blast
+  end
+
+function getExplosion(image)
+	pSystem = love.graphics.newParticleSystem(image, 30)
+	pSystem:setParticleLifetime(0.5, 0.5)
+	pSystem:setLinearAcceleration(-100, -100, 100, 100)
+	pSystem:setColors(255, 255, 0, 255, 255, 153, 51, 255, 64, 64, 64, 0)
+	pSystem:setSizes(0.5, 0.5)
+	return pSystem
+  end
+
+  function updateExplosions(dt)
+	for i = table.getn(explosions), 1, -1 do
+	  local explosion = explosions[i]
+	  explosion:update(dt)
+	  if explosion:getCount() == 0 then
+		table.remove(explosions, i)
+	  end
+	end
+  end
+
 
 -- Loading
 function love.load(arg)
@@ -173,6 +205,7 @@ function love.update(dt)
 	screenHeight = gfx:getHeight()
 	--psystem:update(dt)
 	animPlane:update(dt)
+	updateExplosions(dt)
 
 	-- I always start with an easy way to exit the game
 	if love.keyboard.isDown('escape') then
@@ -196,7 +229,7 @@ function love.update(dt)
 		randomImg = math.random(6);
     	kamikaze = math.random() < 0.5
 
-		newEnemy = { x = randomNumber, y = -50, img = enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, speed = enemySpeed + randomSpeed}
+		newEnemy = { x = randomNumber, y = -50, img = enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, speed = enemySpeed + randomSpeed, width = 100, height = 100}
 		table.insert(enemies, newEnemy)
 	end
 
@@ -237,6 +270,12 @@ function love.update(dt)
 				table.remove(bullets, j)
 				table.remove(enemies, i)
 				isKill = true;
+
+				local explosion = getExplosion(getBlast(60))
+				explosion:setPosition(enemy.x + enemy.width/2, enemy.y + enemy.height/2)
+				explosion:emit(20)
+				table.insert(explosions, explosion)
+
 				if (explodeSound:isPlaying()) then
 					explodeSound:rewind()
 				else
@@ -433,6 +472,13 @@ function love.draw(dt)
 			readyFramesShown = 0
 		end
 	end
+
+	-- draw explosions particle systems
+	for i = table.getn(explosions), 1, -1 do
+		local explosion = explosions[i]
+		gfx.draw(explosion, 0, 0)
+	end
+	  
 
 	-- if we killed an enemy blink the background
 	if isKill then

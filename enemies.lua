@@ -89,6 +89,7 @@ function Enemy.spawnBoss()
               speed = playerSpeed, hitCounter=20*playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1],
                willShoot = true, shootTimer = math.random(6-playerLevel) * math.random() }
   table.insert(Enemy.enemies, newBoss)
+  sfxFinishHim:play()
 end
 
 
@@ -160,9 +161,9 @@ function Enemy.enemyHit(enemy, index)
     table.remove(Enemy.enemies, index)
     isKill = true;
 
-    local explosion = getExplosion(getBlast(60))
+    local explosion = getExplosion(getBlast(80))
     explosion:setPosition(enemy.x + enemy.width/2, enemy.y + enemy.height/2)
-    explosion:emit(20)
+    explosion:emit(10)
     table.insert(explosions, explosion)
 
     if (explodeSound:isPlaying()) then

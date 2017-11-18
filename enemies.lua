@@ -51,23 +51,43 @@ function Enemy.updateTimers(dt)
       Enemy.spawnEnemy()
     end
   end
+  
+  for i, enemy in ipairs(Enemy.enemies) do
+    if enemy.willShoot then
+      enemy.shootTimer = enemy.shootTimer - (1*dt)
+      if enemy.shootTimer < 0 then
+        Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
+        if enemy.isBoss then
+          enemy.shootTimer = math.random(6-playerLevel) * math.random()
+        else
+          enemy.shootTimer = 1000
+        end
+      end
+    end
+  end
+  
 end
 
 function Enemy.spawnEnemy()
   
   randomNumber = math.random(10, gfx.getWidth() - 100)
-  randomSpeed = math.random(10, (50 * playerLevel));
-  randomImg = math.random(6);
+  randomSpeed = math.random(10, (50 * playerLevel))
+  randomImg = math.random(6)
+  willShoot = math.random(10) < playerLevel*2
   kamikaze = math.random() < 0.5
 
-  newEnemy = { x = randomNumber, y = -50, img = Enemy.enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, speed = enemySpeed + randomSpeed, width = 100, height = 100, hitCounter=1, isBoss = false, boxes=Enemy.enemyBoxes[randomImg]}
+  newEnemy = { x = randomNumber, y = -50, img = Enemy.enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, 
+               speed = enemySpeed + randomSpeed, width = 100, height = 100, hitCounter=1, isBoss = false, boxes=Enemy.enemyBoxes[randomImg],
+               willShoot = willShoot, shootTimer = math.random()}
   table.insert(Enemy.enemies, newEnemy)
   
 end
 
 function Enemy.spawnBoss()
   Enemy.bossAlive = true
-  newBoss = { x = 150, y = -150, img = Enemy.bossImgs[1], width = 304, height = 400, speed = playerSpeed, hitCounter=20*playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1]}
+  newBoss = { x = 150, y = -150, img = Enemy.bossImgs[1], width = 304, height = 400, 
+              speed = playerSpeed, hitCounter=20*playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1],
+               willShoot = true, shootTimer = math.random(6-playerLevel) * math.random() }
   table.insert(Enemy.enemies, newBoss)
 end
 

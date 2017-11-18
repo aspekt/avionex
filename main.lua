@@ -3,6 +3,7 @@ gfx = love.graphics
 
 -- https://github.com/kikito/anim8
 anim8 = require 'anim8/anim8'
+require 'ballistics'
 require 'enemies'
 require 'player'
 require 'utils'
@@ -58,7 +59,7 @@ function love.load(arg)
   Enemy.init();
 	
   Player.init();
-
+  
 	backgroundImage = gfx.newImage('assets/background.png')
 	backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
 
@@ -127,6 +128,7 @@ function love.update(dt)
   -- Update positions
   Player.updateBulletPositions(dt)
   Enemy.updatePositions(dt)
+  Ballistics.updatePositions(dt)
 
 	-- run our collision detection
 	-- Since there will be fewer enemies on screen than bullets we'll loop them first
@@ -166,13 +168,18 @@ function love.update(dt)
 				end
 			end
 		end
-
+    
 		if CheckCollisionEnemyPlayer(enemy, Player) and Player.isAlive then
 			Enemy.enemyHit(enemy, i)
       Player.dead()
 			sfxGameOver:play()
 		end
 	end
+  
+  if Ballistics.checkCollisionsPlayer(Player) and Player.isAlive then
+    Player.dead()
+		sfxGameOver:play()
+  end
 
 	-- use mouse instead of kb
 	--player.x = love.mouse.getX() 
@@ -247,6 +254,8 @@ function love.draw(dt)
   Player.drawAll()
 
   Enemy.drawAll()
+  
+  Ballistics.drawAll()
 
 	gfx.setColor(255, 255, 255)
 	gfx.print("SCORE: " .. tostring(score), gfx:getWidth() - 100, 10)

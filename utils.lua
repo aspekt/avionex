@@ -39,6 +39,10 @@ function CheckCollisionEnemyPlayer(enemy, player)
   return CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), player.x, player.y, player.img:getWidth(), player.img:getHeight())
 end
 
+function CheckCollisionShotPlayer(shot, player)
+  return CheckCollision(shot.x-shot.radius/2+1, shot.y-shot.radius/2+1, shot.radius-1, shot.radius-1, player.x, player.y, player.width, player.height)
+end
+
 -- sfx
 --https://dev.to/jeansberg/make-a-shooter-in-lualove2d---animations-and-particles
 function getBlast(size)

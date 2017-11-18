@@ -19,6 +19,9 @@ function Player.init()
 	Player.img_right = gfx.newImage('assets/player-right.png')
 	Player.img_left = gfx.newImage('assets/player-left.png')
   
+  Player.width = Player.img:getWidth()
+  Player.height = Player.img:getHeight()
+  
   Player.bulletImgs = {gfx.newImage('assets/bullet.png'),
 				gfx.newImage('assets/bullet_orange.png'),
 				gfx.newImage('assets/bullet_purple.png'),
@@ -121,7 +124,7 @@ function Player.updateMove(dt)
 end
 
 function Player.updateShot(dt)
-  if Player.canShoot and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
+  if Player.isAlive and Player.canShoot and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
 		-- Create some bullets
 
 		bulletSpeed = baseBulletSpeed + (playerLevel * 20)

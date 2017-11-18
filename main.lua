@@ -3,11 +3,10 @@ gfx = love.graphics
 
 -- https://github.com/kikito/anim8
 anim8 = require 'libs/anim8/anim8'
+require 'ballistics'
 require 'enemies'
 require 'player'
 require 'utils'
-require 'libs/timer'
---local lue = require "libs/lue/lue" --require the library
 
 debug = true
 
@@ -20,7 +19,6 @@ enemySpeed = 150
 playerSpeed = 250
 kamikazeSpeed = 50
 baseBulletSpeed = 250
-FPS = 0
 
 -- Player Object
 Player.x = 250; Player.y = 710; Player.speed = playerSpeed
@@ -42,21 +40,14 @@ osName = love.system.getOS()
 changedLevel = false
 
 expireAfterFrames = {} -- things that expire
-explosions = {}
 
-textsInScreen = {} -- all texts on screen that expire
-playerLevelTextPos = {x = 0, y = 0, duration = 3}
+explosions = {}
 
 -- Loading
 function love.load(arg)
   
-  	if arg[#arg] == "-debug" then require("mobdebug").start() end
-	love.math.setRandomSeed(love.timer.getTime())
-
-
-
-	--lue:setColor("my-color", {200, 100, 255})
-
+  if arg[#arg] == "-debug" then require("mobdebug").start() end
+  
   -- love.window.setFullscreen(true, "desktop")
 	-- love.window.setMode(0,0,{resizable = true,vsync = true}) 
 	local joysticks = love.joystick.getJoysticks()
@@ -65,9 +56,10 @@ function love.load(arg)
 	end
 	
   -- Initialize all enemy stuff
-	Enemy.init();
-	Player.init();
-
+  Enemy.init();
+	
+  Player.init();
+  
 	backgroundImage = gfx.newImage('assets/background.png')
 	backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
 
@@ -81,12 +73,12 @@ function love.load(arg)
 	--killerCombo = love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static")
 	--ultraCombo = love.audio.newSource("assets/KI_Sounds_Ultra_Combo.mp3", "static")
 	showNoMercy = love.audio.newSource("assets/ShowNoMercy.wav", "static")
-
+	
 	sfxReady = love.audio.newSource("assets/Ready.mp3", "static")
 	sfxGameOver = love.audio.newSource("assets/GameOver.mp3", "static")
 
 	sfxPerfect =  love.audio.newSource("assets/Perfect.mp3", "static")
-	sfxFinishHim = love.audio.newSource("assets/mk1-finishhim.mp3", "static")
+  sfxFinishHim = love.audio.newSource("assets/mk1-finishhim.mp3", "static")
 
 	sfxCombos = { love.audio.newSource("assets/KI_Sounds_Triple_Combo.mp3", "static"),
 					love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static"),
@@ -97,42 +89,34 @@ function love.load(arg)
 
 	music = love.audio.newSource("assets/22.-trailblazer-original-arcade-soundtrack-.mp3") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
 	music:setLooping(true)
-	music:setVolume(0.7) -- so player can hear the sfx at 100% volume
 	music:play()
 
-	sfxReady:play() -- ready sfx
+	sfxReady:play()
 	
 --	font = gfx.newFont(14) -- the number denotes the font size
-	gfx.setNewFont("assets/octab-017.ttf", 26)
+	gfx.setNewFont("assets/gomarice_no_continue.ttf", 20)
+	showTextReady = true
+	showNewLevel = true
 
-	ShowText("READY!", gfx:getWidth() / 2 - 40, 400, 3)
-	
-	-- get and set where we are shoing changed level texts
-	playerLevelTextPos.x = gfx:getWidth() / 2 - 40
-	playerLevelTextPos.y = 430
-
-	ShowText("LEVEL 1", playerLevelTextPos.x, playerLevelTextPos.y, playerLevelTextPos.duration)
-
-	--psystem = gfx.newParticleSystem(Player.img, 32)
-	--psystem:setParticleLifetime(1, 3) -- Particles live at least 2s and at most 5s.
-	--psystem:setEmissionRate(5)
-	--psystem:setSizeVariation(1)
-	--psystem:setLinearAcceleration(-20, -20, 20, 20) -- Random movement in all directions.
-	--psystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
+	psystem = gfx.newParticleSystem(Player.img, 32)
+	psystem:setParticleLifetime(1, 3) -- Particles live at least 2s and at most 5s.
+	psystem:setEmissionRate(5)
+	psystem:setSizeVariation(1)
+	psystem:setLinearAcceleration(-20, -20, 20, 20) -- Random movement in all directions.
+	psystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
 
 	--canShootTimer = bulletShootTimer(playerLevel)
 end
 
+
 -- Updating
-
 function love.update(dt)
- 	--lue:update(dt)
-	screenHeight = gfx:getHeight()
 
+	screenHeight = gfx:getHeight()
 	--psystem:update(dt)
 	animPlane:update(dt)
 	updateExplosions(dt)
-	
+
 	-- I always start with an easy way to exit the game
 	if love.keyboard.isDown('escape') then
 		love.event.push('quit')
@@ -140,11 +124,12 @@ function love.update(dt)
 
   -- First update timers
 	Player.updateTimers(dt)
-  	Enemy.updateTimers(dt)
+  Enemy.updateTimers(dt)
   
-	-- Update positions
-	Player.updateBulletPositions(dt)
-	Enemy.updatePositions(dt)
+  -- Update positions
+  Player.updateBulletPositions(dt)
+  Enemy.updatePositions(dt)
+  Ballistics.updatePositions(dt)
 
 	-- run our collision detection
 	-- Since there will be fewer enemies on screen than bullets we'll loop them first
@@ -153,44 +138,49 @@ function love.update(dt)
 		for j, bullet in ipairs(Player.bullets) do
 			if CheckCollisionEnemyBullet(enemy, bullet) then
         
-				Player.bulletHit(j)
-				enemyKilled = Enemy.enemyHit(enemy, i)
+        Player.bulletHit(j)
+        enemyKilled = Enemy.enemyHit(enemy, i)
 				
 				score = score + 1
 				
 				-- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
-				if (score % 20 == 0) then
+				if (score % 10 == 0) then
 					sfxCombos[math.random(6)]:play()
-
 				end
 
 				-- if boss killed, go up level
-				if enemy.isBoss and enemyKilled then
-				if (playerLevel < 5) then -- fixme: solo tenes 5 levels... 
+        if enemy.isBoss and enemyKilled then
+          if (playerLevel < 5) then -- fixme: solo tenes 5 levels... 
 						playerLevel = playerLevel + 1
-						ShowText("LEVEL "..playerLevel, playerLevelTextPos.x, playerLevelTextPos.y, playerLevelTextPos.duration)			
+						showNewLevel = true					
 						changedLevel = true;
 					end
           
 				else
-					-- after 20 hits, spawn boss
-					if Enemy.enemiesKilled % 20 == 0 then 
-						sfxPerfect:play()
-					
-						if not Enemy.bossAlive then
-						Enemy.spawnBoss()
-						end
-					end
+          -- after 20 hits, spawn boss
+          if Enemy.enemiesKilled % 20 == 0 then 
+            sfxPerfect:play()
+          
+            if not Enemy.bossAlive then
+              Enemy.spawnBoss()
+            end
+          end
+          
 				end
 			end
 		end
-
+    
 		if CheckCollisionEnemyPlayer(enemy, Player) and Player.isAlive then
 			Enemy.enemyHit(enemy, i)
-      		Player.dead()
+      Player.dead()
 			sfxGameOver:play()
 		end
 	end
+  
+  if Ballistics.checkCollisionsPlayer(Player) and Player.isAlive then
+    Player.dead()
+		sfxGameOver:play()
+  end
 
 	-- use mouse instead of kb
 	--player.x = love.mouse.getX() 
@@ -198,13 +188,13 @@ function love.update(dt)
 	
   --camera:setPosition(love.mouse.getX() * 2, love.mouse.getY() * 2)
 
-	Player.updateMove(dt)
-	Player.updateShot(dt)
-	
+  Player.updateMove(dt)
+  Player.updateShot(dt)
+  
 	if not Player.isAlive and love.keyboard.isDown('r') then
 		-- Reset players and enemies
 		Player.reset()
-    	Enemy.reset()
+    Enemy.reset()
 		
 		-- reset our game state
 		score = 0
@@ -216,28 +206,6 @@ function love.update(dt)
 		sfxReady:play()
 		isAlive = true
 	end
-
-	if joystick ~= nil and joystick:isDown(3) then
-		Player.speed = Player.speed * 2 -- double speed
-	end
-
-	for i = table.getn(textsInScreen), 1, -1 do
-		local t = textsInScreen[i]
-		if (t.timeleft >= 0) then
-			t.timeleft = t.timeleft - dt
-			if (t.timeleft >-1 and t.timeleft <= 0) then
-				table.remove(textsInScreen, i)
-			end
-		end
-	end
-
-
-end
-
-function ShowText(text, x, y, timeout) 
-	-- timeout -1 means permanent, else dissapers afer timeout seconds
-	local t = {text = text, x = x, y = y, timeleft = timeout}
-	table.insert(textsInScreen, t)
 end
 
 
@@ -246,14 +214,25 @@ newLevelFramesShown = 0
 
 -- Drawing
 function love.draw(dt)
-	FPS = love.timer.getFPS()
-	
-	gfx.draw(backgroundImage, (250-Player.x)/50,(600-Player.y)/50)
-	--love.graphics.setColor( lue:getColor("my-color") )
 
-	for i = table.getn(textsInScreen), 1, -1 do
-		local t = textsInScreen[i]
-		gfx.print(t.text, t.x, t.y)
+	gfx.draw(backgroundImage, (250-Player.x)/50,(600-Player.y)/50)
+
+	if showNewLevel then
+		gfx.print("LEVEL " .. tostring(playerLevel), gfx:getWidth() / 2 - 40, gfx:getHeight()/2 - 50)
+		newLevelFramesShown = newLevelFramesShown + 1
+		if newLevelFramesShown >= (3 * 60) then	
+			showNewLevel = false
+			newLevelFramesShown = 0
+		end
+	end
+
+	if showTextReady then
+		gfx.print("READY!", gfx:getWidth() / 2 - 40, gfx:getHeight()/2)
+		readyFramesShown = readyFramesShown + 1
+		if readyFramesShown >= (3 * 60) then	
+			showTextReady = false
+			readyFramesShown = 0
+		end
 	end
 
 	-- draw explosions particle systems
@@ -273,25 +252,29 @@ function love.draw(dt)
 		--gfx.setBackgroundColor(0, 0, 0)
 	end
 
-	Player.drawAll()
-	Enemy.drawAll()
+  Player.drawAll()
 
-	-- DRAW STATIC GUI
+  Enemy.drawAll()
+  
+  Ballistics.drawAll()
+
 	gfx.setColor(255, 255, 255)
-	gfx.print("SCORE: " .. tostring(score), gfx:getWidth() - 120, 10)
-	gfx.print("LEVEL: " .. tostring(playerLevel),9, 10 )
+	gfx.print("SCORE: " .. tostring(score), gfx:getWidth() - 100, 10)
+	gfx.print("LEVEL: " .. tostring(playerLevel), gfx:getWidth() - 100, 30)
 	gfx.print("MISSED: " .. tostring(missedEnemies), gfx:getWidth() - 100, gfx:getHeight() - 30)
 	gfx.print("FIRED: " .. tostring(shotsFired), 10, gfx:getHeight() - 30)
+
 
 	if not Player.isAlive then
 		gfx.print("GAME OVER",gfx:getWidth()/2-40, gfx:getHeight()/2)
 		gfx.print("Press 'R' to restart", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
 	end
 
-	gfx.print("KILLER SKIES", gfx:getWidth()/2-60, 10)
+	gfx.print("AVIONEX", gfx:getWidth()/2-60, 10)
 
 	if debug then
-		gfx.print("FPS: "..tostring(FPS), gfx:getWidth() / 2 - 40, 35)
+		fps = tostring(love.timer.getFPS())
+		gfx.print("FPS: "..fps, 9, 10)
 	end
 end
 

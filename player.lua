@@ -11,7 +11,8 @@ Player = {
   isTurningLeft = false,
 	bulletImgs = nil,
 	width = 100,
-	height = 100
+	height = 100,
+  boxes = {{9,15,91,29},{44,7,20,81}}
 }
 
 function Player.init()

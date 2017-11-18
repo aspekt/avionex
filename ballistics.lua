@@ -6,30 +6,48 @@ function Ballistics.shootAtPlayer(x,y,player)
   
   x1 = player.x + player.width/2
   y1 = player.y + player.height/2
+  speed = 3+playerLevel
   
-  d = math.sqrt((x1 - x)^2+(y1-y)^2)
-  dt = 3 + playerLevel
-  t = dt/d
+  vector = createDirectionVector(x,y,x1,y1,speed)
   
-  vX = (1-t)*x + t*x1 - x
-  vY = (1-t)*y + t*y1 - y
-  
-  Ballistics.createShot(x,y,vX,vY,1)
+  Ballistics.createShot(x,y,vector[1],vector[2],1)
 end
 
 function Ballistics.threeShotDown(x,y)
+  speed = 2+playerLevel
   
+  -- Straight Shot
+  vector = createDirectionVector(x,y,x,y+100,speed)
+  Ballistics.createShot(x,y,vector[1],vector[2],1)
+  
+  -- To the left
+  vector = createDirectionVector(x,y,x-30,y+100,speed)
+  Ballistics.createShot(x,y,vector[1],vector[2],1)
+  
+  -- To the right
+  vector = createDirectionVector(x,y,x+30,y+100,speed)
+  Ballistics.createShot(x,y,vector[1],vector[2],1)
 end
 
 function Ballistics.createShot(x,y,vX,vY,shotType) 
-    newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=5}
+    newShot = nil
+    if shotType == 1 then
+      newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=5}
+    else
+      newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=10}
+    end
     table.insert(Ballistics.shots, newShot)
 end
 
 function Ballistics.updatePositions(dt)
   for i, shot in ipairs(Ballistics.shots) do
-		shot.x = shot.x + shot.vX;
-    shot.y = shot.y + shot.vY;
+    
+    if shot.y + shot.radius > screenHeight or shot.x + shot.radius > screenWidth or shot.x - shot.radius < 0 then -- remove enemies when they pass off the screen
+			table.remove(Ballistics.shots, i)
+		else
+      shot.x = shot.x + shot.vX;
+      shot.y = shot.y + shot.vY;
+    end
 	end
 end
 
@@ -50,7 +68,11 @@ function Ballistics.checkCollisionsPlayer(player)
 end
 
 function Ballistics.drawShot(shot)
-  gfx.setColor(255, 255, 255)
+  if shot.shotType == 1 then
+    gfx.setColor(255, 255, 255)
+  else
+    gfx.setColor(255, 0, 0)
+  end
   gfx.circle("fill", shot.x, shot.y, shot.radius, 5) -- Draw white circle with 100 segments.
 end
 

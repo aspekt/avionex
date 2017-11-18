@@ -36,11 +36,21 @@ function CheckCollisionEnemyBullet(enemy, bullet)
 end
 
 function CheckCollisionEnemyPlayer(enemy, player)
-  return CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), player.x, player.y, player.img:getWidth(), player.img:getHeight())
+  for i, box in ipairs(player.boxes) do
+    if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), player.x+box[1], player.y+box[2], box[3], box[4]) then
+      return true
+    end
+  end
+  return false
 end
 
 function CheckCollisionShotPlayer(shot, player)
-  return CheckCollision(shot.x-shot.radius/2+1, shot.y-shot.radius/2+1, shot.radius-1, shot.radius-1, player.x, player.y, player.width, player.height)
+  for i, box in ipairs(player.boxes) do
+    if CheckCollision(shot.x-shot.radius/2+1, shot.y-shot.radius/2+1, shot.radius-1, shot.radius-1, player.x+box[1], player.y+box[2], box[3], box[4]) then
+      return true
+    end
+  end
+  return false
 end
 
 -- sfx
@@ -71,4 +81,17 @@ function updateExplosions(dt)
 		table.remove(explosions, i)
 	  end
 	end
+end
+
+function createDirectionVector(x,y,x1,y1,speed)
+  
+  d = math.sqrt((x1 - x)^2+(y1-y)^2)
+  dt = speed
+  t = dt/d
+  
+  vX = (1-t)*x + t*x1 - x
+  vY = (1-t)*y + t*y1 - y
+  
+  return {vX, vY}
+  
 end

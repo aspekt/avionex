@@ -129,6 +129,7 @@ end
 function love.update(dt)
  	--lue:update(dt)
 	screenHeight = gfx:getHeight()
+  screenWidth = gfx:getWidth()
 
 	--psystem:update(dt)
 	animPlane:update(dt)

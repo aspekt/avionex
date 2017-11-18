@@ -56,7 +56,14 @@ function Enemy.updateTimers(dt)
     if enemy.willShoot then
       enemy.shootTimer = enemy.shootTimer - (1*dt)
       if enemy.shootTimer < 0 then
-        Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
+        
+        local shotType = math.random(2)
+        if shotType == 1 then
+          Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
+        else
+          Ballistics.threeShotDown(enemy.x + enemy.width/2, enemy.y+enemy.height)
+        end
+      
         if enemy.isBoss then
           enemy.shootTimer = math.random(6-playerLevel) * math.random()
         else

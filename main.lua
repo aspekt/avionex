@@ -2,7 +2,7 @@
 gfx = love.graphics
 
 -- https://github.com/kikito/anim8
-anim8 = require 'anim8/anim8'
+anim8 = require 'libs/anim8/anim8'
 require 'ballistics'
 require 'enemies'
 require 'player'
@@ -78,6 +78,7 @@ function love.load(arg)
 	sfxGameOver = love.audio.newSource("assets/GameOver.mp3", "static")
 
 	sfxPerfect =  love.audio.newSource("assets/Perfect.mp3", "static")
+  sfxFinishHim = love.audio.newSource("assets/mk1-finishhim.mp3", "static")
 
 	sfxCombos = { love.audio.newSource("assets/KI_Sounds_Triple_Combo.mp3", "static"),
 					love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static"),

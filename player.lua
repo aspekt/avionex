@@ -37,7 +37,6 @@ function Player.updateTimers(dt)
 end
 
 
-
 function Player.updateBulletPositions(dt)
   for index, bullet in ipairs(Player.bullets) do
 		bullet.y = bullet.y - (bullet.speed * dt)
@@ -55,7 +54,7 @@ end
 function Player.dead()
   Player.isAlive = false
 	explodePlayer:play()
-	local explosion = getExplosion(getBlast(200))
+	local explosion = getExplosion(getBlast(300))
 	explosion:setPosition(Player.x + Player.width/2, Player.y + Player.height/2)
 	explosion:emit(20)
 	table.insert(explosions, explosion)
@@ -141,8 +140,9 @@ function Player.updateShot(dt)
 		if (playerLevel == 3) then
 			newBullet3 = { x = Player.x + (Player.img:getWidth()/2 - 20), y = Player.y, img = Player.bulletImgs[3], speed = bulletSpeed }
 			newBullet4 = { x = Player.x + (Player.img:getWidth()/2 + 10), y = Player.y, img = Player.bulletImgs[3], speed = bulletSpeed }
-			shotsFired = shotsFired + 2
-		
+			shotsFired = shotsFired + 1
+			shotsFired = shotsFired + 1
+
 			table.insert(Player.bullets, newBullet3)
 			table.insert(Player.bullets, newBullet4)
 			

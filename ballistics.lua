@@ -14,19 +14,19 @@ function Ballistics.shootAtPlayer(x,y,player)
 end
 
 function Ballistics.threeShotDown(x,y)
-  speed = 2+playerLevel
+  speed = 2+playerLevel/2
   
   -- Straight Shot
   vector = createDirectionVector(x,y,x,y+100,speed)
-  Ballistics.createShot(x,y,vector[1],vector[2],1)
+  Ballistics.createShot(x,y,vector[1],vector[2],2)
   
   -- To the left
   vector = createDirectionVector(x,y,x-30,y+100,speed)
-  Ballistics.createShot(x,y,vector[1],vector[2],1)
+  Ballistics.createShot(x,y,vector[1],vector[2],2)
   
   -- To the right
   vector = createDirectionVector(x,y,x+30,y+100,speed)
-  Ballistics.createShot(x,y,vector[1],vector[2],1)
+  Ballistics.createShot(x,y,vector[1],vector[2],2)
 end
 
 function Ballistics.createShot(x,y,vX,vY,shotType) 
@@ -34,7 +34,7 @@ function Ballistics.createShot(x,y,vX,vY,shotType)
     if shotType == 1 then
       newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=5}
     else
-      newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=10}
+      newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=8}
     end
     table.insert(Ballistics.shots, newShot)
 end
@@ -71,9 +71,9 @@ function Ballistics.drawShot(shot)
   if shot.shotType == 1 then
     gfx.setColor(255, 255, 255)
   else
-    gfx.setColor(255, 0, 0)
+    gfx.setColor(28, 235, 247)
   end
-  gfx.circle("fill", shot.x, shot.y, shot.radius, 5) -- Draw white circle with 100 segments.
+  gfx.circle("fill", shot.x, shot.y, shot.radius, 8) -- Draw white circle with 100 segments.
 end
 
 function Ballistics.reset()

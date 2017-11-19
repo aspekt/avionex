@@ -19,6 +19,11 @@ function Enemy.init()
 	animPlane = anim8.newAnimation(g64(1,'1-3'), 0.1)
 	animPlane:flipV() -- look down
 
+  spriteSheetAsteroid = gfx.newImage('assets/asteroid_01_no_moblur.png')
+  local a64 = anim8.newGrid(128,128, 1024, 1024)
+  animAsteroid = anim8.newAnimation(a64('1-8', '1-8'), 0.1)
+  
+
 
   Enemy.enemyImgs = {gfx.newImage('assets/aircraft01.png'),
 				gfx.newImage('assets/aircraft02.png'), 
@@ -87,6 +92,13 @@ function Enemy.spawnEnemy()
   newEnemy = { x = randomNumber, y = -50, img = Enemy.enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, 
                speed = enemySpeed + randomSpeed, width = 100, height = 100, hitCounter=1, isBoss = false, boxes=Enemy.enemyBoxes[randomImg],
                willShoot = willShoot, shootTimer = math.random()}
+             
+             
+  --todo temp por asteroids
+  if not willShoot then
+    newEnemy.boxes = {{20,20,88,88}}
+  end
+  
   table.insert(Enemy.enemies, newEnemy)
   
 end
@@ -102,9 +114,6 @@ function Enemy.spawnBoss()
   sfxFinishHim:play()
 end
 
-
-
-
 function Enemy.updatePositions(dt)
   for i, enemy in ipairs(Enemy.enemies) do
 		if not enemy.isBoss then
@@ -113,6 +122,7 @@ function Enemy.updatePositions(dt)
       Enemy.moveBoss(enemy, dt)
     end
 	end
+  animAsteroid:update(dt)
 end
 
 function Enemy.moveEnemy(enemy, index, dt)
@@ -172,7 +182,11 @@ function Enemy.draw(enemy, index)
       
       --timer.after (0.1, function ()  end) -- no funca
     else
-      gfx.draw(enemy.img, enemy.x, enemy.y)           
+      if (not enemy.isBoss and not enemy.willShoot) then
+        animAsteroid:draw(spriteSheetAsteroid, enemy.x, enemy.y)
+      else
+        gfx.draw(enemy.img, enemy.x, enemy.y)           
+      end
     end
 
 end

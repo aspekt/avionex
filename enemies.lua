@@ -90,6 +90,7 @@ function Enemy.spawnEnemy()
   table.insert(Enemy.enemies, newEnemy)
   
 end
+local currentBoss = nil
 
 function Enemy.spawnBoss()
   Enemy.bossAlive = true
@@ -97,8 +98,11 @@ function Enemy.spawnBoss()
               speed = playerSpeed, hitCounter=20*playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1],
                willShoot = true, shootTimer = math.random(6-playerLevel) * math.random() }
   table.insert(Enemy.enemies, newBoss)
+  currentBoss = newBoss
   sfxFinishHim:play()
 end
+
+
 
 
 function Enemy.updatePositions(dt)
@@ -164,7 +168,9 @@ function Enemy.draw(enemy, index)
       gfx.setColor(lue:getHueColor(200, 100))
       gfx.draw(enemy.img, enemy.x, enemy.y)     
       gfx.pop() -- restore the saved love.graphics state
-      --timer.after (0.1, function () Enemy.enemies[i].isHit = false end) -- no funca
+      Timer.after(0.2, function() currentBoss.isHit = false end)
+      
+      --timer.after (0.1, function ()  end) -- no funca
     else
       gfx.draw(enemy.img, enemy.x, enemy.y)           
     end

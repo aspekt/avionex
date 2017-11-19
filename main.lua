@@ -6,7 +6,7 @@ anim8 = require 'libs/anim8/anim8'
 require 'enemies'
 require 'player'
 require 'utils'
-timer = require 'libs/timer'
+Timer = require 'libs/timer'
 require 'ballistics'
 lue = require "libs/lue/lue" --require the library
 
@@ -43,7 +43,6 @@ missedEnemies = 0
 osName = love.system.getOS()
 changedLevel = false
 
-expireAfterFrames = {} -- things that expire
 explosions = {}
 
 textsInScreen = {} -- all texts on screen that expire
@@ -54,6 +53,7 @@ function love.load(arg)
   
   	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
+
 
 	lue:setColor("my-color", {200, 100, 255})
 
@@ -126,7 +126,8 @@ end
 -- Updating
 
 function love.update(dt)
- 	--lue:update(dt)
+	 --lue:update(dt)
+	 Timer.update(dt)
 	screenHeight = gfx:getHeight()
   screenWidth = gfx:getWidth()
 

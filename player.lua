@@ -127,7 +127,7 @@ function Player.updateShot(dt)
   if Player.isAlive and Player.canShoot and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
 		-- Create some bullets
 
-		bulletSpeed = baseBulletSpeed + (playerLevel * 20)
+		bulletSpeed = currentBulletSpeed + (playerLevel * 20)
 
 		newBullet1 = { x = Player.x + (Player.img:getWidth()/2 - 10), y = Player.y, img = Player.bulletImgs[1], speed = bulletSpeed }
 		shotsFired = shotsFired + 1

@@ -5,7 +5,8 @@ Enemy = {
   createEnemyTimer = 0,
   bossImgs = nil,
   bossAlive = false,
-  enemiesKilled = 0
+  enemiesKilled = 0,
+  isHit = false -- a player bullet has hit this enemy
 }
 
 function Enemy.init()
@@ -142,13 +143,25 @@ end
 
 function Enemy.drawAll()
   for i, enemy in ipairs(Enemy.enemies) do
-    Enemy.draw(enemy)
+    Enemy.draw(enemy, i)
 	end
 end
 
-function Enemy.draw(enemy)
+function Enemy.draw(enemy, index)
+  
   --animPlane:draw( spritesheet1, enemy.x, enemy.y)
-  gfx.draw(enemy.img, enemy.x, enemy.y)
+  
+    -- if enemy boss is hit then change hue to red so it shows some blooood
+    if (enemy.isBoss and enemy.isHit) then
+      gfx.push() -- save all love.graphics state so any changes can be restored
+      gfx.setColor(lue:getHueColor(200, 100))
+      gfx.draw(enemy.img, enemy.x, enemy.y)     
+      gfx.pop() -- restore the saved love.graphics state
+      --timer.after (0.1, function () Enemy.enemies[i].isHit = false end) -- no funca
+    else
+      gfx.draw(enemy.img, enemy.x, enemy.y)           
+    end
+
 end
 
 function Enemy.enemyHit(enemy, index)

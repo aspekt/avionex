@@ -6,9 +6,9 @@ anim8 = require 'libs/anim8/anim8'
 require 'enemies'
 require 'player'
 require 'utils'
-require 'libs/timer'
+timer = require 'libs/timer'
 require 'ballistics'
---local lue = require "libs/lue/lue" --require the library
+lue = require "libs/lue/lue" --require the library
 
 debug = true
 
@@ -21,6 +21,7 @@ enemySpeed = 150
 playerSpeed = 250
 kamikazeSpeed = 50
 baseBulletSpeed = 250
+currentBulletSpeed = baseBulletSpeed
 FPS = 0
 
 -- Player Object
@@ -35,7 +36,7 @@ isKill = false
 playerLevel = 1
 
 bulletSpeeds = {250, 300, 400, 500, 500} -- FIXME: Cambiar esto por algo decente y que sea dinamico
-bulletShootTimer = {0.4, 0.35, 0.30, 0.25, 0.20} -- FIXME: Igual que arriba
+bulletShootTimer = {0.2, 0.15, 0.1, 0.1, 0.1} -- FIXME: Igual que arriba
 
 -- music
 missedEnemies = 0
@@ -54,12 +55,10 @@ function love.load(arg)
   	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
 
-
-
-	--lue:setColor("my-color", {200, 100, 255})
+	lue:setColor("my-color", {200, 100, 255})
 
   -- love.window.setFullscreen(true, "desktop")
-	-- love.window.setMode(0,0,{resizable = true,vsync = true}) 
+	--love.window.setMode(0,0,{resizable = true,vsync = true}) 
 	local joysticks = love.joystick.getJoysticks()
 	if (table.getn(joysticks) > 0) then 
 		joystick = joysticks[1] -- get first stick 
@@ -167,18 +166,22 @@ function love.update(dt)
 				end
 
 				-- if boss killed, go up level
-				if enemy.isBoss and enemyKilled then
-				if (playerLevel < 5) then -- fixme: solo tenes 5 levels... 
-						playerLevel = playerLevel + 1
-						ShowText("LEVEL "..playerLevel, playerLevelTextPos.x, playerLevelTextPos.y, playerLevelTextPos.duration)			
-						changedLevel = true;
+				if enemy.isBoss then
+					enemy.isHit = true
+
+					if enemyKilled then
+						if (playerLevel < 5) then -- fixme: solo tenes 5 levels... 
+							playerLevel = playerLevel + 1
+							ShowText("LEVEL "..playerLevel, playerLevelTextPos.x, playerLevelTextPos.y, playerLevelTextPos.duration)			
+							changedLevel = true;
+						end
 					end
           
 				else
 					-- after 20 hits, spawn boss
 					if Enemy.enemiesKilled % 20 == 0 then 
 						sfxPerfect:play()
-					
+
 						if not Enemy.bossAlive then
 						Enemy.spawnBoss()
 						end
@@ -224,8 +227,11 @@ function love.update(dt)
 		isAlive = true
 	end
 
-	if joystick ~= nil and joystick:isDown(3) then
+	-- check for super speed boost
+	currentBulletSpeed = baseBulletSpeed
+	if (joystick ~= nil and joystick:isDown(3)) or love.keyboard.isDown("lshift") then
 		Player.speed = Player.speed * 2 -- double speed
+		currentBulletSpeed = baseBulletSpeed * 2
 	end
 
 	for i = table.getn(textsInScreen), 1, -1 do
@@ -256,7 +262,6 @@ function love.draw(dt)
 	FPS = love.timer.getFPS()
 	
 	gfx.draw(backgroundImage, (250-Player.x)/50,(600-Player.y)/50)
-	--love.graphics.setColor( lue:getColor("my-color") )
 
 	for i = table.getn(textsInScreen), 1, -1 do
 		local t = textsInScreen[i]
@@ -267,17 +272,6 @@ function love.draw(dt)
 	for i = table.getn(explosions), 1, -1 do
 		local explosion = explosions[i]
 		gfx.draw(explosion, 0, 0)
-	end
-	  
-
-	-- if we killed an enemy blink the background
-	if isKill then
-		--gfx.draw(backgroundImageIverted, 0,0)
-		--gfx.setBackgroundColor(255, 255, 255)
-		isKill = false
-	else
-		--gfx.draw(backgroundImage, 0,0)
-		--gfx.setBackgroundColor(0, 0, 0)
 	end
 
 	Player.drawAll()

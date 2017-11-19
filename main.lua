@@ -3,14 +3,18 @@ gfx = love.graphics
 
 -- https://github.com/kikito/anim8
 anim8 = require 'libs/anim8/anim8'
+socket = require("socket")
+http = require("socket.http")
+json = require "libs/json"
+
 require 'enemies'
 require 'player'
 require 'utils'
+require 'leaderboard'
 Timer = require 'libs/timer'
 require 'ballistics'
 lue = require "libs/lue/lue" --require the library
-local socket = require("socket")
-local http = require("socket.http")
+
 
 debug = true
 
@@ -51,17 +55,8 @@ textsInScreen = {} -- all texts on screen that expire
 playerLevelTextPos = {x = 0, y = 0, duration = 3}
 isGamePaused = false
 
-function loadLeaderboard() 
+playerInitials = "DIE" -- hay que pedir esto por teclado una vez al menos y guardarlo
 
-	http.request{ 
-		url = "https://api.mlab.com/api/1/databases/killerplanes/collections/leaderboard?apiKey=o-eEbX6f8uOnIMBAaC_wKWNobsCpz9L8", 
-		sink = ltn12.sink.file(io.stdout),
-		redirect = true
-	}
-
-
-
-end
 -- Loading
 function love.load(arg)
   
@@ -69,7 +64,8 @@ function love.load(arg)
   	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
 
-
+	loadLeaderboard()
+	
 	lue:setColor("my-color", {200, 100, 255})
 
   -- love.window.setFullscreen(true, "desktop")
@@ -324,5 +320,10 @@ function love.draw(dt)
 	if debug then
 		gfx.print("FPS: "..tostring(FPS), gfx:getWidth() / 2 - 40, 35)
 	end
+
+	if (isGamePaused) then
+		drawLeaderboard()
+	end
+
 end
 

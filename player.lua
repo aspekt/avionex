@@ -62,6 +62,7 @@ function Player.dead()
 	explosion:setPosition(Player.x + Player.width/2, Player.y + Player.height/2)
 	explosion:emit(20)
 	table.insert(explosions, explosion)
+	saveScore(playerInitials)
 end
 
 function Player.updateMove(dt)

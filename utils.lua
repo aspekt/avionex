@@ -46,7 +46,7 @@ end
 
 function CheckCollisionShotPlayer(shot, player)
   for i, box in ipairs(player.boxes) do
-    if CheckCollision(shot.x-shot.radius/2+1, shot.y-shot.radius/2+1, shot.radius-1, shot.radius-1, player.x+box[1], player.y+box[2], box[3], box[4]) then
+    if player.isAlive and CheckCollision(shot.x-shot.radius/2+1, shot.y-shot.radius/2+1, shot.radius-1, shot.radius-1, player.x+box[1], player.y+box[2], box[3], box[4]) then
       return true
     end
   end

@@ -85,7 +85,7 @@ function love.load(arg)
 	-- sfx
 	--bgm = love.audio.play("assets/music.wav", "stream", true) -- stream and loop background music
 	gunSound = love.audio.newSource("assets/gun-sound.wav", "static")
-	explodeSound = love.audio.newSource("assets/explode.wav", "static")
+	explodeSound = love.audio.newSource("assets/explodemini.wav", "static")
 	explodePlayer = love.audio.newSource("assets/explode.wav", "static")
 --	masterCombo = love.audio.newSource("assets/master_combo.mp3", "static")
 	comboBreaker = love.audio.newSource("assets/KI_Sounds_Combo_Breaker.mp3", "static")
@@ -105,6 +105,8 @@ function love.load(arg)
 					love.audio.newSource("assets/KI_Sounds_Ultra_Combo.mp3", "static"),
 					love.audio.newSource("assets/KI_Sounds_Brutal_Combo.mp3", "static"),
 					love.audio.newSource("assets/ShowNoMercy.wav", "static")}
+	sfxBlast = love.audio.newSource("assets/blast.wav", "static")
+	sfxThreeShotDown = love.audio.newSource("assets/3shotsdown.wav", "static")
 
 	music = love.audio.newSource("assets/22.-trailblazer-original-arcade-soundtrack-.mp3") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
 	music:setLooping(true)

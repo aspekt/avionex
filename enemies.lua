@@ -23,6 +23,8 @@ function Enemy.init()
   local a64 = anim8.newGrid(128,128, 1024, 1024)
   animAsteroid = anim8.newAnimation(a64('1-8', '1-8'), 0.06)
   
+
+
   Enemy.enemyImgs = {gfx.newImage('assets/aircraft01.png'),
 				gfx.newImage('assets/aircraft02.png'), 
 				gfx.newImage('assets/aircraft03.png'),
@@ -63,9 +65,12 @@ function Enemy.updateTimers(dt)
         
         local shotType = math.random(2)
         if shotType == 1 then
+          sfxBlast:play()                    
           Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
         else
+          sfxThreeShotDown:play()          
           Ballistics.threeShotDown(enemy.x + enemy.width/2, enemy.y+enemy.height)
+          
         end
       
         if enemy.isBoss then
@@ -177,7 +182,11 @@ function Enemy.draw(enemy, index)
       gfx.draw(enemy.img, enemy.x, enemy.y)     
       gfx.pop() -- restore the saved love.graphics state
       Timer.after(0.2, function() currentBoss.isHit = false end)
-      
+      if (explodeSound:isPlaying()) then
+        explodeSound:rewind()
+      else
+        explodeSound:play()
+      end
       --timer.after (0.1, function ()  end) -- no funca
     else
       if (not enemy.isBoss and not enemy.willShoot) then

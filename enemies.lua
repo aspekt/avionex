@@ -21,10 +21,8 @@ function Enemy.init()
 
   spriteSheetAsteroid = gfx.newImage('assets/asteroid_01_no_moblur.png')
   local a64 = anim8.newGrid(128,128, 1024, 1024)
-  animAsteroid = anim8.newAnimation(a64('1-8', '1-8'), 0.1)
+  animAsteroid = anim8.newAnimation(a64('1-8', '1-8'), 0.06)
   
-
-
   Enemy.enemyImgs = {gfx.newImage('assets/aircraft01.png'),
 				gfx.newImage('assets/aircraft02.png'), 
 				gfx.newImage('assets/aircraft03.png'),

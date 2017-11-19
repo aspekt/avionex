@@ -9,6 +9,8 @@ require 'utils'
 Timer = require 'libs/timer'
 require 'ballistics'
 lue = require "libs/lue/lue" --require the library
+local socket = require("socket")
+local http = require("socket.http")
 
 debug = true
 
@@ -47,10 +49,23 @@ explosions = {}
 
 textsInScreen = {} -- all texts on screen that expire
 playerLevelTextPos = {x = 0, y = 0, duration = 3}
+isGamePaused = false
 
+function loadLeaderboard() 
+
+	http.request{ 
+		url = "https://api.mlab.com/api/1/databases/killerplanes/collections/leaderboard?apiKey=o-eEbX6f8uOnIMBAaC_wKWNobsCpz9L8", 
+		sink = ltn12.sink.file(io.stdout),
+		redirect = true
+	}
+
+
+
+end
 -- Loading
 function love.load(arg)
   
+
   	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
 
@@ -125,11 +140,20 @@ end
 
 -- Updating
 
+function love.keypressed(key)
+	if key == "p" then
+		isGamePaused = not isGamePaused
+	end
+ end
+
 function love.update(dt)
+
+	if (isGamePaused) then return end
+
 	 --lue:update(dt)
-	 Timer.update(dt)
+	Timer.update(dt)
 	screenHeight = gfx:getHeight()
-  screenWidth = gfx:getWidth()
+ 	screenWidth = gfx:getWidth()
 
 	--psystem:update(dt)
 	animPlane:update(dt)
@@ -140,7 +164,7 @@ function love.update(dt)
 		love.event.push('quit')
 	end
 
-  -- First update timers
+  	-- First update timers
 	Player.updateTimers(dt)
   	Enemy.updateTimers(dt)
   
@@ -247,6 +271,8 @@ function love.update(dt)
 	end
 
 
+	
+
 end
 
 function ShowText(text, x, y, timeout) 
@@ -261,6 +287,7 @@ newLevelFramesShown = 0
 
 -- Drawing
 function love.draw(dt)
+
 	FPS = love.timer.getFPS()
 	
 	gfx.draw(backgroundImage, (250-Player.x)/50,(600-Player.y)/50)

@@ -216,14 +216,18 @@ function love.update(dt)
 
 		if CheckCollisionEnemyPlayer(enemy, Player) and Player.isAlive then
 			Enemy.enemyHit(enemy, i)
-      		Player.dead()
-			sfxGameOver:play()
+      if not Player.isShieldOn then
+        Player.dead()
+        sfxGameOver:play()
+      end
 		end
 
 		if Ballistics.checkCollisionsPlayer(Player) and Player.isAlive then
-			Player.dead()
-			sfxGameOver:play()
+      if not Player.isShieldOn then
+        Player.dead()
+        sfxGameOver:play()
 		  end
+    end
 	end
 
 	-- use mouse instead of kb
@@ -268,9 +272,6 @@ function love.update(dt)
 		end
 	end
 
-
-	
-
 end
 
 function ShowText(text, x, y, timeout) 
@@ -311,6 +312,24 @@ function love.draw(dt)
 	gfx.print("LEVEL: " .. tostring(playerLevel),9, 10 )
 	gfx.print("MISSED: " .. tostring(missedEnemies), gfx:getWidth() - 100, gfx:getHeight() - 30)
 	gfx.print("FIRED: " .. tostring(shotsFired), 10, gfx:getHeight() - 30)
+  
+  gfx.print("SHIELD ", gfx:getWidth()/2 - 100, gfx:getHeight() - 30)
+  if Player.isShieldOn then
+    gfx.setColor(255, 0, 0)
+    local sizeBar = Player.shieldTimer/timeToShieldOff * 100
+    gfx.rectangle("fill",gfx:getWidth()/2 - 30, gfx:getHeight() - 23, sizeBar, 15)
+  else
+    gfx.setColor(255, 255, 255)    
+    local sizeBar = 100
+    if Player.shieldTimer > 0 then
+      sizeBar = (timeToShieldOn-Player.shieldTimer)/timeToShieldOn * 100
+    else
+      gfx.setColor(0, 255, 0)
+    end
+    gfx.rectangle("fill",gfx:getWidth()/2 - 30, gfx:getHeight() - 23, sizeBar, 15)
+    gfx.setColor(255, 255, 255)
+  end
+  gfx.setColor(255, 255, 255)
 
 	if not Player.isAlive then
 		gfx.print("GAME OVER",gfx:getWidth()/2-40, gfx:getHeight()/2)

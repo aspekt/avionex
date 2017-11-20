@@ -5,6 +5,9 @@ Player = {
   y = 710, 
   speed = 0, 
   img = nil,
+  shieldImg = nil,
+  isShieldOn = false,
+  shieldTimer = 1,
   isAlive = true,
   bullets = {},            -- array of user shot bullets being drawn and updated
   isTurningRight = false,
@@ -16,9 +19,16 @@ Player = {
 }
 
 function Player.init()
+  
+  timeToShieldOn = 6
+  timeToShieldOff = 3
+  
+  Player.shieldTimer = timeToShieldOn
+  
   Player.img = gfx.newImage('assets/player.png')
 	Player.img_right = gfx.newImage('assets/player-right.png')
 	Player.img_left = gfx.newImage('assets/player-left.png')
+  Player.shieldImg = gfx.newImage('assets/64_shield.png')
   
   Player.width = Player.img:getWidth()
   Player.height = Player.img:getHeight()
@@ -34,9 +44,16 @@ function Player.updateTimers(dt)
   
   -- Time out how far apart our shots can be.
 	Player.canShootTimer = Player.canShootTimer - (1 * dt)
+  Player.shieldTimer = Player.shieldTimer - (1 * dt)
+  
 	if Player.canShootTimer < 0 then
 		Player.canShoot = true
 	end
+  
+  if Player.isShieldOn and Player.shieldTimer <= 0 then
+    Player.isShieldOn=false
+    Player.shieldTimer=timeToShieldOn
+  end
 
 end
 
@@ -92,6 +109,12 @@ function Player.updateMove(dt)
 					Player.y = Player.y + (Player.speed*dt)
 				end
 			end
+      
+      -- Shield!
+      if (joystick:isDown(2) and not Player.isShieldOn and Player.shieldTimer <= 0) then
+        Player.isShieldOn = true
+        Player.shieldTimer = timeToShieldOff
+      end
 
 	end
 	
@@ -122,6 +145,11 @@ function Player.updateMove(dt)
 	else
 		Player.speed = 250
 	end
+  
+  if (love.keyboard.isDown(' ', 'x') and not Player.isShieldOn and Player.shieldTimer <= 0) then
+    Player.isShieldOn = true
+    Player.shieldTimer = timeToShieldOff
+  end
   
 end
 
@@ -177,7 +205,9 @@ end
 
 function Player.reset()
   Player.bullets = {}
-		
+	Player.isShieldOn = false
+  Player.shieldTimer = timeToShieldOn
+    
 	-- reset timers
 	Player.canShootTimer = 1
 	Player.createEnemyTimer = createEnemyTimerMax
@@ -209,5 +239,10 @@ function Player.drawPlayer()
 		else
 			gfx.draw(Player.img, Player.x, Player.y)
 		end
+    
+    if Player.isShieldOn then
+      gfx.draw(Player.shieldImg, Player.x-10, Player.y-8, 0, 0.5, 0.4)
+    end
+    
 	end
 end

@@ -14,13 +14,14 @@ require 'leaderboard'
 Timer = require 'libs/timer'
 require 'ballistics'
 lue = require "libs/lue/lue" --require the library
+tween = require 'libs/tween/tween'
 
 
 debug = true
 
 -- Timers
 -- We declare these here so we don't have to edit them multiple place
-createEnemyTimerMax = 1	
+createEnemyTimerMax = 1
 
 --bulletSpeed = 400
 enemySpeed = 150
@@ -60,8 +61,7 @@ playerInitials = "DIE" -- hay que pedir esto por teclado una vez al menos y guar
 -- Loading
 function love.load(arg)
   
-
-  	if arg[#arg] == "-debug" then require("mobdebug").start() end
+ 	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
 
 	loadLeaderboard()

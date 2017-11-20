@@ -38,6 +38,7 @@ function Player.init()
 				gfx.newImage('assets/bullet_purple.png'),
 				gfx.newImage('assets/bullet_orange.png'),
 				gfx.newImage('assets/bullet_purple.png')}
+      
 end
 
 function Player.updateTimers(dt)

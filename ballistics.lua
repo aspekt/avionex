@@ -74,6 +74,7 @@ function Ballistics.drawShot(shot)
     gfx.setColor(28, 235, 247)
   end
   gfx.circle("fill", shot.x, shot.y, shot.radius, 8) -- Draw white circle with 100 segments.
+  gfx.setColor(255, 255, 255)
 end
 
 function Ballistics.reset()

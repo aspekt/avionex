@@ -95,7 +95,9 @@ function love.load(arg)
 
 	sfxReady = love.audio.newSource("assets/Ready.mp3", "static")
 	sfxGameOver = love.audio.newSource("assets/GameOver.mp3", "static")
-
+	sfxShieldUp = love.audio.newSource("assets/shield.wav", "static")
+	sfxShieldUp:setVolume(1)
+	
 	sfxPerfect =  love.audio.newSource("assets/Perfect.mp3", "static")
 	sfxFinishHim = love.audio.newSource("assets/mk1-finishhim.mp3", "static")
 

@@ -20,8 +20,8 @@ Player = {
 
 function Player.init()
   
-  timeToShieldOn = 6
-  timeToShieldOff = 3
+  timeToShieldOn = 5
+  timeToShieldOff = 10
   
   Player.shieldTimer = timeToShieldOn
   
@@ -148,7 +148,8 @@ function Player.updateMove(dt)
   
   if (love.keyboard.isDown(' ', 'x') and not Player.isShieldOn and Player.shieldTimer <= 0) then
     Player.isShieldOn = true
-    Player.shieldTimer = timeToShieldOff
+		Player.shieldTimer = timeToShieldOff
+		sfxShieldUp:play()
   end
   
 end

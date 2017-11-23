@@ -111,7 +111,7 @@ function Enemy.spawnBoss()
   Enemy.bossAlive = true
   newBoss = { x = 150, y = -150, img = Enemy.bossImgs[1], width = 304, height = 400, 
               speed = playerSpeed, hitCounter=20*playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1],
-               willShoot = true, shootTimer = math.random(6-playerLevel) * math.random() }
+               willShoot = true, shootTimer = math.random(6-playerLevel) * math.random(), bossTween = nil}
   table.insert(Enemy.enemies, newBoss)
   currentBoss = newBoss
   sfxFinishHim:play()
@@ -146,22 +146,17 @@ function Enemy.moveEnemy(enemy, index, dt)
 end
 
 function Enemy.moveBoss(boss, dt)
-  if boss.y < 0 then
-    boss.y = boss.y + (boss.speed * dt)
-  else
-    if boss.goingLeft then
-      if boss.x > 20 then
-        boss.x = boss.x - (boss.speed * dt)
-      else
-        boss.goingLeft = false
-      end
-    else
-      if boss.x < 300 then
-        boss.x = boss.x + (boss.speed * dt)
-      else
-        boss.goingLeft = true
-      end
-    end
+  
+  if (boss.bossTween == nil) then
+    local xTo = math.random(screenWidth) - boss.width/2
+    local yTo = math.random(120)-100
+    
+    boss.bossTween = tween.new(2, boss, {x=xTo, y=yTo}, tween.easing.outBounce)
+  end
+
+  -- if complete, set to nil
+  if (boss.bossTween:update(dt)) then
+    boss.bossTween = nil
   end
 end
 

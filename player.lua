@@ -3,7 +3,7 @@ Player = {
   canShootTimer = 1,      -- Timer to next shot
   x = 250, 
   y = 710, 
-  speed = 0, 
+  speed = playerSpeed, 
   img = nil,
   shieldImg = nil,
   isShieldOn = false,
@@ -38,6 +38,7 @@ function Player.init()
 				gfx.newImage('assets/bullet_purple.png'),
 				gfx.newImage('assets/bullet_orange.png'),
 				gfx.newImage('assets/bullet_purple.png')}
+      
 end
 
 function Player.updateTimers(dt)

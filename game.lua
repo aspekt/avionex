@@ -1,6 +1,7 @@
 -- Timers
 -- We declare these here so we don't have to edit them multiple place
 createEnemyTimerMax = 1
+createPowerUpTimeMax = 15
 
 --bulletSpeed = 400
 enemySpeed = 150

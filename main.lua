@@ -12,6 +12,7 @@ require 'hud'
 require 'enemies'
 require 'player'
 require 'utils'
+require 'powerups'
 require 'leaderboard'
 Timer = require 'libs/timer'
 require 'ballistics'
@@ -47,6 +48,7 @@ function love.load(arg)
   -- Initialize all enemy stuff
 	Enemy.init();
 	Player.init();
+  PowerUps.init();
 
 	backgroundImage = gfx.newImage('assets/background.png')
 	backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
@@ -119,11 +121,13 @@ function love.update(dt)
   -- First update timers
 	Player.updateTimers(dt)
   Enemy.updateTimers(dt)
+  PowerUps.updateTimers(dt);
   
 	-- Update positions
 	Player.updateBulletPositions(dt)
 	Enemy.updatePositions(dt)
 	Ballistics.updatePositions(dt)
+  PowerUps.updatePositions(dt)
 
 	-- run our collision detection
 	-- Since there will be fewer enemies on screen than bullets we'll loop them first
@@ -161,6 +165,9 @@ function love.update(dt)
         sfxGameOver:play()
 		  end
     end
+    
+    PowerUps.checkCollisionsPlayer(Player)
+    
 	end
 
 	Player.updateMove(dt)
@@ -218,6 +225,7 @@ function love.draw(dt)
 	Player.drawAll()
 	Enemy.drawAll()
 	Ballistics.drawAll()
+  PowerUps.drawAll()
 
 	if (isGamePaused) then
 		drawLeaderboard()

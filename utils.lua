@@ -53,6 +53,15 @@ function CheckCollisionShotPlayer(shot, player)
   return false
 end
 
+function CheckCollisionPowerUpPlayer(powerUp, player)
+  for i, box in ipairs(player.boxes) do
+    if CheckCollision(powerUp.x+6, powerUp.y, powerUp.width-12, powerUp.height, player.x+box[1], player.y+box[2], box[3], box[4]) then
+      return true
+    end
+  end
+  return false
+end
+
 -- sfx
 --https://dev.to/jeansberg/make-a-shooter-in-lualove2d---animations-and-particles
 function getBlast(size)

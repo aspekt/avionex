@@ -5,6 +5,7 @@ Player = {
   y = 710, 
   speed = playerSpeed, 
   img = nil,
+  numShots = 1,
   shieldImg = nil,
   isShieldOn = false,
   shieldTimer = 1,
@@ -13,8 +14,8 @@ Player = {
   isTurningRight = false,
   isTurningLeft = false,
 	bulletImgs = nil,
-	width = 100,
-	height = 100,
+	width = 110,
+	height = 95,
   boxes = {{9,15,91,29},{44,7,20,81}}
 }
 
@@ -160,9 +161,17 @@ function Player.updateShot(dt)
 		-- Create some bullets
 
 		bulletSpeed = currentBulletSpeed + (playerLevel * 20)
-
-		newBullet1 = { x = Player.x + (Player.img:getWidth()/2 - 10), y = Player.y, img = Player.bulletImgs[1], speed = bulletSpeed }
-		shotsFired = shotsFired + 1
+    local spaceBetweenShots = 12
+    local separation = spaceBetweenShots * (Player.numShots-1)
+    
+    for i=1,Player.numShots do 
+      newBullet1 = { x = Player.x + Player.width/2 - 5 - separation/2 + (i-1)*spaceBetweenShots, y = Player.y, img = Player.bulletImgs[1], speed = bulletSpeed }  
+      table.insert(Player.bullets, newBullet1)
+      shotsFired = shotsFired + 1
+    end
+    
+    --[[
+		
 		table.insert(Player.bullets, newBullet1)
 
 		-- fixme: player levels are static (hacks) and need to be 100% dynamic
@@ -194,6 +203,8 @@ function Player.updateShot(dt)
 			table.insert(Player.bullets, newBullet6)
 			
 		end
+    
+    --]]
 
 		if (gunSound:isPlaying()) then
 			gunSound:rewind()
@@ -247,4 +258,8 @@ function Player.drawPlayer()
     end
     
 	end
+end
+
+function Player.addPowerUp(powerUp)
+  Player.numShots = Player.numShots+1
 end

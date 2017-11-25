@@ -18,6 +18,7 @@ Timer = require 'libs/timer'
 require 'ballistics'
 lue = require "libs/lue/lue" --require the library
 tween = require 'libs/tween/tween'
+local moonshine = require 'libs/moonshine'
 
 debug = true
 
@@ -35,6 +36,26 @@ function love.load(arg)
   
  	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
+
+	-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
+	effect = moonshine(moonshine.effects.glow).
+							chain(moonshine.effects.scanlines).
+							chain(moonshine.effects.crt)
+				
+
+	effect.scanlines.opacity = 0.4
+	effect.scanlines.width = 1
+
+--	effect.pixelate.size = {2,2}
+	--effect.pixelate.feedback = 0.2
+
+	effect.glow.min_luma = 0.3
+	effect.glow.strength = 10
+
+	--playerEffect = moonshine(moonshine.effects.scanlines).chain(moonshine.effects.crt)
+	
+ 	effect.crt.distortionFactor = {1.06, 1.06}
+	effect.crt.feather = 0.01
 
 	loadLeaderboard()
 	
@@ -211,24 +232,29 @@ newLevelFramesShown = 0
 function love.draw(dt)
 
 	FPS = love.timer.getFPS()
+
+	effect(function()
 	
-	gfx.draw(backgroundImage, (250-Player.x)/50,(600-Player.y)/50)
+		gfx.draw(backgroundImage, (250-Player.x)/50,(600-Player.y)/50)
 
-	HUD.draw(dt)
+		HUD.draw(dt)
 
-	-- draw explosions particle systems
-	for i = table.getn(explosions), 1, -1 do
-		local explosion = explosions[i]
-		gfx.draw(explosion, 0, 0)
-	end
+		-- draw explosions particle systems
+		for i = table.getn(explosions), 1, -1 do
+			local explosion = explosions[i]
+			gfx.draw(explosion, 0, 0)
+		end
+	
+		Player.drawAll()
+		Enemy.drawAll()
+		Ballistics.drawAll()
+		PowerUps.drawAll()
 
-	Player.drawAll()
-	Enemy.drawAll()
-	Ballistics.drawAll()
-  PowerUps.drawAll()
+		if (isGamePaused) then
+			drawLeaderboard()
+		end
 
-	if (isGamePaused) then
-		drawLeaderboard()
-	end
+
+	end)
 
 end

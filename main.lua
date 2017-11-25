@@ -14,6 +14,7 @@ require 'player'
 require 'utils'
 require 'powerups'
 require 'leaderboard'
+require 'sounds'
 Timer = require 'libs/timer'
 require 'ballistics'
 lue = require "libs/lue/lue" --require the library
@@ -66,48 +67,16 @@ function love.load(arg)
 		joystick = joysticks[1] -- get first stick 
 	end
 	
-  -- Initialize all enemy stuff
 	Enemy.init();
 	Player.init();
   PowerUps.init();
+	Sounds.init();
 
 	backgroundImage = gfx.newImage('assets/background.png')
 	backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
 
-	-- sfx
-	--bgm = love.audio.play("assets/music.wav", "stream", true) -- stream and loop background music
-	gunSound = love.audio.newSource("assets/gun-sound.wav", "static")
-	explodeSound = love.audio.newSource("assets/explodemini.wav", "static")
-	explodePlayer = love.audio.newSource("assets/explode.wav", "static")
-  --masterCombo = love.audio.newSource("assets/master_combo.mp3", "static")
-	comboBreaker = love.audio.newSource("assets/KI_Sounds_Combo_Breaker.mp3", "static")
-	--killerCombo = love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static")
-	--ultraCombo = love.audio.newSource("assets/KI_Sounds_Ultra_Combo.mp3", "static")
-	showNoMercy = love.audio.newSource("assets/ShowNoMercy.wav", "static")
-
-	sfxReady = love.audio.newSource("assets/Ready.mp3", "static")
-	sfxGameOver = love.audio.newSource("assets/GameOver.mp3", "static")
-	sfxShieldUp = love.audio.newSource("assets/shield.wav", "static")
-	sfxShieldUp:setVolume(1)
-	
-	sfxPerfect =  love.audio.newSource("assets/Perfect.mp3", "static")
-	sfxFinishHim = love.audio.newSource("assets/mk1-finishhim.mp3", "static")
-
-	sfxCombos = { love.audio.newSource("assets/KI_Sounds_Triple_Combo.mp3", "static"),
-                love.audio.newSource("assets/KI_Sounds_Killer_Combo.mp3", "static"),
-                love.audio.newSource("assets/master_combo.mp3", "static"),
-                love.audio.newSource("assets/KI_Sounds_Ultra_Combo.mp3", "static"),
-                love.audio.newSource("assets/KI_Sounds_Brutal_Combo.mp3", "static"),
-                love.audio.newSource("assets/ShowNoMercy.wav", "static")}
-	sfxBlast = love.audio.newSource("assets/blast.wav", "static")
-	sfxThreeShotDown = love.audio.newSource("assets/3shotsdown.wav", "static")
-
-	music = love.audio.newSource("assets/22.-trailblazer-original-arcade-soundtrack-.mp3") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
-	music:setLooping(true)
-	music:setVolume(0.7) -- so player can hear the sfx at 100% volume
-	music:play()
-
-	sfxReady:play() -- ready sfx
+	Sounds.music:play()
+	Sounds.ready:play() -- ready sfx
 	
   HUD.init()
   
@@ -164,7 +133,7 @@ function love.update(dt)
 				
 				-- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
 				if (score % 20 == 0) then
-					sfxCombos[math.random(6)]:play()
+					Sounds.combos[math.random(6)]:play()
 				end
 
         Game.enemyKilled(enemy)
@@ -176,14 +145,14 @@ function love.update(dt)
 			Enemy.enemyHit(enemy, i)
       if not Player.isShieldOn then
         Player.dead()
-        sfxGameOver:play()
+        Sounds.gameOver:play()
       end
 		end
 
 		if Ballistics.checkCollisionsPlayer(Player) and Player.isAlive then
       if not Player.isShieldOn then
         Player.dead()
-        sfxGameOver:play()
+        Sounds.gameOver:play()
 		  end
     end
     
@@ -206,7 +175,7 @@ function love.update(dt)
 		showNewLevel = true
 		shotsFired = 0
 		missedEnemies = 0
-		sfxReady:play()
+		Sounds.ready:play()
 		isAlive = true
     
     HUD.init()

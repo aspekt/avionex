@@ -5,8 +5,10 @@ function love.conf(t)
 	t.window.width = 600        -- we want our game to be long and thin.
 	t.window.height = 800
 	t.window.resizable = true
-	t.window.fullscreentype = "desktop"
+	t.window.fullscreentype = "exclusive"
 
+	t.window.fullscreen = true  
+	
 	-- For Windows debugging
 	t.console = true
 

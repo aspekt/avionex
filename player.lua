@@ -1,7 +1,7 @@
 Player = {
   canShoot = true,        -- Player is ready to shoot or not 
   canShootTimer = 1,      -- Timer to next shot
-  x = 250, 
+  x =  0, 
   y = 710, 
   speed = playerSpeed, 
   img = nil,
@@ -18,6 +18,8 @@ Player = {
 	height = 95,
   boxes = {{9,15,91,29},{44,7,20,81}}
 }
+
+Player.x = (love.graphics.getWidth() / 2) - (Player.width / 2) -- medio trucho pero funca
 
 function Player.init()
   
@@ -76,7 +78,7 @@ end
 
 function Player.dead()
   Player.isAlive = false
-	explodePlayer:play()
+	Sounds.explodePlayer:play()
 	local explosion = getExplosion(getBlast(300))
 	explosion:setPosition(Player.x + Player.width/2, Player.y + Player.height/2)
 	explosion:emit(20)
@@ -142,6 +144,7 @@ function Player.updateMove(dt)
 		end
 	end
 
+	-- superspeed
 	if love.keyboard.isDown(' ', 'z') then
 		Player.speed = 500
 	else
@@ -151,7 +154,7 @@ function Player.updateMove(dt)
   if (love.keyboard.isDown(' ', 'x') and not Player.isShieldOn and Player.shieldTimer <= 0) then
     Player.isShieldOn = true
 		Player.shieldTimer = timeToShieldOff
-		sfxShieldUp:play()
+		Sounds.shieldUp:play()
   end
   
 end
@@ -206,10 +209,10 @@ function Player.updateShot(dt)
     
     --]]
 
-		if (gunSound:isPlaying()) then
-			gunSound:rewind()
+		if (Sounds.gunSound:isPlaying()) then
+			Sounds.gunSound:rewind()
 		else
-			gunSound:play()
+			Sounds.gunSound:play()
 		end
 		Player.canShoot = false
 		Player.canShootTimer = bulletShootTimer[playerLevel]

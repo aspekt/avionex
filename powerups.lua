@@ -64,6 +64,7 @@ function PowerUps.checkCollisionsPlayer(player)
 			if CheckCollisionPowerUpPlayer(powerup, player) then  
         player.addPowerUp(powerup)
         table.remove(PowerUps.powerups, j)
+        Sounds.powerup:play()
       end
   end
 end

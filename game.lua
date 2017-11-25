@@ -38,7 +38,7 @@ function Game.enemyKilled(enemy)
   else
     -- after 20 hits, spawn boss
     if Enemy.enemiesKilled % 20 == 0 then 
-      sfxPerfect:play()
+      Sounds.perfect:play()
 
       if not Enemy.bossAlive then
       Enemy.spawnBoss()

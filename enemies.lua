@@ -65,10 +65,10 @@ function Enemy.updateTimers(dt)
         
         local shotType = math.random(2)
         if shotType == 1 then
-          sfxBlast:play()                    
+          Sounds.blast:play()                    
           Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
         else
-          sfxThreeShotDown:play()          
+          Sounds.threeShotDown:play()          
           Ballistics.threeShotDown(enemy.x + enemy.width/2, enemy.y+enemy.height)
           
         end
@@ -114,7 +114,7 @@ function Enemy.spawnBoss()
                willShoot = true, shootTimer = math.random(6-playerLevel) * math.random(), bossTween = nil}
   table.insert(Enemy.enemies, newBoss)
   currentBoss = newBoss
-  sfxFinishHim:play()
+  Sounds.finishHim:play()
 end
 
 function Enemy.updatePositions(dt)
@@ -177,10 +177,10 @@ function Enemy.draw(enemy, index)
       gfx.draw(enemy.img, enemy.x, enemy.y)     
       gfx.pop() -- restore the saved love.graphics state
       Timer.after(0.2, function() currentBoss.isHit = false end)
-      if (explodeSound:isPlaying()) then
-        explodeSound:rewind()
+      if (Sounds.explodeSound:isPlaying()) then
+        Sounds.explodeSound:rewind()
       else
-        explodeSound:play()
+        Sounds.explodeSound:play()
       end
       --timer.after (0.1, function ()  end) -- no funca
     else
@@ -208,14 +208,15 @@ function Enemy.enemyHit(enemy, index)
     explosion:emit(10)
     table.insert(explosions, explosion)
 
-    if (explodeSound:isPlaying()) then
-      explodeSound:rewind()
+    if (Sounds.explodeSound:isPlaying()) then
+      Sounds.explodeSound:rewind()
     else
-      explodeSound:play()
+      Sounds.explodeSound:play()
     end
     
     if enemy.isBoss then
       Enemy.bossAlive = false
+      Sounds.perfect:play()
     else
       Enemy.enemiesKilled = Enemy.enemiesKilled + 1;
     end

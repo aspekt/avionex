@@ -72,7 +72,7 @@ function love.load(arg)
   PowerUps.init();
 	Sounds.init();
 
-	backgroundImage = gfx.newImage('assets/background.png')
+	backgroundImage = gfx.newImage('assets/tileable-classic-nebula-space-patterns-wide.jpeg')
 	backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
 
 	Sounds.music:play()

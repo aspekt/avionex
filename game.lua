@@ -10,6 +10,9 @@ kamikazeSpeed = 50
 baseBulletSpeed = 250
 currentBulletSpeed = baseBulletSpeed
 
+showBoundingBoxes = false
+useEffect = true
+
 playerLevel = 1
 
 bulletSpeeds = {250, 300, 400, 500, 500} -- FIXME: Cambiar esto por algo decente y que sea dinamico

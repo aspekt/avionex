@@ -38,25 +38,27 @@ function love.load(arg)
  	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
 
-	-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
-	effect = moonshine(moonshine.effects.glow).
-							chain(moonshine.effects.scanlines).
-							chain(moonshine.effects.crt)
-				
+  if (useEffect) then
+    -- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
+    effect = moonshine(moonshine.effects.glow).
+                chain(moonshine.effects.scanlines).
+                chain(moonshine.effects.crt)
+          
 
-	effect.scanlines.opacity = 0.4
-	effect.scanlines.width = 1
+    effect.scanlines.opacity = 0.4
+    effect.scanlines.width = 1
 
---	effect.pixelate.size = {2,2}
-	--effect.pixelate.feedback = 0.2
+  --	effect.pixelate.size = {2,2}
+    --effect.pixelate.feedback = 0.2
 
-	effect.glow.min_luma = 0.3
-	effect.glow.strength = 10
+    effect.glow.min_luma = 0.3
+    effect.glow.strength = 10
 
-	--playerEffect = moonshine(moonshine.effects.scanlines).chain(moonshine.effects.crt)
-	
- 	effect.crt.distortionFactor = {1.06, 1.06}
-	effect.crt.feather = 0.01
+    --playerEffect = moonshine(moonshine.effects.scanlines).chain(moonshine.effects.crt)
+    
+    effect.crt.distortionFactor = {1.06, 1.06}
+    effect.crt.feather = 0.01
+  end
 
 	loadLeaderboard()
 	
@@ -72,8 +74,11 @@ function love.load(arg)
   PowerUps.init();
 	Sounds.init();
 
-	backgroundImage = gfx.newImage('assets/tileable-classic-nebula-space-patterns-wide.jpeg')
-	backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
+	--backgroundImage = gfx.newImage('assets/tileable-classic-nebula-space-patterns-wide.jpeg')
+	--backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
+  back_coord = {x1=0, y1=0, x2=0, y2=-1022}
+  backgroundImage1 = gfx.newImage('assets/background1.jpg')
+  backgroundImage2 = gfx.newImage('assets/background2.jpg')
 
 	Sounds.music:play()
 	Sounds.ready:play() -- ready sfx
@@ -93,7 +98,16 @@ function love.keypressed(key)
 function love.update(dt)
 
 	if (isGamePaused) then return end
-
+    
+  back_coord.y1 = back_coord.y1+0.5
+  back_coord.y2 = back_coord.y2+0.5
+  if (back_coord.y2 > 1023) then
+    back_coord.y2 = -1022  
+  end
+  if (back_coord.y1 > 1023) then
+    back_coord.y1 = -1022  
+  end
+  
 	 --lue:update(dt)
 	Timer.update(dt)
 	screenHeight = gfx:getHeight()
@@ -161,6 +175,17 @@ function love.update(dt)
 	end
 
 	Player.updateMove(dt)
+  
+  -- check for super speed boost
+	--[[currentBulletSpeed = baseBulletSpeed
+	if then
+		Player.speed = Player.speed * 2 -- double speed
+    Player.superSpeed = true
+		currentBulletSpeed = baseBulletSpeed * 2
+  else
+    Player.superSpeed = false
+	end]]
+  
 	Player.updateShot(dt)
 	
 	if not Player.isAlive and love.keyboard.isDown('r') then
@@ -182,13 +207,6 @@ function love.update(dt)
     
 	end
 
-	-- check for super speed boost
-	currentBulletSpeed = baseBulletSpeed
-	if (joystick ~= nil and joystick:isDown(3)) or love.keyboard.isDown("lshift") then
-		Player.speed = Player.speed * 2 -- double speed
-		currentBulletSpeed = baseBulletSpeed * 2
-	end
-
 	HUD.update(dt)
 
 end
@@ -202,28 +220,32 @@ function love.draw(dt)
 
 	FPS = love.timer.getFPS()
 
-	effect(function()
-	
-		gfx.draw(backgroundImage, (250-Player.x)/50,(600-Player.y)/50)
+  if (useEffect) then
+    effect(draw_all)
+	else
+    draw_all(dt)
+  end
 
-		HUD.draw(dt)
+end
 
-		-- draw explosions particle systems
-		for i = table.getn(explosions), 1, -1 do
-			local explosion = explosions[i]
-			gfx.draw(explosion, 0, 0)
-		end
-	
-		Player.drawAll()
-		Enemy.drawAll()
-		Ballistics.drawAll()
-		PowerUps.drawAll()
+function draw_all(dt)
+  gfx.draw(backgroundImage1, back_coord.x1+(250-Player.x)/50,back_coord.y1+(600-Player.y)/50)
+  gfx.draw(backgroundImage2, back_coord.x2+(250-Player.x)/50,back_coord.y2+(600-Player.y)/50)
 
-		if (isGamePaused) then
-			drawLeaderboard()
-		end
+	HUD.draw(dt)
 
+  -- draw explosions particle systems
+  for i = table.getn(explosions), 1, -1 do
+    local explosion = explosions[i]
+    gfx.draw(explosion, 0, 0)
+  end
 
-	end)
+  Player.drawAll()
+  Enemy.drawAll()
+  Ballistics.drawAll()
+  PowerUps.drawAll()
 
+  if (isGamePaused) then
+    drawLeaderboard()
+  end
 end

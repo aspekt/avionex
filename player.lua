@@ -13,6 +13,7 @@ Player = {
   bullets = {},            -- array of user shot bullets being drawn and updated
   isTurningRight = false,
   isTurningLeft = false,
+  superSpeed = false,
 	bulletImgs = nil,
 	width = 110,
 	height = 95,
@@ -28,19 +29,26 @@ function Player.init()
   
   Player.shieldTimer = timeToShieldOn
   
-  Player.img = gfx.newImage('assets/player.png')
-	Player.img_right = gfx.newImage('assets/player-right.png')
-	Player.img_left = gfx.newImage('assets/player-left.png')
+  playerImages = {gfx.newImage('assets/new_player1.png'), gfx.newImage('assets/new_player2.png'), gfx.newImage('assets/new_player3.png'), gfx.newImage('assets/new_player4.png')}
+  playerBoxes = { {{34,6,14,58},{18,37,46,28},{26,22,30,15}},
+                  {{34,6,14,58},{18,37,46,28},{26,22,30,15}},
+                  {{34,6,14,58},{10,37,62,28},{26,22,30,15}},
+                  {{34,6,14,58},{10,37,62,28},{26,22,30,15}}}
+  
+  Player.img = playerImages[1]
+  Player.boxes = playerBoxes[1]
+	--Player.img_right = gfx.newImage('assets/player-right.png')
+	--Player.img_left = gfx.newImage('assets/player-left.png')
   Player.shieldImg = gfx.newImage('assets/64_shield.png')
   
   Player.width = Player.img:getWidth()
   Player.height = Player.img:getHeight()
   
   Player.bulletImgs = {gfx.newImage('assets/bullet.png'),
-				gfx.newImage('assets/bullet_orange.png'),
-				gfx.newImage('assets/bullet_purple.png'),
-				gfx.newImage('assets/bullet_orange.png'),
-				gfx.newImage('assets/bullet_purple.png')}
+                       gfx.newImage('assets/new_bullet.png'),
+                       gfx.newImage('assets/new_bullet2.png'),
+                       gfx.newImage('assets/bullet_orange.png'),
+                       gfx.newImage('assets/bullet_purple.png')}
       
 end
 
@@ -145,9 +153,11 @@ function Player.updateMove(dt)
 	end
 
 	-- superspeed
-	if love.keyboard.isDown(' ', 'z') then
+	if love.keyboard.isDown(' ', 'z') or (joystick ~= nil and joystick:isDown(3)) or love.keyboard.isDown("lshift")  then
+    Player.superSpeed = true
 		Player.speed = 500
 	else
+    Player.superSpeed = false
 		Player.speed = 250
 	end
   
@@ -160,55 +170,23 @@ function Player.updateMove(dt)
 end
 
 function Player.updateShot(dt)
-  if Player.isAlive and Player.canShoot and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
+  if Player.isAlive and Player.canShoot and (not Player.superSpeed) and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
 		-- Create some bullets
 
 		bulletSpeed = currentBulletSpeed + (playerLevel * 20)
-    local spaceBetweenShots = 12
+    local spaceBetweenShots = 20
     local separation = spaceBetweenShots * (Player.numShots-1)
     
     for i=1,Player.numShots do 
-      newBullet1 = { x = Player.x + Player.width/2 - 5 - separation/2 + (i-1)*spaceBetweenShots, y = Player.y, img = Player.bulletImgs[1], speed = bulletSpeed }  
+      local img = Player.numShots
+      if (img>3) then
+        img=3
+      end
+      newBullet1 = { x = Player.x + Player.width/2 - 5 - separation/2 + (i-1)*spaceBetweenShots, y = Player.y, img = Player.bulletImgs[img], speed = bulletSpeed }  
       table.insert(Player.bullets, newBullet1)
       shotsFired = shotsFired + 1
     end
     
-    --[[
-		
-		table.insert(Player.bullets, newBullet1)
-
-		-- fixme: player levels are static (hacks) and need to be 100% dynamic
-		if (playerLevel == 2) then
-			shotsFired = shotsFired + 1
-			newBullet2 = { x = Player.x + (Player.img:getWidth()/2 ), y = Player.y, img = Player.bulletImgs[2], speed = bulletSpeed }
-			table.insert(Player.bullets, newBullet2)
-		end
-
-		if (playerLevel == 3) then
-			newBullet3 = { x = Player.x + (Player.img:getWidth()/2 - 20), y = Player.y, img = Player.bulletImgs[3], speed = bulletSpeed }
-			newBullet4 = { x = Player.x + (Player.img:getWidth()/2 + 10), y = Player.y, img = Player.bulletImgs[3], speed = bulletSpeed }
-			shotsFired = shotsFired + 1
-			shotsFired = shotsFired + 1
-
-			table.insert(Player.bullets, newBullet3)
-			table.insert(Player.bullets, newBullet4)
-			
-		end
-		
-		if (playerLevel > 3) then
-			
-			newBullet5 = { x = Player.x + (Player.img:getWidth()/2 - 30), y = Player.y, img = Player.bulletImgs[4], speed = bulletSpeed }
-			newBullet6 = { x = Player.x + (Player.img:getWidth()/2 + 20), y = Player.y, img = Player.bulletImgs[4], speed = bulletSpeed }
-			shotsFired = shotsFired + 1
-			shotsFired = shotsFired + 1
-
-			table.insert(Player.bullets, newBullet5)
-			table.insert(Player.bullets, newBullet6)
-			
-		end
-    
-    --]]
-
 		if (Sounds.gunSound:isPlaying()) then
 			Sounds.gunSound:rewind()
 		else
@@ -248,21 +226,33 @@ end
 
 function Player.drawPlayer()
   if Player.isAlive then
-    if Player.isTurningLeft then
-			gfx.draw(Player.img_left, Player.x, Player.y)
-		elseif Player.isTurningRight then
-			gfx.draw(Player.img_right, Player.x, Player.y)
-		else
-			gfx.draw(Player.img, Player.x, Player.y)
-		end
+    
+    gfx.draw(Player.img, Player.x, Player.y)
+    
+    if showBoundingBoxes == true then
+      for i, box in ipairs(Player.boxes) do
+        gfx.rectangle("line",Player.x+box[1], Player.y+box[2], box[3], box[4])
+      end
+    end
+    
+    --if Player.isTurningLeft then
+		--	gfx.draw(Player.img_left, Player.x, Player.y)
+		--elseif Player.isTurningRight then
+    --gfx.draw(Player.img_right, Player.x, Player.y)
+		--else
+		--end
     
     if Player.isShieldOn then
-      gfx.draw(Player.shieldImg, Player.x-10, Player.y-8, 0, 0.5, 0.4)
+      gfx.draw(Player.shieldImg, Player.x+2, Player.y-10, 0, 0.3, 0.3)
     end
     
 	end
 end
 
 function Player.addPowerUp(powerUp)
-  Player.numShots = Player.numShots+1
+  if (Player.numShots < 4) then
+    Player.numShots = Player.numShots+1  
+    Player.img = playerImages[Player.numShots]
+    Player.boxes = playerBoxes[Player.numShots]
+  end
 end

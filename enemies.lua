@@ -146,7 +146,7 @@ function Enemy.moveEnemy(enemy, index, dt)
 end
 
 function Enemy.moveBoss(boss, dt)
-  
+
   if (boss.bossTween == nil) then
     local xTo = math.random(screenWidth) - boss.width/2
     local yTo = math.random(120)-100

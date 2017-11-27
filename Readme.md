@@ -9,5 +9,6 @@ Planned features/TODO
 - [ ] async network calls for leaderboard
 - [ ] replace placeholder assets with final ones
 - [ ] rethink level design
+- [ ] Co-Op local 2-player mode
 - [ ] make it awesome
 

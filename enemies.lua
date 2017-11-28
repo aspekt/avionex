@@ -7,7 +7,8 @@ Enemy = {
   bossImgs = nil,
   bossAlive = false,
   enemiesKilled = 0,
-  isHit = false -- a player bullet has hit this enemy
+  isHit = false, -- a player bullet has hit this enemy
+  bossHitCounterBase = 30 -- how many hits to kill a boss in level 1
 }
 
 function Enemy.init()
@@ -142,7 +143,7 @@ local currentBoss = nil
 function Enemy.spawnBoss()
   Enemy.bossAlive = true
   newBoss = { x = 150, y = -150, img = Enemy.bossImgs[1], width = 304, height = 400, 
-              speed = playerSpeed, hitCounter=20*playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1],
+              speed = playerSpeed, hitCounter = Enemy.bossHitCounterBase * playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1],
                willShoot = true, shootTimer = math.random(6-playerLevel) * math.random(), bossTween = nil}
   table.insert(Enemy.enemies, newBoss)
   currentBoss = newBoss

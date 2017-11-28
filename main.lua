@@ -46,13 +46,16 @@ function love.load(arg)
 	if (table.getn(joysticks) > 0) then 
 		joystick = joysticks[1] -- get first stick 
 	end
-	
+
   if (useEffect) then
 		-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
 		
 
 		speedEffect =  moonshine(moonshine.effects.godsray).
 					chain(moonshine.effects.scanlines)
+
+		speedEffect.scanlines.opacity = 0.5
+		speedEffect.scanlines.width = 1
 
     normalEffect = moonshine(moonshine.effects.glow).
               		chain(moonshine.effects.scanlines)

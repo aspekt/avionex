@@ -160,10 +160,10 @@ function Player.updateMove(dt)
 	-- superspeed
 	if love.keyboard.isDown(' ', 'z') or (joystick ~= nil and joystick:isGamepadDown('x')) or love.keyboard.isDown("lshift")  then
     Player.superSpeed = true
-		Player.speed = 500
+		Player.speed = 500 + (10 * playerLevel)
 	else
     Player.superSpeed = false
-		Player.speed = 250
+		Player.speed = 300
 	end
   
   if (love.keyboard.isDown(' ', 'x') and not Player.isShieldOn and Player.shieldTimer <= 0) then

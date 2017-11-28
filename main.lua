@@ -215,7 +215,7 @@ function love.draw(dt)
 	FPS = love.timer.getFPS()
 
 	if (useEffect) then
-		if (Player.isSuperSpeed) then
+		if (Player.superSpeed) then
 				speedEffect(draw_all)
 		else
 				normalEffect(draw_all)

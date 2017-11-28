@@ -251,7 +251,8 @@ end
 
 function Player.addPowerUp(powerUp)
   if (Player.numShots < 4) then
-    Player.numShots = Player.numShots+1  
+    Player.numShots = Player.numShots+1
+    currentBulletSpeed = currentBulletSpeed + 50
     Player.img = playerImages[Player.numShots]
     Player.boxes = playerBoxes[Player.numShots]
   end

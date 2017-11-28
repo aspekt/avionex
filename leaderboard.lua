@@ -2,7 +2,15 @@ leaderboard = {}
 
 function loadLeaderboard() 
 
+    request = wapi.request({
+      method = "GET",
+      url = "http://kobot.mybluemix.net/api/killerskies"
+      }, function (body, headers, code)
 
+        leaderboard = json.decode(body)
+    end)
+
+    --[[
     co = coroutine.create(function ()
         local response = {}
         
@@ -20,7 +28,7 @@ function loadLeaderboard()
       end)
 
       Timer.after(0.2, function() coroutine.resume(co) end)
-      
+      --]]
 
 end
 

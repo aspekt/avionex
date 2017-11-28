@@ -1,6 +1,7 @@
 Enemy = {
   enemies = {},         -- array of current enemies
   enemyImgs = nil,      -- array with enemy sprites
+  asteroidImgs = nil,      -- array with asteroid sprites
   enemyBoxes = nil,     -- array of enemy bounding boxes
   createEnemyTimer = 0,
   bossImgs = nil,
@@ -25,21 +26,22 @@ function Enemy.init()
   
 
 
-  Enemy.enemyImgs = {gfx.newImage('assets/aircraft01.png'),
-				gfx.newImage('assets/aircraft02.png'), 
-				gfx.newImage('assets/aircraft03.png'),
-				gfx.newImage('assets/aircraft04.png'),
-				gfx.newImage('assets/aircraft07.png'),
-				gfx.newImage('assets/aircraft08.png')}
+  Enemy.enemyImgs = {gfx.newImage('assets/enemies/enemy_1.png'),
+                     gfx.newImage('assets/enemies/enemy_2.png'), 
+                     gfx.newImage('assets/enemies/enemy_3.png')}
+
+  Enemy.asteroidImgs = {gfx.newImage('assets/asteroids/asteroid_L_1.png'),
+                        gfx.newImage('assets/asteroids/asteroid_L_2.png'), 
+                        gfx.newImage('assets/asteroids/asteroid_M_1.png'),
+                        gfx.newImage('assets/asteroids/asteroid_M_2.png'),
+                        gfx.newImage('assets/asteroids/asteroid_S_1.png'),
+                        gfx.newImage('assets/asteroids/asteroid_S_2.png')}
 
   Enemy.enemyBoxes = {
-                { {42,3,26,87}, {4,47,101,30} },
-                { {42,5,26,79}, {4,42,103,26} },
-                { {43,5,26,80}, {5,42,102,22} },
-                { {44,5,21,76}, {5,34,101,22} },
-                { {46,4,20,74}, {5,36,101,27} },
-                { {38,6,19,67}, {6,37,82,20} }
-              }
+                      { {1,1,72,66} },
+                      { {26,8,25,49}, {12,26,54,31} },
+                      { {1,39,68,29}, {7,26,58,11}, {25,7,22,20}}
+                    }
 
   Enemy.bossImgs = {gfx.newImage('assets/zepellin.png')}
 	Enemy.bossBoxes = {{{31,12,252,378}}}
@@ -47,36 +49,24 @@ function Enemy.init()
 end
 
 function Enemy.updateTimers(dt)
-  -- Every X time, create new enemy
-  if not Enemy.bossAlive then
-    Enemy.createEnemyTimer = Enemy.createEnemyTimer - (1 * dt)
-    if Enemy.createEnemyTimer < 0 then
-      Enemy.createEnemyTimer = (createEnemyTimerMax * 1/playerLevel)
-
-      -- Create an enemy
-      Enemy.spawnEnemy()
-    end
-  end
   
   for i, enemy in ipairs(Enemy.enemies) do
     if enemy.willShoot then
       enemy.shootTimer = enemy.shootTimer - (1*dt)
       if enemy.shootTimer < 0 then
         
-        local shotType = math.random(2)
-        if shotType == 1 then
+        if enemy.shotType == 1 then
           Sounds.blast:play()                    
           Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
         else
           Sounds.threeShotDown:play()          
           Ballistics.threeShotDown(enemy.x + enemy.width/2, enemy.y+enemy.height)
-          
         end
       
         if enemy.isBoss then
           enemy.shootTimer = math.random(6-playerLevel) * math.random()
         else
-          enemy.shootTimer = 1000
+          enemy.shootTimer = 8 - math.random(6-playerLevel)
         end
       end
     end
@@ -84,27 +74,69 @@ function Enemy.updateTimers(dt)
   
 end
 
-function Enemy.spawnEnemy()
-  
-  randomNumber = math.random(10, gfx.getWidth() - 100)
-  randomSpeed = math.random(10, (50 * playerLevel))
-  randomImg = math.random(6)
-  willShoot = math.random(10) < playerLevel*2
-  kamikaze = math.random() < 0.5
 
-  newEnemy = { x = randomNumber, y = -50, img = Enemy.enemyImgs[randomImg] , isKamikaze=kamikaze, num=randomImg, 
-               speed = enemySpeed + randomSpeed, width = 100, height = 100, hitCounter=1, isBoss = false, boxes=Enemy.enemyBoxes[randomImg],
-               willShoot = willShoot, shootTimer = math.random()}
-             
-             
-  --todo temp por asteroids
-  if not willShoot then
-    newEnemy.boxes = {{20,20,88,88}}
+-- Type 1 = Kamikaze ... doesn´t shoot but goes after player
+-- Type 2 = One shot ... shoots towards the player once or twice and leaves
+-- Type 3 = Three shot ... shoots three shots directly down once
+-- Type 4 = Asteroid ... drifts aimlessly
+
+function Enemy.spawnEnemy(enemyType, enemySpeed, shootTimer, hitCounter)
+    
+  kamikaze = enemyType == 1
+  willShoot = not kamikaze
+
+  randomNumber = math.random(screenWidth-Enemy.enemyImgs[enemyType]:getWidth())
+
+  newEnemy = { x = randomNumber, y = -50, enemyType = enemyType, img = Enemy.enemyImgs[enemyType], isKamikaze=kamikaze,
+               speed = enemySpeed, width=Enemy.enemyImgs[enemyType]:getWidth(), height=Enemy.enemyImgs[enemyType]:getHeight(), 
+               hitCounter=hitCounter, isBoss = false, boxes=Enemy.enemyBoxes[enemyType], willShoot = willShoot, shootTimer = shootTimer}
+  
+  if (enemyType == 2) then
+    newEnemy.maxY = 150
+    newEnemy.minY = 30
+    if (math.random(2) == 1) then
+      newEnemy.dX = 1
+    else 
+      newEnemy.dX = -1
+    end
+    newEnemy.dY = 1
+    newEnemy.shotType = 1
+    
+  elseif (enemyType == 3) then  
+    newEnemy.minY = 100
+    newEnemy.maxY = 300
+    newEnemy.dY = 1
+    newEnemy.shotType = 2
   end
   
   table.insert(Enemy.enemies, newEnemy)
   
 end
+
+function Enemy.spawnAsteroid(asteroidSpeed)
+  
+  local asteroidType = math.random(6)
+  local asteroidImg = Enemy.asteroidImgs[asteroidType]
+  local randomPosition = 100 + math.random(screenWidth-asteroidImg:getWidth()-100)
+  
+  newEnemy = { x = randomPosition, y = -50, enemyType=4, img = asteroidImg, 
+               speed = asteroidSpeed, width = asteroidImg:getWidth(), height = asteroidImg:getHeight(), hitCounter=1000, 
+               isBoss = false, boxes={{1,1,asteroidImg:getWidth()-2, asteroidImg:getHeight()-2}},
+               willShoot = false, shootTimer = 1000}
+
+  newEnemy.dX = math.random()
+  
+  if (newEnemy.x > screenWidth/2 and math.random(2) == 1) then
+    newEnemy.dX = newEnemy.dX * -1
+  end
+  
+  newEnemy.dY = 1+math.random()*3/2
+
+  table.insert(Enemy.enemies, newEnemy)
+
+end
+
+
 local currentBoss = nil
 
 function Enemy.spawnBoss()
@@ -129,20 +161,59 @@ function Enemy.updatePositions(dt)
 end
 
 function Enemy.moveEnemy(enemy, index, dt)
-  enemy.y = enemy.y + (enemy.speed * dt)
-    
-    if enemy.isKamikaze then
-      if (enemy.x < Player.x) then
-        enemy.x = enemy.x + kamikazeSpeed * dt
-      else
-        enemy.x = enemy.x - kamikazeSpeed * dt
-      end
+  
+  -- Kamikaze
+  if enemy.enemyType == 1 then
+    enemy.y = enemy.y + (enemy.speed * dt)
+    if (enemy.x < Player.x) then
+        enemy.x = enemy.x + kamikazeSpeed * 3 * dt
+    else
+      enemy.x = enemy.x - kamikazeSpeed * 3 * dt
     end
+  
+  -- Este hace ZigZag y dispara hacia el player
+  elseif enemy.enemyType == 2 then
+    enemy.y = enemy.y + (enemy.speed * dt) * enemy.dY
+    enemy.x = enemy.x + (enemy.speed * dt) * enemy.dX
+    if (enemy.y < enemy.minY) then
+      enemy.dY = 1
+    end
+    
+    if (enemy.y > enemy.maxY) then
+      enemy.dY = -1
+    end
+    
+    if (enemy.x < 0) then
+      enemy.dX = 1
+    end
+    
+    if (enemy.x > screenWidth - enemy.width) then
+      enemy.dX = -1
+    end
+  
+  -- Sigue al player desde distancia y dispara
+  elseif enemy.enemyType == 3 then  
+    
+    enemy.y = enemy.y + (enemy.speed * dt) * enemy.dY
+    if (enemy.y > enemy.maxY) then
+      enemy.dY = -1
+    end
+    
+    if (enemy.y < enemy.minY) then
+      enemy.dY = 1
+    end
+  
+  -- Asteroid
+  elseif enemy.enemyType == 4 then  
+    enemy.y = enemy.y + (enemy.speed * dt) * enemy.dY
+    enemy.x = enemy.x + (enemy.speed * dt) * enemy.dX
+  end
 
-		if enemy.y > screenHeight then -- remove enemies when they pass off the screen
-			table.remove(Enemy.enemies, index)
-			missedEnemies = missedEnemies + 1
-		end
+	if enemy.y > screenHeight then -- remove enemies when they pass off the screen
+		table.remove(Enemy.enemies, index)
+		missedEnemies = missedEnemies + 1
+	end
+  
 end
 
 function Enemy.moveBoss(boss, dt)
@@ -184,11 +255,11 @@ function Enemy.draw(enemy, index)
       end
       --timer.after (0.1, function ()  end) -- no funca
     else
-      if (not enemy.isBoss and not enemy.willShoot) then
-        animAsteroid:draw(spriteSheetAsteroid, enemy.x, enemy.y)
-      else
+      --if (not enemy.isBoss and not enemy.willShoot) then
+      --  animAsteroid:draw(spriteSheetAsteroid, enemy.x, enemy.y)
+      --else
         gfx.draw(enemy.img, enemy.x, enemy.y)           
-      end
+      --end
     end
 
 end

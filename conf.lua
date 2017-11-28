@@ -2,12 +2,12 @@
 function love.conf(t)
 	t.title = "KILLER SKIES by BURGER GAMES" -- The title of the window the game is in (string)
 	t.version = "0.10.2"         -- The LÖVE version this game was made for (string)
-	t.window.width = 600        -- we want our game to be long and thin.
+	t.window.width = 900        -- we want our game to be long and thin.
 	t.window.height = 800
 	t.window.resizable = true
 	t.window.fullscreentype = "exclusive"
 
-	t.window.fullscreen = true  
+	t.window.fullscreen = false  
 	
 	-- For Windows debugging
 	t.console = true

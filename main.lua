@@ -33,12 +33,20 @@ osName = love.system.getOS()
 explosions = {}
 playerInitials = "DIE"          -- hay que pedir esto por teclado una vez al menos y guardarlo
 
+joystick = nil
+
+
 -- Loading
 function love.load(arg)
   
  	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	love.math.setRandomSeed(love.timer.getTime())
 
+	local joysticks = love.joystick.getJoysticks()
+	if (table.getn(joysticks) > 0) then 
+		joystick = joysticks[1] -- get first stick 
+	end
+	
   if (useEffect) then
 		-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
 		
@@ -70,11 +78,6 @@ function love.load(arg)
 	loadLeaderboard()
 	
 	lue:setColor("my-color", {200, 100, 255})
-
-	local joysticks = love.joystick.getJoysticks()
-	if (table.getn(joysticks) > 0) then 
-		joystick = joysticks[1] -- get first stick 
-	end
 	
 	Enemy.init();
 	Player.init();
@@ -107,6 +110,10 @@ function love.update(dt)
   wapi.update()
   
 	if (isGamePaused) then return end
+	
+	if love.keyboard.isDown('escape') then
+		love.event.push('quit')
+	end
     
   -- Update Background Images 
   back_coord.y1 = back_coord.y1+0.5
@@ -126,11 +133,6 @@ function love.update(dt)
 	--psystem:update(dt)
 	animPlane:update(dt)
 	updateExplosions(dt)
-	
-	-- I always start with an easy way to exit the game
-	if love.keyboard.isDown('escape') then
-		love.event.push('quit')
-	end
 
   -- First update timers
   Game.updateTimers(dt)  --Enemy and level creation is moved here
@@ -222,7 +224,9 @@ function love.draw(dt)
 		end
 	else
     draw_all(dt)
-  end
+	end
+	
+	
 
 end
 
@@ -230,7 +234,6 @@ function draw_all(dt)
   gfx.draw(backgroundImage1, back_coord.x1+(250-Player.x)/50,back_coord.y1+(600-Player.y)/50)
   gfx.draw(backgroundImage2, back_coord.x2+(250-Player.x)/50,back_coord.y2+(600-Player.y)/50)
 
-	HUD.draw(dt)
 
   -- draw explosions particle systems
   for i = table.getn(explosions), 1, -1 do
@@ -245,5 +248,9 @@ function draw_all(dt)
 
   if (isGamePaused) then
     drawLeaderboard()
-  end
+	end
+	
+	HUD.draw(dt)
+
+	
 end

@@ -102,6 +102,11 @@ function Player.updateMove(dt)
 	-- check joystick
 	if joystick ~= nil then
 
+		-- getGamepadAxis returns a value between -1 and 1. It returns 0 when it is at rest
+		--https://love2d.org/wiki/GamepadButton
+			Player.x = Player.x + joystick:getGamepadAxis("leftx") * (Player.speed*dt)
+			Player.y = 	Player.y + joystick:getGamepadAxis("lefty") *  (Player.speed*dt)
+				
 		if joystick:isGamepadDown("dpleft") then
 				if Player.x > 0 then -- binds us to the map
 					Player.x = Player.x - (Player.speed*dt)
@@ -153,7 +158,7 @@ function Player.updateMove(dt)
 	end
 
 	-- superspeed
-	if love.keyboard.isDown(' ', 'z') or (joystick ~= nil and joystick:isDown(3)) or love.keyboard.isDown("lshift")  then
+	if love.keyboard.isDown(' ', 'z') or (joystick ~= nil and joystick:isGamepadDown('x')) or love.keyboard.isDown("lshift")  then
     Player.superSpeed = true
 		Player.speed = 500
 	else

@@ -5,6 +5,7 @@ gfx = love.graphics
 anim8 = require 'libs/anim8/anim8'
 socket = require("socket")
 http = require("socket.http")
+wapi = require "libs/webapi"
 json = require "libs/json"
 
 require 'game'
@@ -97,8 +98,11 @@ function love.keypressed(key)
 
 function love.update(dt)
 
+  wapi.update()
+  
 	if (isGamePaused) then return end
     
+  -- Update Background Images 
   back_coord.y1 = back_coord.y1+0.5
   back_coord.y2 = back_coord.y2+0.5
   if (back_coord.y2 > 1023) then
@@ -123,6 +127,7 @@ function love.update(dt)
 	end
 
   -- First update timers
+  Game.updateTimers(dt)  --Enemy and level creation is moved here
 	Player.updateTimers(dt)
   Enemy.updateTimers(dt)
   PowerUps.updateTimers(dt);
@@ -149,15 +154,15 @@ function love.update(dt)
 				if (score % 20 == 0) then
 					Sounds.combos[math.random(6)]:play()
 				end
-
-        Game.enemyKilled(enemy)
-				
+        if enemyKilled then
+          Game.enemyKilled(enemy)
+				end
 			end
 		end
 
 		if CheckCollisionEnemyPlayer(enemy, Player) and Player.isAlive then
 			Enemy.enemyHit(enemy, i)
-      if not Player.isShieldOn then
+      if not Player.isShieldOn or enemy.enemyType==4 then
         Player.dead()
         Sounds.gameOver:play()
       end
@@ -176,16 +181,6 @@ function love.update(dt)
 
 	Player.updateMove(dt)
   
-  -- check for super speed boost
-	--[[currentBulletSpeed = baseBulletSpeed
-	if then
-		Player.speed = Player.speed * 2 -- double speed
-    Player.superSpeed = true
-		currentBulletSpeed = baseBulletSpeed * 2
-  else
-    Player.superSpeed = false
-	end]]
-  
 	Player.updateShot(dt)
 	
 	if not Player.isAlive and love.keyboard.isDown('r') then
@@ -194,15 +189,8 @@ function love.update(dt)
     Enemy.reset()
 		
 		-- reset our game state
-		score = 0
-		playerLevel = 1
-		showTextReady = true
-		showNewLevel = true
-		shotsFired = 0
-		missedEnemies = 0
+		Game.startNewGame()
 		Sounds.ready:play()
-		isAlive = true
-    
     HUD.init()
     
 	end

@@ -38,6 +38,12 @@ function HUD.update(dt)
 			end
 		end
 	end
+  
+  if (showNewLevel) then
+    HUD.showLevel(playerLevel)
+    showNewLevel=false
+  end
+  
 end
 
 function HUD.draw(dt)

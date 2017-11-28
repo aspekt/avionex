@@ -1,6 +1,7 @@
 HUD = {
   textsInScreen = {},      -- all texts on screen that expire
-  playerLevelTextPos = {x = 0, y = 0, duration = 3}
+	playerLevelTextPos = {x = 0, y = 0, duration = 3},
+	Logo = nil
 }
 
 function HUD.init()
@@ -15,7 +16,7 @@ function HUD.init()
 	HUD.playerLevelTextPos.y = 430
 
 	HUD.ShowText("LEVEL 1", HUD.playerLevelTextPos.x, HUD.playerLevelTextPos.y, HUD.playerLevelTextPos.duration)
-  
+  Logo = gfx.newImage('assets/cosmic-fighter_small_c.png')
 end
 
 function HUD.showLevel(level)
@@ -84,10 +85,12 @@ function HUD.draw(dt)
 		gfx.print("Press 'R' to restart", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
 	end
 
-	gfx.print("KILLER SKIES", gfx:getWidth()/2-60, 10)
+	gfx.draw(Logo, gfx:getWidth()/2-(Logo:getWidth()/2), 10)
+
+	--gfx.print("KILLER SKIES", gfx:getWidth()/2-60, 10)
 
 	if debug then
-		gfx.print("FPS: "..tostring(FPS), gfx:getWidth() / 2 - 40, 35)
+		gfx.print("FPS: "..tostring(FPS), 9, 35)
 	end  
   
 end

@@ -12,7 +12,7 @@ Planned features/TODO
 - [ ] Enemies, better movement, scale in speed/shooting speed/hits to kill      
 - [ ] 3 powerups, speed (arrancar tortuga e ir mejorando), shots (cantidad y tipo) y shield time (empieza minúsculo y va subiendo)
 - [ ] Add hyper speed powerup + timer like the shield
-- [ ] async network calls for leaderboard
+- [x] async network calls for leaderboard
       (check https://github.com/ulydev/wapi)
 - [ ] replace placeholder assets with final ones
 - [ ] Co-Op local 2-player mode

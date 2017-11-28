@@ -8,56 +8,30 @@ function loadLeaderboard()
       }, function (body, headers, code)
 
         leaderboard = json.decode(body)
+        print(body)
+        
     end)
-
-    --[[
-    co = coroutine.create(function ()
-        local response = {}
-        
-            a,b,c = http.request{ 
-                url = "http://kobot.mybluemix.net/api/killerskies", 
-                sink = ltn12.sink.table(response),
-                redirect = true
-            }
-        
-            --[{"_id":"5a11f321d28a060050b0bd02","score":"100","initials":"DIE","country":"URU"}]
-            response = table.concat(response)
-            print(response)
-            leaderboard = json.decode(response) -- Returns { 1, 2, 3, { x = 10 } }
-            coroutine.yield()
-      end)
-
-      Timer.after(0.2, function() coroutine.resume(co) end)
-      --]]
 
 end
 
 function saveScore(initials)
 
-    co = coroutine.create(function ()
-
-        local response = {}
-        
-        local payload = "{\"initials\":\""..initials.."\",\"score\":"..score.."}"
-        local response_body = { }
-
-        print(payload)
-
-        a,b,c = http.request{ 
-            url = "http://kobot.mybluemix.net/api/killerskies", 
-            method = "POST",
-            headers = {
-                ["Content-Type"] = "application/json",
-                ["Content-Length"] = payload:len()
-            },
-            source = ltn12.source.string(payload),
-            sink = ltn12.sink.table(response_body)
+    local payload = "{\"initials\":\""..initials.."\",\"score\":"..score.."}"
+    local args = {
+        method = "POST",
+        url = "http://kobot.mybluemix.net/api/killerskies",
+        body = payload,
+        headers = {
+            ["Content-Type"] = "application/json",
+            ["Content-Length"] = payload:len()
         }
+    }
+
+    print(json.encode(args))
+
+    request = wapi.request(args, function (body, headers, code)
+          print(body)
     end)
-
-    Timer.after(0.5, function() coroutine.resume(co) end)
-    
-
 
 end
 

@@ -40,25 +40,31 @@ function love.load(arg)
 	love.math.setRandomSeed(love.timer.getTime())
 
   if (useEffect) then
-    -- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
-    effect = moonshine(moonshine.effects.glow).
-                chain(moonshine.effects.scanlines).
-                chain(moonshine.effects.crt)
-          
+		-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
+		
 
-    effect.scanlines.opacity = 0.4
-    effect.scanlines.width = 1
+		speedEffect =  moonshine(moonshine.effects.godsray).
+					chain(moonshine.effects.scanlines)
 
+    normalEffect = moonshine(moonshine.effects.glow).
+              		chain(moonshine.effects.scanlines)
+                --chain(moonshine.effects.crt)
+					
+								
+		normalEffect.scanlines.opacity = 0.5
+		normalEffect.scanlines.width = 1
+
+    normalEffect.glow.min_luma = 0.3
+		normalEffect.glow.strength = 10
+		
   --	effect.pixelate.size = {2,2}
     --effect.pixelate.feedback = 0.2
 
-    effect.glow.min_luma = 0.3
-    effect.glow.strength = 10
 
     --playerEffect = moonshine(moonshine.effects.scanlines).chain(moonshine.effects.crt)
     
-    effect.crt.distortionFactor = {1.06, 1.06}
-    effect.crt.feather = 0.01
+    --effect.crt.distortionFactor = {1.06, 1.06}
+    --effect.crt.feather = 0.01
   end
 
 	loadLeaderboard()
@@ -208,8 +214,12 @@ function love.draw(dt)
 
 	FPS = love.timer.getFPS()
 
-  if (useEffect) then
-    effect(draw_all)
+	if (useEffect) then
+		if (Player.isSuperSpeed) then
+				speedEffect(draw_all)
+		else
+				normalEffect(draw_all)
+		end
 	else
     draw_all(dt)
   end

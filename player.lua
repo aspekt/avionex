@@ -257,8 +257,11 @@ function Player.drawPlayer()
     
     if Player.isShieldOn then
       gfx.draw(Player.shieldImg, Player.x-10, Player.y-8, 0, 0.5, 0.4)
+		else
+			if (Sounds.shieldUp:isPlaying()) then
+				Sounds.shieldUp:stop()
+			end
     end
-    
 	end
 end
 

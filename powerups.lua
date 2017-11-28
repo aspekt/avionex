@@ -23,7 +23,7 @@ end
 function PowerUps.spawnPowerUp()
   local dx=(math.random(1,2)*2)-3
   local x=math.random(screenWidth-132)+50
-  local pu = {x=x,y=0,dx=dx*2,dy=4,
+  local pu = {x=x,y=0,dx=dx*2,dy=2,
               spritesheet=ssPowerUpBlue,
               anim=animPowerUpBlue,
               width=32, height=32, boundLeft=x-50, boundRight=x+50}

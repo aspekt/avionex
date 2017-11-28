@@ -147,6 +147,7 @@ function Enemy.spawnBoss()
   table.insert(Enemy.enemies, newBoss)
   currentBoss = newBoss
   Sounds.finishHim:play()
+  Sounds.setMusicForBossBattle()
 end
 
 function Enemy.updatePositions(dt)
@@ -288,6 +289,8 @@ function Enemy.enemyHit(enemy, index)
     if enemy.isBoss then
       Enemy.bossAlive = false
       Sounds.perfect:play()
+      Sounds.setMusicForNormalPlay()
+      
     else
       Enemy.enemiesKilled = Enemy.enemiesKilled + 1;
     end

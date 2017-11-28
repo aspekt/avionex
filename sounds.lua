@@ -38,8 +38,25 @@ Sounds.blast = love.audio.newSource("assets/blast.wav", "static")
 Sounds.threeShotDown = love.audio.newSource("assets/3shotsdown.wav", "static")
 Sounds.powerup = love.audio.newSource("assets/mk3-00535.mp3", "static")
 
-Sounds.music = love.audio.newSource("assets/sounds/POL-twin-turbo-long.mp3") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
+Sounds.music = love.audio.newSource("assets/sounds/POL-cosmic-speedway-long.mp3") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
 Sounds.music:setLooping(true)
-Sounds.music:setVolume(0.7) -- so player can hear the sfx at 100% volume
+Sounds.music:setVolume(0.6) -- so player can hear the sfx at 100% volume
+
+Sounds.musicBossBattle = love.audio.newSource("assets/sounds/POL-underground-army-long.mp3") 
+Sounds.musicBossBattle:setLooping(true)
+Sounds.musicBossBattle:setVolume(0.6) -- so player can hear the sfx at 100% volume
 
 end
+
+function Sounds.setMusicForBossBattle()
+   
+    Sounds.music:setVolume(0.1) 
+    Sounds.musicBossBattle:play()
+    
+end
+
+function Sounds.setMusicForNormalPlay()    
+     Sounds.music:setVolume(0.6) 
+     Sounds.musicBossBattle:stop()     
+ end
+

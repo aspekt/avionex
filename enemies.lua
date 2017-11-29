@@ -4,11 +4,9 @@ Enemy = {
   asteroidImgs = nil,      -- array with asteroid sprites
   enemyBoxes = nil,     -- array of enemy bounding boxes
   createEnemyTimer = 0,
-  bossImgs = nil,
   bossAlive = false,
   enemiesKilled = 0,
-  isHit = false, -- a player bullet has hit this enemy
-  bossHitCounterBase = 30 -- how many hits to kill a boss in level 1
+  isHit = false         -- a player bullet has hit this enemy
 }
 
 function Enemy.init()
@@ -24,8 +22,6 @@ function Enemy.init()
   spriteSheetAsteroid = gfx.newImage('assets/asteroid_01_no_moblur.png')
   local a64 = anim8.newGrid(128,128, 1024, 1024)
   animAsteroid = anim8.newAnimation(a64('1-8', '1-8'), 0.06)
-  
-
 
   Enemy.enemyImgs = {gfx.newImage('assets/enemies/enemy_1.png'),
                      gfx.newImage('assets/enemies/enemy_2.png'), 
@@ -44,35 +40,32 @@ function Enemy.init()
                       { {1,39,68,29}, {7,26,58,11}, {25,7,22,20}}
                     }
 
-  Enemy.bossImgs = {gfx.newImage('assets/zepellin.png')}
-	Enemy.bossBoxes = {{{31,12,252,378}}}
-
 end
 
 function Enemy.updateTimers(dt)
   
   for i, enemy in ipairs(Enemy.enemies) do
-    if enemy.willShoot then
-      enemy.shootTimer = enemy.shootTimer - (1*dt)
-      if enemy.shootTimer < 0 then
-        
-        if enemy.shotType == 1 then
-          Sounds.blast:play()                    
-          Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
-        else
-          Sounds.threeShotDown:play()          
-          Ballistics.threeShotDown(enemy.x + enemy.width/2, enemy.y+enemy.height)
-        end
-      
-        if enemy.isBoss then
-          enemy.shootTimer = math.random(6-playerLevel) * math.random()
-        else
-          enemy.shootTimer = 8 - math.random(6-playerLevel)
+    
+    if (enemy.isBoss) then
+      -- Boss handles his own shit
+      enemy:updateTimers(dt)
+    else
+      if enemy.willShoot then
+        enemy.shootTimer = enemy.shootTimer - (1*dt)
+        if enemy.shootTimer < 0 then
+          
+          if enemy.shotType == 1 then
+            Sounds.blast:play()                    
+            Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
+          else
+            Sounds.threeShotDown:play()          
+            Ballistics.threeShotDown(enemy.x + enemy.width/2, enemy.y+enemy.height)
+          end
+          enemy.shootTimer = enemyMainShootTimer
         end
       end
     end
   end
-  
 end
 
 
@@ -100,6 +93,7 @@ function Enemy.spawnEnemy(enemyType, enemySpeed, shootTimer, hitCounter)
     else 
       newEnemy.dX = -1
     end
+    newEnemy.speed = newEnemy.speed/2
     newEnemy.dY = 1
     newEnemy.shotType = 1
     
@@ -114,24 +108,24 @@ function Enemy.spawnEnemy(enemyType, enemySpeed, shootTimer, hitCounter)
   
 end
 
-function Enemy.spawnAsteroid(asteroidSpeed)
+function Enemy.spawnAsteroid(level)
   
   local asteroidType = math.random(6)
   local asteroidImg = Enemy.asteroidImgs[asteroidType]
   local randomPosition = 100 + math.random(screenWidth-asteroidImg:getWidth()-100)
   
   newEnemy = { x = randomPosition, y = -50, enemyType=4, img = asteroidImg, 
-               speed = asteroidSpeed, width = asteroidImg:getWidth(), height = asteroidImg:getHeight(), hitCounter=1000, 
+               speed = 150+level*10, width = asteroidImg:getWidth(), height = asteroidImg:getHeight(), hitCounter=1000, 
                isBoss = false, boxes={{1,1,asteroidImg:getWidth()-2, asteroidImg:getHeight()-2}},
                willShoot = false, shootTimer = 1000}
 
   newEnemy.dX = math.random()
   
   if (newEnemy.x > screenWidth/2 and math.random(2) == 1) then
-    newEnemy.dX = newEnemy.dX * -1
+    newEnemy.dX = newEnemy.dX * -1 * level/3
   end
   
-  newEnemy.dY = 1+math.random()*3/2
+  newEnemy.dY = (2+math.random()*3/2) * level/3
 
   table.insert(Enemy.enemies, newEnemy)
 
@@ -140,13 +134,19 @@ end
 
 local currentBoss = nil
 
-function Enemy.spawnBoss()
+function Enemy.spawnBoss(level)
   Enemy.bossAlive = true
-  newBoss = { x = 150, y = -150, img = Enemy.bossImgs[1], width = 304, height = 400, 
-              speed = playerSpeed, hitCounter = Enemy.bossHitCounterBase * playerLevel, isBoss = true, goingLeft = true, boxes=Enemy.bossBoxes[1],
-               willShoot = true, shootTimer = math.random(6-playerLevel) * math.random(), bossTween = nil}
+  local newBoss = nil
+  if (level % 4 == 1) then
+    newBoss = BossOne:new()
+  else
+    newBoss = BossTwo:new()
+  end
+  newBoss:setBossLevel(1+math.floor(level/4))
+  
   table.insert(Enemy.enemies, newBoss)
   currentBoss = newBoss
+  
   Sounds.finishHim:play()
   Sounds.setMusicForBossBattle()
 end
@@ -156,7 +156,7 @@ function Enemy.updatePositions(dt)
 		if not enemy.isBoss then
       Enemy.moveEnemy(enemy, i, dt)
     else
-      Enemy.moveBoss(enemy, dt)
+      enemy:moveBoss(dt)
     end
 	end
   animAsteroid:update(dt)
@@ -269,6 +269,7 @@ end
 function Enemy.enemyHit(enemy, index)
 
   enemy.hitCounter = enemy.hitCounter - 1;
+  enemy.isHit = true
   
   -- enemy downed if hitcounter reaches 0
   if enemy.hitCounter == 0 then

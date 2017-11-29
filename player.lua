@@ -209,6 +209,7 @@ function Player.reset()
     
 	-- reset timers
 	Player.canShootTimer = 1
+  Player.numShots = 1
 	Player.createEnemyTimer = createEnemyTimerMax
   
 	-- move player back to default position

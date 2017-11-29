@@ -1,12 +1,14 @@
 Ballistics = {
   shots = {},         -- array of shots
+  shot_images = {gfx.newImage('assets/boss/missile.png'),
+                 gfx.newImage('assets/boss/energy_shot.png')}
 }
 
 function Ballistics.shootAtPlayer(x,y,player)
   
   x1 = player.x + player.width/2
   y1 = player.y + player.height/2
-  speed = 3+playerLevel
+  speed = 3 + playerLevel
   
   vector = createDirectionVector(x,y,x1,y1,speed)
   
@@ -14,7 +16,7 @@ function Ballistics.shootAtPlayer(x,y,player)
 end
 
 function Ballistics.threeShotDown(x,y)
-  speed = 2+playerLevel/2
+  speed = 3.5 +playerLevel/2
   
   -- Straight Shot
   vector = createDirectionVector(x,y,x,y+100,speed)
@@ -29,12 +31,48 @@ function Ballistics.threeShotDown(x,y)
   Ballistics.createShot(x,y,vector[1],vector[2],2)
 end
 
+function Ballistics.bossOneShotDown(boss)
+  speed = 5 + 2 * boss.bossLevel
+  
+  vector = createDirectionVector(1,1,1,10,speed-2)
+  Ballistics.createShot(boss.x+11,boss.y+113,vector[1],vector[2],3)
+  
+  vector = createDirectionVector(1,1,1,20,speed)
+  Ballistics.createShot(boss.x+63,boss.y+132,vector[1],vector[2],3)
+  
+  vector = createDirectionVector(1,1,1,30,speed)
+  Ballistics.createShot(boss.x+141,boss.y+132,vector[1],vector[2],3)
+  
+  vector = createDirectionVector(1,1,1,40,speed-2)
+  Ballistics.createShot(boss.x+195,boss.y+113,vector[1],vector[2],3)
+
+end
+
+function Ballistics.bossTwoShotDown(boss, player)
+  x1 = player.x + player.width/2
+  y1 = player.y + player.height/2
+  speed = 5 + 2 * boss.bossLevel
+  vector = createDirectionVector(boss.x,boss.y,x1,y1,speed)
+  Ballistics.createShot(boss.x+boss.width/2-22,boss.y+boss.height-10,vector[1],vector[2],4)
+end
+
 function Ballistics.createShot(x,y,vX,vY,shotType) 
     newShot = nil
     if shotType == 1 then
       newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=5}
-    else
+      newShot.box = {-newShot.radius/2+1, -newShot.radius/2+1, newShot.radius-1, newShot.radius-1}
+    elseif shotType == 2 then
       newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=8}
+      newShot.box = {-newShot.radius/2+1, -newShot.radius/2+1, newShot.radius-1, newShot.radius-1}
+    elseif shotType == 3 then
+      newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType}
+      newShot.img = Ballistics.shot_images[1]
+      newShot.box = {0, 0, newShot.img:getWidth(), newShot.img:getHeight()}
+    elseif shotType == 4 then
+      newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType}
+      newShot.img = Ballistics.shot_images[2]
+      newShot.box = {1, 1, newShot.img:getWidth()-2, newShot.img:getHeight()-2} 
+      newShot.tween = tween.new(2, newShot, {x=x+vX*150, y=y+vY*150}, tween.easing.inSine)
     end
     table.insert(Ballistics.shots, newShot)
 end
@@ -42,11 +80,17 @@ end
 function Ballistics.updatePositions(dt)
   for i, shot in ipairs(Ballistics.shots) do
     
-    if shot.y + shot.radius > screenHeight or shot.x + shot.radius > screenWidth or shot.x - shot.radius < 0 then -- remove enemies when they pass off the screen
+    if shot.y + shot.box[2] > screenHeight or shot.x + shot.box[1] > screenWidth or shot.x + shot.box[1] - shot.box[3] < 0 then -- remove enemies when they pass off the screen
 			table.remove(Ballistics.shots, i)
 		else
-      shot.x = shot.x + shot.vX;
-      shot.y = shot.y + shot.vY;
+      if (shot.tween == nil) then
+        shot.x = shot.x + shot.vX;
+        shot.y = shot.y + shot.vY;
+      else
+        if (shot.tween:update(dt)) then
+          shot.tween = nil
+        end
+      end
     end
 	end
 end
@@ -70,11 +114,14 @@ end
 function Ballistics.drawShot(shot)
   if shot.shotType == 1 then
     gfx.setColor(255, 255, 255)
-  else
+    gfx.circle("fill", shot.x, shot.y, shot.radius, 8)
+  elseif shot.shotType == 2 then
     gfx.setColor(28, 235, 247)
+    gfx.circle("fill", shot.x, shot.y, shot.radius, 8)
+    gfx.setColor(255, 255, 255)
+  elseif shot.shotType ==3 or shot.shotType ==4 then
+    gfx.draw(shot.img, shot.x, shot.y)
   end
-  gfx.circle("fill", shot.x, shot.y, shot.radius, 8) -- Draw white circle with 100 segments.
-  gfx.setColor(255, 255, 255)
 end
 
 function Ballistics.reset()

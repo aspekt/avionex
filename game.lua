@@ -1,15 +1,17 @@
 -- Timers
 -- We declare these here so we don't have to edit them multiple place
-createEnemyTimerMax = 1
-createPowerUpTimeMax = 15
+createEnemyTimerMax = 3
+createPowerUpTimeMax = 50
 
 --bulletSpeed = 400
 enemySpeed = 150
 playerSpeed = 250
 kamikazeSpeed = 50
 baseBulletSpeed = 250
+enemyMainShootTimer = 3
 currentBulletSpeed = baseBulletSpeed
 maxEnemiesAtOnce = 2
+enemiesToNextLevel = 20
 
 showBoundingBoxes = false
 useEffect = true
@@ -20,7 +22,6 @@ bulletSpeeds = {250, 300, 400, 500, 500} -- FIXME: Cambiar esto por algo decente
 bulletShootTimer = {0.2, 0.15, 0.1, 0.1, 0.1} -- FIXME: Igual que arriba
 
 missedEnemies = 0
-enemiesToNextLevel = 20
 asteroidRainCount = 0
 
 changedLevel = false
@@ -28,16 +29,6 @@ changedLevel = false
 isGamePaused = false
 
 Game = {}
-
-function Game.startNewGame()
-  score = 0
-	playerLevel = 1
-	showTextReady = true
-	showNewLevel = true
-	shotsFired = 0
-	missedEnemies = 0
-	isAlive = true
-end
 
 --Enemy and level creation is moved here
 function Game.updateTimers(dt)
@@ -56,15 +47,16 @@ function Game.updateLevelWithEnemies(dt)
     Enemy.createEnemyTimer = Enemy.createEnemyTimer - (1 * dt)
     
     if Enemy.createEnemyTimer < 0 and table.getn(Enemy.enemies) < maxEnemiesAtOnce then
-      Enemy.createEnemyTimer = (createEnemyTimerMax * 1/playerLevel)
+      Enemy.createEnemyTimer = createEnemyTimerMax
 
       -- Create an enemy
       local enemyType = math.random(3)
       local enemySpeed = math.random(10, (50 * playerLevel/2))
       local shootTimer = math.random()
       
-      Enemy.spawnEnemy(enemyType, playerSpeed - enemySpeed, shootTimer, math.ceil(playerLevel/2))
-      
+      if (enemiesToNextLevel-table.getn(Enemy.enemies)>0) then
+        Enemy.spawnEnemy(enemyType, playerSpeed - enemySpeed, shootTimer, math.ceil(playerLevel/2))
+      end
     end
   end  
 end
@@ -72,15 +64,13 @@ end
 function Game.updateAsteroidRain(dt)
   Enemy.createEnemyTimer = Enemy.createEnemyTimer - (1 * dt)
   if Enemy.createEnemyTimer < 0 then
-    Enemy.createEnemyTimer = (createEnemyTimerMax * 1/playerLevel)
+    Enemy.createEnemyTimer = createEnemyTimerMax/3 
     local asteroidSpeed = math.random(10, (50 * playerLevel))
-    Enemy.spawnAsteroid(playerSpeed + enemySpeed)
+    Enemy.spawnAsteroid(playerLevel)
     asteroidRainCount = asteroidRainCount + 1
     
-    if (asteroidRainCount == 50*playerLevel/2) then
-      playerLevel = playerLevel + 1
-      changedLevel = true;
-      showNewLevel = true;
+    if (asteroidRainCount == 20+10*playerLevel/2) then
+      Game.levelUp()
     end
   end 
 end
@@ -91,20 +81,50 @@ function Game.enemyKilled(enemy)
     enemy.isHit = true
 
     if enemyKilled then
-      asteroidRainCount = 0
-      playerLevel = playerLevel + 1
-      maxEnemiesAtOnce = 2 + playerLevel*2
-      changedLevel = true;
-      showNewLevel = true;
+      Game.levelUp()
     end
     
   else
+    enemiesToNextLevel = enemiesToNextLevel - 1
     -- after 20 hits, spawn boss
-    if Enemy.enemiesKilled % enemiesToNextLevel == 0 then 
+    if enemiesToNextLevel <= 0 then 
       Sounds.perfect:play()
       if not Enemy.bossAlive then
-        Enemy.spawnBoss()
+        Enemy.spawnBoss(playerLevel)
       end
     end
   end
+end
+
+function Game.startNewGame()
+  score = 0
+	playerLevel = 1
+  enemySpeed = 150
+	showTextReady = true
+	showNewLevel = true
+	shotsFired = 0
+	missedEnemies = 0
+  enemyMainShootTimer = 3
+  maxEnemiesAtOnce = 2
+	isAlive = true
+  enemiesToNextLevel=15
+  createEnemyTimerMax = 3
+end
+
+function Game.levelUp()
+  asteroidRainCount = 0
+  enemyMainShootTimer = enemyMainShootTimer - 0.5
+  if (enemyMainShootTimer <= 1) then
+    enemyMainShootTimer = 1
+  end
+  createEnemyTimerMax = createEnemyTimerMax - 0.5
+  if (createEnemyTimerMax <= 1) then
+    createEnemyTimerMax = 1
+  end
+  enemySpeed = enemySpeed + 30
+  playerLevel = playerLevel + 1
+  maxEnemiesAtOnce = 2 + playerLevel
+  enemiesToNextLevel = 15 + (playerLevel/2)*5
+  changedLevel = true;
+  showNewLevel = true;
 end

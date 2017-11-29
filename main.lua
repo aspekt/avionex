@@ -7,7 +7,9 @@ socket = require("socket")
 http = require("socket.http")
 wapi = require "libs/webapi"
 json = require "libs/json"
+object = require("libs/object")
 
+require 'boss'
 require 'game'
 require 'hud'
 require 'enemies'
@@ -35,12 +37,11 @@ playerInitials = "DIE"          -- hay que pedir esto por teclado una vez al men
 
 joystick = nil
 
-
 -- Loading
 function love.load(arg)
   
  	if arg[#arg] == "-debug" then require("mobdebug").start() end
-	love.math.setRandomSeed(love.timer.getTime())
+  math.randomseed(os.time())
 
 	local joysticks = love.joystick.getJoysticks()
 	if (table.getn(joysticks) > 0) then 
@@ -82,10 +83,11 @@ function love.load(arg)
 	
 	lue:setColor("my-color", {200, 100, 255})
 	
-	Enemy.init();
-	Player.init();
-  PowerUps.init();
-	Sounds.init();
+	Enemy.init()
+	Player.init()
+  PowerUps.init()
+	Sounds.init()
+  Game.startNewGame()
 
 	--backgroundImage = gfx.newImage('assets/tileable-classic-nebula-space-patterns-wide.jpeg')
 	--backgroundImageIverted = gfx.newImage('assets/background_inverted.png')

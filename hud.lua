@@ -57,7 +57,13 @@ function HUD.draw(dt)
   -- DRAW STATIC GUI
 	gfx.setColor(255, 255, 255)
 	gfx.print("SCORE: " .. tostring(score), gfx:getWidth() - 120, 10)
-	gfx.print("LIVES: " .. tostring(Player.lives), gfx:getWidth() - 120, 40)
+
+	local i =  1
+	while i <= Player.lives do
+		gfx.draw(Player.thumbnail, gfx:getWidth() - 160 + (i * 30), 40)
+		i = i + 1
+	end
+	
 	
 	gfx.print("LEVEL: " .. tostring(playerLevel),9, 10 )
 	gfx.print("MISSED: " .. tostring(missedEnemies), gfx:getWidth() - 100, gfx:getHeight() - 30)

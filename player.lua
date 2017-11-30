@@ -4,7 +4,8 @@ Player = {
   x =  0, 
   y = 710, 
   speed = playerSpeed, 
-  img = nil,
+	img = nil,
+	thumbnail = nil,
   numShots = 1,
   shieldImg = nil,
   isShieldOn = false,
@@ -34,7 +35,9 @@ function Player.init()
   playerBoxes = { {{34,6,14,58},{18,37,46,28},{26,22,30,15}},
                   {{34,6,14,58},{18,37,46,28},{26,22,30,15}},
                   {{34,6,14,58},{10,37,62,28},{26,22,30,15}},
-                  {{34,6,14,58},{10,37,62,28},{26,22,30,15}}}
+									{{34,6,14,58},{10,37,62,28},{26,22,30,15}}}
+									
+	Player.thumbnail = gfx.newImage('assets/player_thumb.png')
   
   Player.img = playerImages[1]
   Player.boxes = playerBoxes[1]

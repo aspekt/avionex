@@ -88,6 +88,7 @@ BossTwo = Boss:extend(function(class,parent)
  
   function class:setBossLevel(level)
     parent.setBossLevel(self,level)
+    self.hitCounter = level * 100
     self.bossShootTimer = 5 + math.random(5) - level*2
     self.rafaga = 4 + (level-1)*2
   end

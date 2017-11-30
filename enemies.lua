@@ -86,20 +86,24 @@ function Enemy.spawnEnemy(enemyType, enemySpeed, shootTimer, hitCounter)
                hitCounter=hitCounter, isBoss = false, boxes=Enemy.enemyBoxes[enemyType], willShoot = willShoot, shootTimer = shootTimer}
   
   if (enemyType == 2) then
-    newEnemy.maxY = 150
-    newEnemy.minY = 30
     if (math.random(2) == 1) then
+      newEnemy.x = 0 - newEnemy.width
       newEnemy.dX = 1
     else 
+      newEnemy.x = screenWidth + newEnemy.width
       newEnemy.dX = -1
     end
-    newEnemy.speed = newEnemy.speed/2
-    newEnemy.dY = 1
+    
+    newEnemy.minY = math.random(40)
+    newEnemy.maxY = 100 + math.random(100)
+    newEnemy.speed = newEnemy.speed * 0.7
     newEnemy.shotType = 1
     
   elseif (enemyType == 3) then  
     newEnemy.minY = 100
     newEnemy.maxY = 300
+    newEnemy.speed = newEnemy.speed * 0.6
+    newEnemy.startX = newEnemy.x
     newEnemy.dY = 1
     newEnemy.shotType = 2
   end
@@ -166,24 +170,23 @@ function Enemy.moveEnemy(enemy, index, dt)
   
   -- Kamikaze
   if enemy.enemyType == 1 then
-    enemy.y = enemy.y + (enemy.speed * dt)
-    if (enemy.x < Player.x) then
-        enemy.x = enemy.x + kamikazeSpeed * 3 * dt
+    if (enemy.y < Player.y) then
+      enemy.y = enemy.y + kamikazeSpeed * 3 * dt
     else
-      enemy.x = enemy.x - kamikazeSpeed * 3 * dt
+      enemy.y = enemy.y - kamikazeSpeed * 3 * dt
+    end
+    --enemy.y = enemy.y + (enemy.speed * dt)
+    if (enemy.x < Player.x) then
+        enemy.x = enemy.x + kamikazeSpeed * 2 * dt
+    else
+      enemy.x = enemy.x - kamikazeSpeed * 2 * dt
     end
   
   -- Este hace ZigZag y dispara hacia el player
   elseif enemy.enemyType == 2 then
-    enemy.y = enemy.y + (enemy.speed * dt) * enemy.dY
-    enemy.x = enemy.x + (enemy.speed * dt) * enemy.dX
-    if (enemy.y < enemy.minY) then
-      enemy.dY = 1
-    end
     
-    if (enemy.y > enemy.maxY) then
-      enemy.dY = -1
-    end
+    enemy.y = enemy.maxY - math.sin((screenWidth - enemy.x)/screenWidth * math.pi) * (enemy.maxY-enemy.minY) -- enemy.y + (enemy.speed * dt) * enemy.dY
+    enemy.x = enemy.x + (enemy.speed * dt) * enemy.dX
     
     if (enemy.x < 0) then
       enemy.dX = 1
@@ -195,7 +198,7 @@ function Enemy.moveEnemy(enemy, index, dt)
   
   -- Sigue al player desde distancia y dispara
   elseif enemy.enemyType == 3 then  
-    
+    enemy.x = enemy.startX + math.sin((enemy.y-enemy.minY) * 0.01 * math.pi)*25
     enemy.y = enemy.y + (enemy.speed * dt) * enemy.dY
     if (enemy.y > enemy.maxY) then
       enemy.dY = -1
@@ -260,7 +263,16 @@ function Enemy.draw(enemy, index)
       --if (not enemy.isBoss and not enemy.willShoot) then
       --  animAsteroid:draw(spriteSheetAsteroid, enemy.x, enemy.y)
       --else
-        gfx.draw(enemy.img, enemy.x, enemy.y)           
+        if (enemy.enemyType == 1) then
+          local angle = math.pi * 2 - math.atan((enemy.x-Player.x)/math.abs(enemy.y-Player.y))
+          if (enemy.y<=Player.y) then
+            angle = math.atan((enemy.x-Player.x)/math.abs(enemy.y-Player.y)) - math.pi
+          end
+          
+          gfx.draw(enemy.img, enemy.x, enemy.y, angle, 1, 1, enemy.width/2, enemy.height/2)
+        else
+          gfx.draw(enemy.img, enemy.x, enemy.y)           
+        end
       --end
     end
 

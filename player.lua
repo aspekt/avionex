@@ -201,7 +201,7 @@ function Player.updateMove(dt)
 end
 
 function Player.updateShot(dt)
-  if Player.isAlive and Player.canShoot and (not Player.superSpeed) and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
+  if Player.isAlive and Player.canShoot and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
 		-- Create some bullets
 
 		bulletSpeed = currentBulletSpeed + (playerLevel * 20)

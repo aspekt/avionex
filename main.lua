@@ -130,10 +130,15 @@ function love.update(dt)
   
 	if (isGamePaused) then return end
 
-    
+	if (Player.superSpeed) then
+		backgroundSpeed = 1
+	else
+		backgroundSpeed = 0.5
+	end
+
   -- Update Background Images 
-  back_coord.y1 = back_coord.y1+0.5
-  back_coord.y2 = back_coord.y2+0.5
+  back_coord.y1 = back_coord.y1 + backgroundSpeed
+  back_coord.y2 = back_coord.y2 + backgroundSpeed
   if (back_coord.y2 > 1023) then
     back_coord.y2 = -1022  
   end

@@ -28,7 +28,10 @@ changedLevel = false
 
 isGamePaused = false
 
-Game = {}
+Game = {
+
+  
+}
 
 --Enemy and level creation is moved here
 function Game.updateTimers(dt)

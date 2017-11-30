@@ -119,7 +119,7 @@ function Enemy.spawnAsteroid(level)
   local randomPosition = 100 + math.random(screenWidth-asteroidImg:getWidth()-100)
   
   newEnemy = { x = randomPosition, y = -50, enemyType=4, img = asteroidImg, 
-               speed = 150+level*10, width = asteroidImg:getWidth(), height = asteroidImg:getHeight(), hitCounter=1000, 
+               speed = 150+level*5, width = asteroidImg:getWidth(), height = asteroidImg:getHeight(), hitCounter=1000, 
                isBoss = false, boxes={{1,1,asteroidImg:getWidth()-2, asteroidImg:getHeight()-2}},
                willShoot = false, shootTimer = 1000}
 

@@ -19,7 +19,7 @@ useEffect = true
 playerLevel = 1
 
 bulletSpeeds = {250, 300, 400, 500, 500} -- FIXME: Cambiar esto por algo decente y que sea dinamico
-bulletShootTimer = {0.2, 0.15, 0.1, 0.1, 0.1} -- FIXME: Igual que arriba
+bulletShootTimer = {0.3, 0.25, 0.2, 0.2, 0.1} -- FIXME: Igual que arriba
 
 missedEnemies = 0
 asteroidRainCount = 0

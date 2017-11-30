@@ -223,7 +223,7 @@ function Player.updateShot(dt)
 			Sounds.gunSound:play()
 		end
 		Player.canShoot = false
-		Player.canShootTimer = bulletShootTimer[playerLevel]
+		Player.canShootTimer = bulletShootTimer[Player.numShots]
 	end
 end
 
@@ -285,7 +285,7 @@ function Player.drawPlayer()
 end
 
 function Player.addPowerUp(powerUp)
-  if (Player.numShots < 4) then
+  if (Player.numShots < 3) then
     Player.numShots = Player.numShots+1  
     Player.img = playerImages[Player.numShots]
     Player.boxes = playerBoxes[Player.numShots]

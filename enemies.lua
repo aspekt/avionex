@@ -170,18 +170,17 @@ function Enemy.moveEnemy(enemy, index, dt)
   
   -- Kamikaze
   if enemy.enemyType == 1 then
-    if (enemy.y < Player.y) then
-      enemy.y = enemy.y + kamikazeSpeed * 3 * dt
-    else
-      enemy.y = enemy.y - kamikazeSpeed * 3 * dt
+    
+    if (enemy.timeToVector == nil or enemy.timeToVector <= 0) then
+      local vector = createDirectionVector(enemy.x, enemy.y, Player.x, Player.y, enemy.speed/90)
+      enemy.dX = vector[1]
+      enemy.dY = vector[2]
+      enemy.timeToVector = 1
     end
-    --enemy.y = enemy.y + (enemy.speed * dt)
-    if (enemy.x < Player.x) then
-        enemy.x = enemy.x + kamikazeSpeed * 2 * dt
-    else
-      enemy.x = enemy.x - kamikazeSpeed * 2 * dt
-    end
-  
+    enemy.timeToVector = enemy.timeToVector - dt
+    enemy.x = enemy.x + enemy.dX
+    enemy.y = enemy.y + enemy.dY
+    
   -- Este hace ZigZag y dispara hacia el player
   elseif enemy.enemyType == 2 then
     

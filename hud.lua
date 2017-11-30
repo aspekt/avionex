@@ -64,6 +64,7 @@ function HUD.draw(dt)
 		i = i + 1
 	end
 	
+	
 
 	gfx.print("LEVEL: " .. tostring(playerLevel),9, 10 )
 	gfx.print("MISSED: " .. tostring(missedEnemies), gfx:getWidth() - 100, gfx:getHeight() - 30)

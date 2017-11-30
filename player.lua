@@ -286,9 +286,16 @@ function Player.drawPlayer()
 end
 
 function Player.addPowerUp(powerUp)
-  if (Player.numShots < 3) then
-    Player.numShots = Player.numShots+1  
-    Player.img = playerImages[Player.numShots]
-    Player.boxes = playerBoxes[Player.numShots]
-  end
+	if (powerUp.type == PowerUps.POWERUP_TYPE_LIFE) then
+		if (Player.lives < 3) then
+			Player.lives = Player.lives + 1
+			Sounds.perfect:play()
+		end
+	else
+		if (Player.numShots < 3) then
+			Player.numShots = Player.numShots+1  
+			Player.img = playerImages[Player.numShots]
+			Player.boxes = playerBoxes[Player.numShots]
+		end
+	end
 end

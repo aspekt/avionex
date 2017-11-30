@@ -9,10 +9,10 @@ function HUD.init()
   --	font = gfx.newFont(14) -- the number denotes the font size
 	gfx.setNewFont("assets/octab-017.ttf", 26)
 
-	HUD.ShowText("READY!", gfx:getWidth() / 2 - 40, 400, 3)
+	HUD.ShowText("READY!", gfx:getWidth() / 2 - 50, 400, 3)
 	
 	-- get and set where we are shoing changed level texts
-	HUD.playerLevelTextPos.x = gfx:getWidth() / 2 - 40
+	HUD.playerLevelTextPos.x = gfx:getWidth() / 2 - 50
 	HUD.playerLevelTextPos.y = 430
 
 	HUD.ShowText("LEVEL 1", HUD.playerLevelTextPos.x, HUD.playerLevelTextPos.y, HUD.playerLevelTextPos.duration)
@@ -57,6 +57,8 @@ function HUD.draw(dt)
   -- DRAW STATIC GUI
 	gfx.setColor(255, 255, 255)
 	gfx.print("SCORE: " .. tostring(score), gfx:getWidth() - 120, 10)
+	gfx.print("LIVES: " .. tostring(Player.lives), gfx:getWidth() - 120, 40)
+	
 	gfx.print("LEVEL: " .. tostring(playerLevel),9, 10 )
 	gfx.print("MISSED: " .. tostring(missedEnemies), gfx:getWidth() - 100, gfx:getHeight() - 30)
 	gfx.print("FIRED: " .. tostring(shotsFired), 10, gfx:getHeight() - 30)
@@ -80,9 +82,19 @@ function HUD.draw(dt)
   
   gfx.setColor(255, 255, 255)
 
+	
 	if not Player.isAlive then
+
 		gfx.print("GAME OVER",gfx:getWidth()/2-40, gfx:getHeight()/2)
-		gfx.print("Press 'R' to restart", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
+
+		if Player.canContinue() then
+			-- offer to continue
+			gfx.print("Press 'Enter' to continue", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
+			gfx.print(Player.lives.." LIVES LEFT", gfx:getWidth()/2-40, gfx:getHeight()/2 + 60)			
+			
+	  else
+			gfx.print("Press 'Enter' to restart", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
+		end
 	end
 
 	gfx.draw(Logo, gfx:getWidth()/2-(Logo:getWidth()/2), 10)

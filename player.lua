@@ -18,6 +18,7 @@ Player = {
 	width = 110,
 	height = 95,
 	boxes = {{9,15,91,29},{44,7,20,81}},
+	lives = 3 -- how many lives left? 3 to start with
 }
 
 Player.x = (love.graphics.getWidth() / 2) - (Player.width / 2) -- medio trucho pero funca
@@ -91,8 +92,26 @@ function Player.dead()
 	explosion:setPosition(Player.x + Player.width/2, Player.y + Player.height/2)
 	explosion:emit(20)
 	table.insert(explosions, explosion)
-	saveScore(playerInitials)
+	Player.lives = Player.lives - 1
+	if not Player.canContinue()	then
+		saveScore(playerInitials)
+	end
 end
+
+function Player.canContinue() 
+	return Player.lives > 0
+end
+
+function Player.continue()
+
+	-- move player back to default position
+	Player.x = gfx.getWidth() / 2 - 40
+	Player.y = gfx.getHeight() - 100
+	Player.isAlive = true
+	
+	--Sounds.perfect:play()
+end
+
 
 function Player.updateMove(dt)
   
@@ -213,10 +232,10 @@ function Player.reset()
 	Player.createEnemyTimer = createEnemyTimerMax
   
 	-- move player back to default position
-	Player.x = 250
-	Player.y = 710
+	Player.x = gfx.getWidth() / 2 - 40
+	Player.y = gfx.getHeight() - 100
   Player.isAlive = true
-
+	Player.lives = 3
 end
 
 function Player.drawAll()

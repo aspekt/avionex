@@ -37,6 +37,7 @@ playerInitials = "DIE"          -- hay que pedir esto por teclado una vez al men
 
 joystick = nil
 
+
 -- Loading
 function love.load(arg)
   
@@ -52,11 +53,21 @@ function love.load(arg)
 		-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
 		
 
+				
+		local w = gfx:getWidth()
+		local h = gfx:getHeight()
+
 		speedEffect =  moonshine(moonshine.effects.godsray).
 					chain(moonshine.effects.scanlines)
 
 		speedEffect.scanlines.opacity = 0.5
 		speedEffect.scanlines.width = 1
+
+		speedEffect.godsray.light_x = 0.5
+		speedEffect.godsray.light_y = 0
+		
+		speedEffect.godsray.exposure = 0.5
+		speedEffect.godsray.decay = 0.9
 
     normalEffect = moonshine(moonshine.effects.glow).
               		chain(moonshine.effects.scanlines)
@@ -196,16 +207,26 @@ function love.update(dt)
   
 	Player.updateShot(dt)
 	
-	if not Player.isAlive and love.keyboard.isDown('r') then
-		-- Reset players and enemies
-		Player.reset()
-    Enemy.reset()
-		
-		-- reset our game state
-		Game.startNewGame()
-		Sounds.ready:play()
-    HUD.init()
-    
+	-- is player dead?
+	if not Player.isAlive then
+		if Player.canContinue() then
+			if love.keyboard.isDown('return') then
+				Player.continue()
+				HUD.showLevel(playerLevel)
+				Sounds.ready:play()
+			end
+		else
+			if love.keyboard.isDown('return') then
+				-- Reset players and enemies
+				Player.reset()
+				Enemy.reset()
+				
+				-- reset our game state
+				Game.startNewGame()
+				Sounds.ready:play()
+				HUD.init()
+			end
+		end
 	end
 
 	HUD.update(dt)

@@ -105,26 +105,26 @@ function Game.startNewGame()
 	shotsFired = 0
 	missedEnemies = 0
   enemyMainShootTimer = 3
-  maxEnemiesAtOnce = 2
+  maxEnemiesAtOnce = 3
 	isAlive = true
   enemiesToNextLevel=15
-  createEnemyTimerMax = 3
+  createEnemyTimerMax = 2
 end
 
 function Game.levelUp()
   asteroidRainCount = 0
-  enemyMainShootTimer = enemyMainShootTimer - 0.5
+  enemyMainShootTimer = enemyMainShootTimer - 0.3
   if (enemyMainShootTimer <= 1) then
     enemyMainShootTimer = 1
   end
-  createEnemyTimerMax = createEnemyTimerMax - 0.5
+  createEnemyTimerMax = createEnemyTimerMax - 0.3
   if (createEnemyTimerMax <= 1) then
     createEnemyTimerMax = 1
   end
-  enemySpeed = enemySpeed + 30
+  enemySpeed = enemySpeed + 20
   playerLevel = playerLevel + 1
-  maxEnemiesAtOnce = 2 + playerLevel
-  enemiesToNextLevel = 15 + (playerLevel/2)*5
+  maxEnemiesAtOnce = 3 + math.floor(playerLevel/2)
+  enemiesToNextLevel = 15 + (playerLevel/2)*2
   changedLevel = true;
   showNewLevel = true;
 end

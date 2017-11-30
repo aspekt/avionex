@@ -281,7 +281,12 @@ function Enemy.enemyHit(enemy, index)
 
   enemy.hitCounter = enemy.hitCounter - 1;
   enemy.isHit = true
-  
+
+
+  if joystick ~= nil and joystick:isVibrationSupported() then
+    joystick:setVibration( 0.5, 0.5, 0.2 )
+  end
+
   -- enemy downed if hitcounter reaches 0
   if enemy.hitCounter == 0 then
     

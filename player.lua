@@ -96,6 +96,9 @@ function Player.dead()
 	explosion:emit(20)
 	table.insert(explosions, explosion)
 	Player.lives = Player.lives - 1
+	if joystick ~= nil and joystick:isVibrationSupported() then
+    joystick:setVibration( 0.7, 0.7, 0.6 )
+  end
 	if not Player.canContinue()	then
 		saveScore(playerInitials)
 	end

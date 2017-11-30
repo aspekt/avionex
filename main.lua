@@ -38,6 +38,7 @@ playerInitials = "DIE"          -- hay que pedir esto por teclado una vez al men
 joystick = nil
 
 
+
 -- Loading
 function love.load(arg)
   
@@ -52,14 +53,12 @@ function love.load(arg)
 
   if (useEffect) then
 		-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
-		
-
 				
 		local w = gfx:getWidth()
 		local h = gfx:getHeight()
 
 		speedEffect =  moonshine(moonshine.effects.godsray).
-					chain(moonshine.effects.scanlines)
+										chain(moonshine.effects.scanlines)
 
 		speedEffect.scanlines.opacity = 0.5
 		speedEffect.scanlines.width = 1
@@ -89,10 +88,9 @@ function love.load(arg)
     
     --effect.crt.distortionFactor = {1.06, 1.06}
     --effect.crt.feather = 0.01
-  end
-
-	loadLeaderboard()
+	end
 	
+	loadLeaderboard()	
 	lue:setColor("my-color", {200, 100, 255})
 	
 	Enemy.init()
@@ -110,27 +108,28 @@ function love.load(arg)
 	Sounds.music:play()
 	Sounds.ready:play() -- ready sfx
 	
-  HUD.init()
+	HUD.init()
+	
   
 end
 
--- Updating
-
-function love.keypressed(key)
-	if key == "p" then
+function love.keypressed( key, scancode, isrepeat)
+	if key == "escape" then
+		 love.event.quit()
+	elseif key == "n" then
+		Sounds.skipToNextMusicTrack()
+	elseif key == "p" then
 		isGamePaused = not isGamePaused
 	end
- end
+end
 
+-- UPDATING
 function love.update(dt)
 
   wapi.update()
   
 	if (isGamePaused) then return end
-	
-	if love.keyboard.isDown('escape') then
-		love.event.push('quit')
-	end
+
     
   -- Update Background Images 
   back_coord.y1 = back_coord.y1+0.5

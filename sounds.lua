@@ -1,5 +1,6 @@
 Sounds = {
-    mainVolume = 0.7
+    mainVolume = 0.7,
+    trackNumber = 1
 }
 
 
@@ -39,7 +40,13 @@ Sounds.blast = love.audio.newSource("assets/blast.wav", "static")
 Sounds.threeShotDown = love.audio.newSource("assets/3shotsdown.wav", "static")
 Sounds.powerup = love.audio.newSource("assets/mk3-00535.mp3", "static")
 
-Sounds.music = love.audio.newSource("assets/sounds/POL-twin-turbo-long.mp3") -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
+Sounds.musicTracks = {  love.audio.newSource("assets/sounds/POL-twin-turbo-long.mp3"),
+                        love.audio.newSource("assets/sounds/POL-cosmic-speedway-long.mp3"),
+                        love.audio.newSource("assets/sounds/POL-crime-fighter-long.mp3"),
+                        love.audio.newSource("assets/sounds/POL-galaxy-force-long.mp3"),
+                        love.audio.newSource("assets/sounds/POL-underground-army-long.mp3")}
+
+Sounds.music = Sounds.musicTracks[1] -- if "static" is omitted, LÖVE will stream the file from disk, good for longer music tracks
 Sounds.music:setLooping(true)
 Sounds.music:setVolume(Sounds.mainVolume) -- so player can hear the sfx at 100% volume
 
@@ -48,6 +55,18 @@ Sounds.musicBossBattle:setLooping(true)
 Sounds.musicBossBattle:setVolume(Sounds.mainVolume) -- so player can hear the sfx at 100% volume
 
 end
+
+function Sounds.skipToNextMusicTrack()
+    
+
+    Sounds.trackNumber = Sounds.trackNumber + 1
+    local max = table.getn(Sounds.musicTracks)
+    if (Sounds.trackNumber > max) then Sounds.trackNumber = 1 end
+    Sounds.music:stop() 
+    Sounds.music = Sounds.musicTracks[Sounds.trackNumber]
+    Sounds.music:play()
+     
+ end
 
 function Sounds.setMusicForBossBattle()
    
@@ -59,5 +78,6 @@ end
 function Sounds.setMusicForNormalPlay()    
      Sounds.music:setVolume(Sounds.mainVolume) 
      Sounds.musicBossBattle:stop()     
- end
+end
+
 

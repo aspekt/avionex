@@ -1,4 +1,4 @@
-# KILLER SKIES - Show no mercy!
+# COSMIC FIGHTER - Show no mercy!
 
 The game objetive is simple: Try not to die and shoot everything around you
 

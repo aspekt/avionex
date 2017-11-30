@@ -1,7 +1,7 @@
 -- Timers
 -- We declare these here so we don't have to edit them multiple place
-createEnemyTimerMax = 3
-createPowerUpTimeMax = 50
+createEnemyTimerMax = 2
+createPowerUpTimeMax = 40
 
 --bulletSpeed = 400
 enemySpeed = 150
@@ -10,7 +10,7 @@ kamikazeSpeed = 50
 baseBulletSpeed = 250
 enemyMainShootTimer = 3
 currentBulletSpeed = baseBulletSpeed
-maxEnemiesAtOnce = 2
+maxEnemiesAtOnce = 200
 enemiesToNextLevel = 20
 
 showBoundingBoxes = false
@@ -25,11 +25,9 @@ missedEnemies = 0
 asteroidRainCount = 0
 
 changedLevel = false
-
 isGamePaused = false
 
 Game = {
-
   
 }
 
@@ -47,8 +45,9 @@ end
 
 function Game.updateLevelWithEnemies(dt)
   if not Enemy.bossAlive then
-    Enemy.createEnemyTimer = Enemy.createEnemyTimer - (1 * dt)
-    
+   
+     Enemy.createEnemyTimer = Enemy.createEnemyTimer - (1 * dt)     
+
     if Enemy.createEnemyTimer < 0 and table.getn(Enemy.enemies) < maxEnemiesAtOnce then
       Enemy.createEnemyTimer = createEnemyTimerMax
 
@@ -101,33 +100,39 @@ end
 
 function Game.startNewGame()
   score = 0
-	playerLevel = 1
+  playerLevel = 1
+  playerSpeed = 250
   enemySpeed = 150
 	showTextReady = true
 	showNewLevel = true
 	shotsFired = 0
 	missedEnemies = 0
   enemyMainShootTimer = 3
-  maxEnemiesAtOnce = 3
+  maxEnemiesAtOnce = 300
 	isAlive = true
-  enemiesToNextLevel=15
+  enemiesToNextLevel=20
   createEnemyTimerMax = 2
 end
 
 function Game.levelUp()
+  
   asteroidRainCount = 0
   enemyMainShootTimer = enemyMainShootTimer - 0.3
+  
   if (enemyMainShootTimer <= 1) then
     enemyMainShootTimer = 1
   end
+  
   createEnemyTimerMax = createEnemyTimerMax - 0.3
+  
   if (createEnemyTimerMax <= 1) then
     createEnemyTimerMax = 1
   end
+
   enemySpeed = enemySpeed + 20
   playerLevel = playerLevel + 1
-  maxEnemiesAtOnce = 3 + math.floor(playerLevel/2)
-  enemiesToNextLevel = 15 + (playerLevel/2)*2
+  maxEnemiesAtOnce = maxEnemiesAtOnce + math.floor(playerLevel/2)
+  enemiesToNextLevel = enemiesToNextLevel + ((playerLevel/2)*2)
   changedLevel = true;
   showNewLevel = true;
 end

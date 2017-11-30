@@ -71,7 +71,7 @@ function love.load(arg)
 
     normalEffect = moonshine(moonshine.effects.glow).
               		chain(moonshine.effects.scanlines)
-                --chain(moonshine.effects.crt)
+               --chain(moonshine.effects.crt)
 					
 								
 		normalEffect.scanlines.opacity = 0.5
@@ -120,6 +120,8 @@ function love.keypressed( key, scancode, isrepeat)
 		Sounds.skipToNextMusicTrack()
 	elseif key == "p" then
 		isGamePaused = not isGamePaused
+	elseif key == "e" then
+		useEffect = not useEffect
 	end
 end
 

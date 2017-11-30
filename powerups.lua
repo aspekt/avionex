@@ -7,8 +7,6 @@ PowerUps = {
   POWERUP_TYPE_WEAPON = 2
 }
 
-POWERUP_TYPE_LIFE = 1
-
 function PowerUps.init()
 	local p64 = anim8.newGrid(32,32, 256, 32)
   animPowerUpBlue = anim8.newAnimation(p64('1-8', '1-1'), 0.1)

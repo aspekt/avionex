@@ -42,7 +42,8 @@ joystick = nil
 function love.load(arg)
   
  	if arg[#arg] == "-debug" then require("mobdebug").start() end
-  math.randomseed(os.time())
+	math.randomseed(os.time())
+
 
 	local joysticks = love.joystick.getJoysticks()
 	if (table.getn(joysticks) > 0) then 
@@ -210,13 +211,13 @@ function love.update(dt)
 	-- is player dead?
 	if not Player.isAlive then
 		if Player.canContinue() then
-			if love.keyboard.isDown('return') then
+			if love.keyboard.isDown('return') or (joystick ~= nil and joystick:isGamepadDown('start')) then
 				Player.continue()
 				HUD.showLevel(playerLevel)
 				Sounds.ready:play()
 			end
 		else
-			if love.keyboard.isDown('return') then
+			if love.keyboard.isDown('return') or (joystick ~= nil and joystick:isGamepadDown('start')) then
 				-- Reset players and enemies
 				Player.reset()
 				Enemy.reset()

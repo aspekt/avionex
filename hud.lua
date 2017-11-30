@@ -64,7 +64,7 @@ function HUD.draw(dt)
 		i = i + 1
 	end
 	
-	
+
 	gfx.print("LEVEL: " .. tostring(playerLevel),9, 10 )
 	gfx.print("MISSED: " .. tostring(missedEnemies), gfx:getWidth() - 100, gfx:getHeight() - 30)
 	gfx.print("FIRED: " .. tostring(shotsFired), 10, gfx:getHeight() - 30)
@@ -91,15 +91,15 @@ function HUD.draw(dt)
 	
 	if not Player.isAlive then
 
-		gfx.print("GAME OVER",gfx:getWidth()/2-40, gfx:getHeight()/2)
+		gfx.print("GAME OVER",gfx:getWidth()/2-50, gfx:getHeight()/2)
 
 		if Player.canContinue() then
 			-- offer to continue
-			gfx.print("Press 'Enter' to continue", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
-			gfx.print(Player.lives.." LIVES LEFT", gfx:getWidth()/2-40, gfx:getHeight()/2 + 60)			
+			gfx.print("Press 'Enter' or 'Start' to continue", gfx:getWidth()/2-140, gfx:getHeight()/2+30)
+			gfx.print(Player.lives.." LIVES LEFT", gfx:getWidth()/2-50, gfx:getHeight()/2 + 60)			
 			
 	  else
-			gfx.print("Press 'Enter' to restart", gfx:getWidth()/2-80, gfx:getHeight()/2+30)
+			gfx.print("Press 'Enter' or 'Start' to restart", gfx:getWidth()/2-140, gfx:getHeight()/2+30)
 		end
 	end
 

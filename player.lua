@@ -153,9 +153,10 @@ function Player.updateMove(dt)
 			end
       
       -- Shield!
-      if (joystick:isDown(2) and not Player.isShieldOn and Player.shieldTimer <= 0) then
+      if (joystick:isGamepadDown('b') and not Player.isShieldOn and Player.shieldTimer <= 0) then
         Player.isShieldOn = true
-        Player.shieldTimer = timeToShieldOff
+				Player.shieldTimer = timeToShieldOff
+				Sounds.shieldUp:play()
       end
 
 	end

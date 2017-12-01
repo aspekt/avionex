@@ -8,6 +8,7 @@ http = require("socket.http")
 wapi = require "libs/webapi"
 json = require "libs/json"
 object = require("libs/object")
+splashy = require("libs/splashy/splashy")
 
 require 'boss'
 require 'game'
@@ -36,14 +37,19 @@ explosions = {}
 playerInitials = "DIE"          -- hay que pedir esto por teclado una vez al menos y guardarlo
 
 joystick = nil
-
-
+isShowingSplash = true
 
 -- Loading
 function love.load(arg)
   
  	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	math.randomseed(os.time())
+
+	splashy.addSplash(love.graphics.newImage("assets/splash1.png")) -- Adds splash images.	
+	splashy.onComplete(function() print("Splash end.")
+																isShowingSplash = false
+																gameStart()
+															 end) -- Runs the argument once all splashes are done.
 
 
 	local joysticks = love.joystick.getJoysticks()
@@ -93,6 +99,12 @@ function love.load(arg)
 	loadLeaderboard()	
 	lue:setColor("my-color", {200, 100, 255})
 	
+end
+
+local back_coord
+
+function gameStart()
+
 	Enemy.init()
 	Player.init()
   PowerUps.init()
@@ -109,9 +121,9 @@ function love.load(arg)
 	Sounds.ready:play() -- ready sfx
 	
 	HUD.init()
-	
-  
+
 end
+
 
 function love.keypressed( key, scancode, isrepeat)
 	if key == "escape" then
@@ -123,13 +135,17 @@ function love.keypressed( key, scancode, isrepeat)
 	elseif key == "e" then
 		useEffect = not useEffect
 	end
+
 end
 
 -- UPDATING
 function love.update(dt)
 
   wapi.update()
-  
+	
+	splashy.update(dt) -- Updates the fading of the splash images.
+	if (isShowingSplash) then return end
+	
 	if (isGamePaused) then return end
 
 	if (Player.superSpeed) then
@@ -248,6 +264,11 @@ newLevelFramesShown = 0
 function love.draw(dt)
 
 	FPS = love.timer.getFPS()
+	if (isShowingSplash) then
+		splashy.draw() -- Draws the splashes to the screen.
+		return 
+	end
+
 
 	if (useEffect) then
 		if (Player.superSpeed) then
@@ -264,6 +285,7 @@ function love.draw(dt)
 end
 
 function draw_all(dt)
+
   gfx.draw(backgroundImage1, back_coord.x1+(250-Player.x)/50,back_coord.y1+(600-Player.y)/50)
   gfx.draw(backgroundImage2, back_coord.x2+(250-Player.x)/50,back_coord.y2+(600-Player.y)/50)
 

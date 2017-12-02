@@ -4,8 +4,9 @@ Ballistics = {
                  gfx.newImage('assets/boss/energy_shot.png')}
 }
 
-function Ballistics.shootAtPlayer(x,y,player)
+function Ballistics.shootAtPlayer(x,y)
   
+  local player = Player.getRandomPlayer()
   x1 = player.x + player.width/2
   y1 = player.y + player.height/2
   speed = 3 + playerLevel

@@ -56,7 +56,7 @@ function Enemy.updateTimers(dt)
           
           if enemy.shotType == 1 then
             Sounds.blast:play()                    
-            Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height, Player)
+            Ballistics.shootAtPlayer(enemy.x + enemy.width/2, enemy.y+enemy.height)
           else
             Sounds.threeShotDown:play()          
             Ballistics.threeShotDown(enemy.x + enemy.width/2, enemy.y+enemy.height)
@@ -85,7 +85,9 @@ function Enemy.spawnEnemy(enemyType, enemySpeed, shootTimer, hitCounter)
                speed = enemySpeed, width=Enemy.enemyImgs[enemyType]:getWidth(), height=Enemy.enemyImgs[enemyType]:getHeight(), 
                hitCounter=hitCounter, isBoss = false, boxes=Enemy.enemyBoxes[enemyType], willShoot = willShoot, shootTimer = shootTimer}
   
-  if (enemyType == 2) then
+  if (enemyType == 1) then
+    newEnemy.followPlayer = Player.getRandomPlayer()
+  elseif (enemyType == 2) then
     if (math.random(2) == 1) then
       newEnemy.x = 0 - newEnemy.width
       newEnemy.dX = 1
@@ -172,7 +174,7 @@ function Enemy.moveEnemy(enemy, index, dt)
   if enemy.enemyType == 1 then
     
     if (enemy.timeToVector == nil or enemy.timeToVector <= 0) then
-      local vector = createDirectionVector(enemy.x, enemy.y, Player.x, Player.y, enemy.speed/90)
+      local vector = createDirectionVector(enemy.x, enemy.y, enemy.followPlayer.x, enemy.followPlayer.y, enemy.speed/90)
       enemy.dX = vector[1]
       enemy.dY = vector[2]
       enemy.timeToVector = 1
@@ -263,9 +265,9 @@ function Enemy.draw(enemy, index)
       --  animAsteroid:draw(spriteSheetAsteroid, enemy.x, enemy.y)
       --else
         if (enemy.enemyType == 1) then
-          local angle = math.pi * 2 - math.atan((enemy.x-Player.x)/math.abs(enemy.y-Player.y))
-          if (enemy.y<=Player.y) then
-            angle = math.atan((enemy.x-Player.x)/math.abs(enemy.y-Player.y)) - math.pi
+          local angle = math.pi * 2 - math.atan((enemy.x-enemy.followPlayer.x)/math.abs(enemy.y-enemy.followPlayer.y))
+          if (enemy.y<=enemy.followPlayer.y) then
+            angle = math.atan((enemy.x-enemy.followPlayer.x)/math.abs(enemy.y-enemy.followPlayer.y)) - math.pi
           end
           
           gfx.draw(enemy.img, enemy.x+enemy.width/2, enemy.y+enemy.height/2, angle, 1, 1, enemy.width/2, enemy.height/2)

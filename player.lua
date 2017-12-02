@@ -1,35 +1,24 @@
 Player = {
-  canShoot = true,        -- Player is ready to shoot or not 
-  canShootTimer = 1,      -- Timer to next shot
-  x =  0, 
-  y = 710, 
-  speed = playerSpeed, 
 	img = nil,
 	thumbnail = nil,
-  numShots = 1,
   shieldImg = nil,
-  isShieldOn = false,
-  shieldTimer = 1,
-  isAlive = true,
-  bullets = {},            -- array of user shot bullets being drawn and updated
-  isTurningRight = false,
-  isTurningLeft = false,
+  playersAlive = false,
+  superSpeed1 = false,
+  superSpeed2 = false,
   superSpeed = false,
-	bulletImgs = nil,
-	width = 110,
-	height = 95,
-	boxes = {{9,15,91,29},{44,7,20,81}},
-	lives = 3 -- how many lives left? 3 to start with
+  numPlayers = 0,
+  numAlive = 0,
+  x = 0,
+  y = 0,
+  players = {}
 }
 
-Player.x = (love.graphics.getWidth() / 2) - (Player.width / 2) -- medio trucho pero funca
+--Player.x = (love.graphics.getWidth() / 2) - (Player.width / 2) -- medio trucho pero funca
 
 function Player.init()
   
   timeToShieldOn = 5
   timeToShieldOff = 10
-  
-  Player.shieldTimer = timeToShieldOn
   
   playerImages = {gfx.newImage('assets/new_player1.png'), gfx.newImage('assets/new_player2.png'), gfx.newImage('assets/new_player3.png'), gfx.newImage('assets/new_player4.png')}
   playerBoxes = { {{34,6,14,58},{18,37,46,28},{26,22,30,15}},
@@ -41,12 +30,7 @@ function Player.init()
   
   Player.img = playerImages[1]
   Player.boxes = playerBoxes[1]
-	--Player.img_right = gfx.newImage('assets/player-right.png')
-	--Player.img_left = gfx.newImage('assets/player-left.png')
   Player.shieldImg = gfx.newImage('assets/64_shield.png')
-  
-  Player.width = Player.img:getWidth()
-  Player.height = Player.img:getHeight()
   
   Player.bulletImgs = {gfx.newImage('assets/bullet.png'),
                        gfx.newImage('assets/new_bullet.png'),
@@ -54,229 +38,245 @@ function Player.init()
                        gfx.newImage('assets/bullet_orange.png'),
                        gfx.newImage('assets/bullet_purple.png')}
       
-  Player.reset()
+end
+
+function Player.spawnPlayer(input)
+  Player.playersAlive=true
+  Player.numPlayers = Player.numPlayers + 1
+  local newPlayer =  {
+      canShoot = true,        -- Player is ready to shoot or not 
+      canShootTimer = 1,      -- Timer to next shot
+      x =  0, 
+      y = 710, 
+      speed = playerSpeed, 
+      input = input,
+      img = playerImages[1],
+      thumbnail = Player.thumbnail,
+      numShots = 1,
+      shieldImg = Player.shieldImg,
+      isShieldOn = false,
+      shieldTimer = timeToShieldOn,
+      isAlive = true,
+      bullets = {},            -- array of user shot bullets being drawn and updated
+      superSpeed = false,
+      bulletImgs = nil,
+      width =  playerImages[1]:getWidth(),
+      height = playerImages[1]:getHeight(),
+      boxes = playerBoxes[1],
+      num = Player.numPlayers,
+      score = 0,
+      lives = 3 -- how many lives left? 3 to start with
+  }
+  
+  newPlayer.x = screenWidth/2 - newPlayer.width/2
+  newPlayer.y = screenHeight - newPlayer.height - 30
+  Player.numAlive = Player.numAlive + 1
+  table.insert(Player.players, newPlayer)
+    
 end
 
 function Player.updateTimers(dt)
   
+  -- No player alive, do nothing
+  if not Player.playersAlive then
+    return
+  end
+  
+  for index, player in ipairs(Player.players) do
   -- Time out how far apart our shots can be.
-	Player.canShootTimer = Player.canShootTimer - (1 * dt)
-  Player.shieldTimer = Player.shieldTimer - (1 * dt)
+    player.canShootTimer =player.canShootTimer - (1 * dt)
+    player.shieldTimer = player.shieldTimer - (1 * dt)
   
-	if Player.canShootTimer < 0 then
-		Player.canShoot = true
-	end
+    if player.canShootTimer < 0 then
+      player.canShoot = true
+    end
   
-  if Player.isShieldOn and Player.shieldTimer <= 0 then
-    Player.isShieldOn=false
-    Player.shieldTimer=timeToShieldOn
+    if player.isShieldOn and player.shieldTimer <= 0 then
+      player.isShieldOn=false
+      player.shieldTimer=timeToShieldOn
+    end
   end
 
 end
 
 
 function Player.updateBulletPositions(dt)
-  for index, bullet in ipairs(Player.bullets) do
-		bullet.y = bullet.y - (bullet.speed * dt)
+  for index, player in ipairs(Player.players) do
+    for index2, bullet in ipairs(player.bullets) do
+      bullet.y = bullet.y - (bullet.speed * dt)
 
-		if bullet.y < 0 then -- remove bullets when they pass off the screen
-			table.remove(Player.bullets, index)
-		end
-	end
+      if bullet.y < 0 then -- remove bullets when they pass off the screen
+        table.remove(player.bullets, index2)
+      end
+    end
+  end
 end
 
-function Player.bulletHit(index)
-  table.remove(Player.bullets, index)
+function Player.bulletHit(index, player)
+  table.remove(player.bullets, index)
 end
 
-function Player.dead()
-  Player.isAlive = false
+function Player.dead(player)
+  player.isAlive = false
 	Sounds.explodePlayer:play()
 	local explosion = getExplosion(getBlast(300))
-	explosion:setPosition(Player.x + Player.width/2, Player.y + Player.height/2)
+	explosion:setPosition(player.x + player.width/2, player.y + player.height/2)
 	explosion:emit(20)
 	table.insert(explosions, explosion)
-	Player.lives = Player.lives - 1
-	if joystick ~= nil and joystick:isVibrationSupported() then
-    joystick:setVibration( 0.7, 0.7, 0.6 )
+	player.lives = player.lives - 1
+  
+  if player.input == "joystick1" and joystick1:isVibrationSupported() then
+    joystick1:setVibration( 0.7, 0.7, 0.6 )
+  elseif player.input == "joystick2" and joystick2:isVibrationSupported() then
+    joystick2:setVibration( 0.7, 0.7, 0.6 )
   end
-	if not Player.canContinue()	then
+	
+	if not Player.canContinue(player)	then
 		saveScore(playerInitials)
 	end
+  
+  Sounds.gameOver:play()
+  Player.setPlayersAlive()
+  Player.numAlive = Player.numAlive - 1
 end
 
-function Player.canContinue() 
-	return Player.lives > 0
+function Player.setPlayersAlive()
+  local allLives = 0
+  --Player.playersAlive = false
+  for i, player in ipairs(Player.players) do
+    --Player.playersAlive = Player.playersAlive or player.isAlive
+    allLives = allLives + player.lives
+  end
+  
+  if (allLives == 0) then
+    Game.playing = false
+  end
 end
 
-function Player.continue()
+function Player.canContinue(player) 
+	return player.lives > 0
+end
+
+function Player.continue(player)
 
 	-- move player back to default position
-	Player.x = screenWidth / 2 - 40
-	Player.y = screenHeight - 100
-	Player.isAlive = true
-	
+	player.x = screenWidth / 2 - 40
+	player.y = screenHeight - 100
+	player.isAlive = true
+  Player.numAlive = Player.numAlive + 1
 	--Sounds.perfect:play()
+end
+
+function Player.getPlayerByInput(input)
+  for i, player in ipairs(Player.players) do
+    if player.input == input then
+      return player
+    end
+	end
+  return nil
 end
 
 
 function Player.updateMove(dt)
   
-  Player.isTurningLeft = false
-	Player.isTurningRight= false
-
-	-- check joystick
-	if joystick ~= nil then
-
-		-- getGamepadAxis returns a value between -1 and 1. It returns 0 when it is at rest
-		--https://love2d.org/wiki/GamepadButton
-			Player.x = Player.x + joystick:getGamepadAxis("leftx") * (Player.speed*dt)
-			Player.y = 	Player.y + joystick:getGamepadAxis("lefty") *  (Player.speed*dt)
-				
-		if joystick:isGamepadDown("dpleft") then
-				if Player.x > 0 then -- binds us to the map
-					Player.x = Player.x - (Player.speed*dt)
-				end
-			elseif joystick:isGamepadDown("dpright") then
-				if Player.x < (screenWidth - Player.img:getWidth()) then
-					Player.x = Player.x + (Player.speed*dt)
-				end
-			end
-
-			if joystick:isGamepadDown("dpup") then
-				if Player.y > 50 then
-					Player.y = Player.y - (Player.speed*dt)
-				end
-			elseif joystick:isGamepadDown("dpdown") then
-				if Player.y < (screenHeight - 55) then
-					Player.y = Player.y + (Player.speed*dt)
-				end
-			end
-      
-      -- Shield!
-      if (joystick:isGamepadDown('b') and not Player.isShieldOn and Player.shieldTimer <= 0) then
-        Player.isShieldOn = true
-				Player.shieldTimer = timeToShieldOff
-				Sounds.shieldUp:play()
-      end
-
-	end
-	
-	if love.keyboard.isDown('left','a') then
-		Player.isTurningLeft = true
-		if Player.x > 0 then -- binds us to the map
-			Player.x = Player.x - (Player.speed*dt)
-		end
-	elseif love.keyboard.isDown('right','d') then
-		Player.isTurningRight = true
-		if Player.x < (screenWidth - Player.img:getWidth()) then
-			Player.x = Player.x + (Player.speed*dt)
-		end
-	end
-
-	if love.keyboard.isDown('up', 'w') then
-	if Player.y > 50 then
-		Player.y = Player.y - (Player.speed*dt)
-	end
-	elseif love.keyboard.isDown('down', 's') then
-		if Player.y < (screenHeight - 55) then
-			Player.y = Player.y + (Player.speed*dt)
-		end
-	end
-
-	-- superspeed
-	if love.keyboard.isDown(' ', 'z') or (joystick ~= nil and joystick:isGamepadDown('x')) or love.keyboard.isDown("lshift")  then
-    Player.superSpeed = true
-		Player.speed = 500 + (10 * playerLevel)
-	else
-    Player.superSpeed = false
-		Player.speed = 300
-	end
-  
-  if (love.keyboard.isDown(' ', 'x') and not Player.isShieldOn and Player.shieldTimer <= 0) then
-    Player.isShieldOn = true
-		Player.shieldTimer = timeToShieldOff
-		Sounds.shieldUp:play()
+  -- No player alive, do nothing
+  if not Player.playersAlive then
+    return
   end
   
+  Input.handlePlayerMovement(dt)
+
 end
 
 function Player.updateShot(dt)
-  if Player.isAlive and Player.canShoot and ((joystick ~= nil and joystick:isDown(1)) or love.keyboard.isDown(' ', 'rctrl', 'lctrl', 'ctrl','space'))  then
-		-- Create some bullets
-
-		bulletSpeed = currentBulletSpeed + (playerLevel * 20)
-    local spaceBetweenShots = 20
-    local separation = spaceBetweenShots * (Player.numShots-1)
-    
-    for i=1,Player.numShots do 
-      local img = Player.numShots
-      if (img>3) then
-        img=3
+  
+  -- No player alive, do nothing
+  if not Player.playersAlive then
+    return
+  end
+  
+  local shotInput = Input.hasShot()
+  if not (shotInput==nil) then
+    for i, input in ipairs(shotInput) do
+      local player = Player.getPlayerByInput(input)
+      
+      if (not (player==nil) and player.isAlive and player.canShoot) then 
+         
+        bulletSpeed = currentBulletSpeed + (playerLevel * 20)
+        local spaceBetweenShots = 20
+        local separation = spaceBetweenShots * (player.numShots-1)
+        
+        for i=1,player.numShots do 
+          local img = player.numShots
+          if (img>3) then
+            img=3
+          end
+          newBullet1 = { x = player.x + player.width/2 - 5 - separation/2 + (i-1)*spaceBetweenShots, y = player.y, img = Player.bulletImgs[img], speed = bulletSpeed }  
+          table.insert(player.bullets, newBullet1)
+          shotsFired = shotsFired + 1
+        end
+        
+        if (Sounds.gunSound:isPlaying()) then
+          Sounds.gunSound:rewind()
+        else
+          Sounds.gunSound:play()
+        end
+        player.canShoot = false
+        player.canShootTimer = bulletShootTimer[player.numShots]
       end
-      newBullet1 = { x = Player.x + Player.width/2 - 5 - separation/2 + (i-1)*spaceBetweenShots, y = Player.y, img = Player.bulletImgs[img], speed = bulletSpeed }  
-      table.insert(Player.bullets, newBullet1)
-      shotsFired = shotsFired + 1
     end
-    
-		if (Sounds.gunSound:isPlaying()) then
-			Sounds.gunSound:rewind()
-		else
-			Sounds.gunSound:play()
-		end
-		Player.canShoot = false
-		Player.canShootTimer = bulletShootTimer[Player.numShots]
-	end
+  end
 end
 
-function Player.reset()
-  Player.bullets = {}
-	Player.isShieldOn = false
-  Player.shieldTimer = timeToShieldOn
+function Player.reset(player)
+  player.bullets = {}
+	player.isShieldOn = false
+  player.shieldTimer = timeToShieldOn
     
 	-- reset timers
-	Player.canShootTimer = 1
-  Player.numShots = 1
-	Player.createEnemyTimer = createEnemyTimerMax
+	player.canShootTimer = 1
+  player.numShots = 1
+	player.createEnemyTimer = createEnemyTimerMax
   
 	-- move player back to default position
-	Player.x = screenWidth / 2 - 40
-	Player.y = screenHeight - 100
-  Player.isAlive = true
-	Player.lives = 3
+	player.x = screenWidth / 2 - 40
+	player.y = screenHeight - 100
+  player.isAlive = true
+	player.lives = 3
 end
 
 function Player.drawAll()
-  Player.drawShots()
-  Player.drawPlayer()
+  
+  -- No player alive, do nothing
+  if not Player.playersAlive then
+    return
+  end
+  
+  for i, player in ipairs(Player.players) do
+    Player.drawShots(player)
+    Player.drawPlayer(player)
+  end
 end
 
-function Player.drawShots()
-  for i, bullet in ipairs(Player.bullets) do
+function Player.drawShots(player)
+  for i, bullet in ipairs(player.bullets) do
 		gfx.draw(bullet.img, bullet.x, bullet.y)
 	end
 end
 
-function Player.drawPlayer()
-  if Player.isAlive then
+function Player.drawPlayer(player)
+  if player.isAlive then
     
-    gfx.draw(Player.img, Player.x, Player.y)
+    gfx.draw(player.img, player.x, player.y)
     
     if showBoundingBoxes == true then
-      for i, box in ipairs(Player.boxes) do
-        gfx.rectangle("line",Player.x+box[1], Player.y+box[2], box[3], box[4])
+      for i, box in ipairs(player.boxes) do
+        gfx.rectangle("line",player.x+box[1], player.y+box[2], box[3], box[4])
       end
     end
     
-    --if Player.isTurningLeft then
-		--	gfx.draw(Player.img_left, Player.x, Player.y)
-		--elseif Player.isTurningRight then
-    --gfx.draw(Player.img_right, Player.x, Player.y)
-		--else
-		--end
-    
-    if Player.isShieldOn then
-      gfx.draw(Player.shieldImg, Player.x+2, Player.y-10, 0, 0.3, 0.3)
+    if player.isShieldOn then
+      gfx.draw(player.shieldImg, player.x+2, player.y-10, 0, 0.3, 0.3)
 		else
 			if (Sounds.shieldUp:isPlaying()) then
 				Sounds.shieldUp:stop()
@@ -286,17 +286,51 @@ function Player.drawPlayer()
 	end
 end
 
-function Player.addPowerUp(powerUp)
-	if (powerUp.type == PowerUps.POWERUP_TYPE_LIFE) then
-		if (Player.lives < 3) then
-			Player.lives = Player.lives + 1
-			Sounds.perfect:play()
-		end
+function Player.addPowerUp(powerUp, player)
+	if (player.isAlive) then
+    if (powerUp.type == PowerUps.POWERUP_TYPE_LIFE) then
+      if (player.lives < 3) then
+        player.lives = player.lives + 1
+        Sounds.perfect:play()
+      end
+    else
+      if (player.numShots < 3) then
+        player.numShots = player.numShots+1  
+        player.img = playerImages[player.numShots]
+        player.boxes = playerBoxes[player.numShots]
+      end
+    end
+  end
+end
+
+function Player.setSuperSpeed(player, flag)
+  if flag then
+    player.superSpeed = true
+    player.speed = 500 + (10 * playerLevel)
 	else
-		if (Player.numShots < 3) then
-			Player.numShots = Player.numShots+1  
-			Player.img = playerImages[Player.numShots]
-			Player.boxes = playerBoxes[Player.numShots]
-		end
-	end
+    player.superSpeed = false
+		player.speed = 300
+  end
+  if (player.num == 1) then
+    Player.superSpeed1 = player.superSpeed
+  else
+    Player.superSpeed2 = player.superSpeed
+  end
+  Player.superSpeed = Player.superSpeed1 or Player.superSpeed2
+end
+
+function Player.setShield(player)
+  if (not player.isShieldOn and player.shieldTimer <= 0) then
+    player.isShieldOn = true
+		player.shieldTimer = timeToShieldOff
+		Sounds.shieldUp:play()
+  end
+end
+
+function Player.getRandomPlayer()
+  if Player.numPlayers == 1 then
+    return Player.players[1]
+  else
+    return Player.players[math.random(2)]
+  end
 end

@@ -12,6 +12,7 @@ splashy = require("libs/splashy/splashy")
 cscreen = require "libs/cscreen"
 
 require 'boss'
+require 'input'
 require 'game'
 require 'hud'
 require 'enemies'
@@ -37,12 +38,13 @@ osName = love.system.getOS()
 explosions = {}
 playerInitials = "DIE"          -- hay que pedir esto por teclado una vez al menos y guardarlo
 
-joystick = nil
+joystick1 = nil
+joystick2 = nil
 isShowingSplash = true
 
 -- Fixes game size, and later it is scaled to window/fullscreen
-screenWidth = 600
-screenHeight = 500
+screenWidth = 700
+screenHeight = 600
 
 -- Loading
 function love.load(arg)
@@ -57,7 +59,7 @@ function love.load(arg)
   end
   cscreen_adjust = cscreen.getData()
   
-	splashy.addSplash(love.graphics.newImage("assets/splash1.png")) -- Adds splash images.	
+  splashy.addSplash(love.graphics.newImage("assets/splash1.png")) -- Adds splash images.	
 	splashy.onComplete(function() print("Splash end.")
 																isShowingSplash = false
 																gameStart()
@@ -66,7 +68,10 @@ function love.load(arg)
 
 	local joysticks = love.joystick.getJoysticks()
 	if (table.getn(joysticks) > 0) then 
-		joystick = joysticks[1] -- get first stick 
+		joystick1 = joysticks[1] -- get first stick 
+    if (table.getn(joysticks) > 1) then 
+      joystick2 = joysticks[2]
+    end
 	end
 
   if (useEffect) then
@@ -120,7 +125,7 @@ function gameStart()
 	Player.init()
   PowerUps.init()
 	Sounds.init()
-  Game.startNewGame()
+  --Game.startNewGame()
 
 	--backgroundImage = gfx.newImage('assets/tileable-classic-nebula-space-patterns-wide.jpeg')
 	--backgroundImageIverted = gfx.newImage('assets/background_inverted.png')
@@ -198,41 +203,40 @@ function love.update(dt)
 	-- Since there will be fewer enemies on screen than bullets we'll loop them first
 	-- Also, we need to see if the enemies hit our player
 	for i, enemy in ipairs(Enemy.enemies) do
-		for j, bullet in ipairs(Player.bullets) do
-			if CheckCollisionEnemyBullet(enemy, bullet) then
-        
-				Player.bulletHit(j)
-				enemyKilled = Enemy.enemyHit(enemy, i)
-				
-				score = score + 1
-				
-				-- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
-				if (score % 20 == 0) then
-					Sounds.combos[math.random(6)]:play()
-				end
-        if enemyKilled then
-          Game.enemyKilled(enemy)
-				end
-			end
-		end
-
-		if CheckCollisionEnemyPlayer(enemy, Player) and Player.isAlive then
-			Enemy.enemyHit(enemy, i)
-      if not Player.isShieldOn or enemy.enemyType==4 then
-        Player.dead()
-        Sounds.gameOver:play()
+    for w, player in ipairs(Player.players) do
+      for j, bullet in ipairs(player.bullets) do
+        if CheckCollisionEnemyBullet(enemy, bullet) then
+          
+          Player.bulletHit(j, player)
+          enemyKilled = Enemy.enemyHit(enemy, i)
+          
+          player.score = player.score + 1
+          
+          -- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
+          if (player.score % 20 == 0) then
+            Sounds.combos[math.random(6)]:play()
+          end
+          if enemyKilled then
+            Game.enemyKilled(enemy)
+          end
+        end
       end
-		end
 
-		if Ballistics.checkCollisionsPlayer(Player) and Player.isAlive then
-      if not Player.isShieldOn then
-        Player.dead()
-        Sounds.gameOver:play()
-		  end
+      if CheckCollisionEnemyPlayer(enemy, player) and player.isAlive then
+        Enemy.enemyHit(enemy, i)
+        if not player.isShieldOn or enemy.enemyType==4 then
+          Player.dead(player)
+        end
+      end
+
+      if Ballistics.checkCollisionsPlayer(player) and player.isAlive then
+        if not player.isShieldOn then
+          Player.dead(player)
+        end
+      end
+      
+      PowerUps.checkCollisionsPlayer(player)
     end
-    
-    PowerUps.checkCollisionsPlayer(Player)
-    
 	end
 
 	Player.updateMove(dt)
@@ -240,26 +244,30 @@ function love.update(dt)
 	Player.updateShot(dt)
 	
 	-- is player dead?
-	if not Player.isAlive then
-		if Player.canContinue() then
-			if love.keyboard.isDown('return') or (joystick ~= nil and joystick:isGamepadDown('start')) then
-				Player.continue()
-				HUD.showLevel(playerLevel)
-				Sounds.ready:play()
-			end
-		else
-			if love.keyboard.isDown('return') or (joystick ~= nil and joystick:isGamepadDown('start')) then
-				-- Reset players and enemies
-				Player.reset()
-				Enemy.reset()
-				
-				-- reset our game state
-				Game.startNewGame()
-				Sounds.ready:play()
-				HUD.init()
-			end
-		end
-	end
+  local startButton = Input.startButton()
+  if not (startButton == nil) then
+    if Game.playing then
+      for w, input in ipairs(startButton) do
+        local player = Player.getPlayerByInput(input)
+        if player == nil then
+          -- Second player coming in
+          Player.spawnPlayer(startButton[1])    
+        elseif not player.isAlive and Player.canContinue(player) then
+          Player.continue(player)
+          Sounds.ready:play()
+        end
+      end
+    else 
+      -- Reset players and enemies
+      Player.spawnPlayer(startButton[1])
+      Enemy.reset()
+       
+      -- reset our game state
+      Game.startNewGame()
+      Sounds.ready:play()
+      HUD.init()
+    end
+  end
 
 	HUD.update(dt)
 
@@ -278,7 +286,6 @@ function love.draw(dt)
 		return 
 	end
 
-
 	if (useEffect) then
 		if (Player.superSpeed) then
 				speedEffect(draw_all)
@@ -288,9 +295,6 @@ function love.draw(dt)
 	else
     draw_all(dt)
 	end
-	
-	
-
 end
 
 function draw_all(dt)
@@ -299,8 +303,6 @@ function draw_all(dt)
 
   gfx.draw(backgroundImage1, back_coord.x1+(250-Player.x)/50,back_coord.y1+(600-Player.y)/50)
   gfx.draw(backgroundImage2, back_coord.x2+(250-Player.x)/50,back_coord.y2+(600-Player.y)/50)
-
- 
 
   Player.drawAll()
   Enemy.drawAll()

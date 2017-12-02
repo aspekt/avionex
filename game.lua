@@ -28,7 +28,7 @@ changedLevel = false
 isGamePaused = false
 
 Game = {
-  
+  playing = false 
 }
 
 --Enemy and level creation is moved here
@@ -44,6 +44,11 @@ function Game.updateTimers(dt)
 end
 
 function Game.updateLevelWithEnemies(dt)
+  
+  if not Game.playing then
+    return
+  end
+  
   if not Enemy.bossAlive then
    
      Enemy.createEnemyTimer = Enemy.createEnemyTimer - (1 * dt)     
@@ -99,6 +104,7 @@ function Game.enemyKilled(enemy)
 end
 
 function Game.startNewGame()
+  Game.playing = true
   score = 0
   playerLevel = 1
   playerSpeed = 250
@@ -112,6 +118,12 @@ function Game.startNewGame()
 	isAlive = true
   enemiesToNextLevel=20
   createEnemyTimerMax = 2
+  Player.players = {}
+  Player.numPlayers = 0
+  Player.numAlive = 0
+  Player.playersAlive = false
+  Enemy.reset()
+  Ballistics.reset()
 end
 
 function Game.levelUp()

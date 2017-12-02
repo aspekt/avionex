@@ -41,8 +41,8 @@ function drawLeaderboard()
 	gfx.push("all")
 	gfx.setNewFont("assets/octab-017.ttf", 40)
 
-	local w = gfx:getWidth()
-	local h = gfx:getHeight()
+	local w = screenWidth
+	local h = screenHeight
 
 	gfx.push("all")
 	

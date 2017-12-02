@@ -9,10 +9,10 @@ function HUD.init()
   --	font = gfx.newFont(14) -- the number denotes the font size
 	gfx.setNewFont("assets/octab-017.ttf", 26)
 
-	HUD.ShowText("READY!", gfx:getWidth() / 2 - 50, 400, 3)
+	HUD.ShowText("READY!", screenWidth / 2 - 50, 400, 3)
 	
 	-- get and set where we are shoing changed level texts
-	HUD.playerLevelTextPos.x = gfx:getWidth() / 2 - 50
+	HUD.playerLevelTextPos.x = screenWidth / 2 - 50
 	HUD.playerLevelTextPos.y = 430
 
 	HUD.ShowText("LEVEL 1", HUD.playerLevelTextPos.x, HUD.playerLevelTextPos.y, HUD.playerLevelTextPos.duration)
@@ -56,25 +56,25 @@ function HUD.draw(dt)
   
   -- DRAW STATIC GUI
 	gfx.setColor(255, 255, 255)
-	gfx.print("SCORE: " .. tostring(score), gfx:getWidth() - 120, 10)
+	gfx.print("SCORE: " .. tostring(score), screenWidth - 120, 10)
 
 	local i =  1
 	while i <= Player.lives do
-		gfx.draw(Player.thumbnail, gfx:getWidth() - 160 + (i * 30), 40)
+		gfx.draw(Player.thumbnail, screenWidth - 160 + (i * 30), 40)
 		i = i + 1
 	end
 	
 	
 
 	gfx.print("LEVEL: " .. tostring(playerLevel),9, 10 )
-	gfx.print("MISSED: " .. tostring(missedEnemies), gfx:getWidth() - 100, gfx:getHeight() - 30)
-	gfx.print("FIRED: " .. tostring(shotsFired), 10, gfx:getHeight() - 30)
+	gfx.print("MISSED: " .. tostring(missedEnemies), screenWidth - 100, screenHeight - 30)
+	gfx.print("FIRED: " .. tostring(shotsFired), 10, screenHeight - 30)
   
-  gfx.print("SHIELD ", gfx:getWidth()/2 - 100, gfx:getHeight() - 30)
+  gfx.print("SHIELD ", screenWidth/2 - 100, screenHeight - 30)
   if Player.isShieldOn then
     gfx.setColor(255, 0, 0)
     local sizeBar = Player.shieldTimer/timeToShieldOff * 100
-    gfx.rectangle("fill",gfx:getWidth()/2 - 30, gfx:getHeight() - 23, sizeBar, 15)
+    gfx.rectangle("fill",screenWidth/2 - 30, screenHeight - 23, sizeBar, 15)
   else
     gfx.setColor(255, 255, 255)    
     local sizeBar = 100
@@ -83,7 +83,7 @@ function HUD.draw(dt)
     else
       gfx.setColor(0, 255, 0)
     end
-    gfx.rectangle("fill",gfx:getWidth()/2 - 30, gfx:getHeight() - 23, sizeBar, 15)
+    gfx.rectangle("fill",screenWidth/2 - 30, screenHeight - 23, sizeBar, 15)
     gfx.setColor(255, 255, 255)
   end
   
@@ -92,21 +92,21 @@ function HUD.draw(dt)
 	
 	if not Player.isAlive then
 
-		gfx.print("GAME OVER",gfx:getWidth()/2-50, gfx:getHeight()/2)
+		gfx.print("GAME OVER",screenWidth/2-50, screenHeight/2)
 
 		if Player.canContinue() then
 			-- offer to continue
-			gfx.print("Press 'Enter' or 'Start' to continue", gfx:getWidth()/2-140, gfx:getHeight()/2+30)
-			gfx.print(Player.lives.." LIVES LEFT", gfx:getWidth()/2-50, gfx:getHeight()/2 + 60)			
+			gfx.print("Press 'Enter' or 'Start' to continue", screenWidth/2-140, screenHeight/2+30)
+			gfx.print(Player.lives.." LIVES LEFT", screenWidth/2-50, screenHeight/2 + 60)			
 			
 	  else
-			gfx.print("Press 'Enter' or 'Start' to restart", gfx:getWidth()/2-140, gfx:getHeight()/2+30)
+			gfx.print("Press 'Enter' or 'Start' to restart", screenWidth/2-140, screenHeight/2+30)
 		end
 	end
 
-	gfx.draw(Logo, gfx:getWidth()/2-(Logo:getWidth()/2), 10)
+	gfx.draw(Logo, screenWidth/2-(Logo:getWidth()/2), 10)
 
-	--gfx.print("KILLER SKIES", gfx:getWidth()/2-60, 10)
+	--gfx.print("KILLER SKIES", screenWidth/2-60, 10)
 
 	if debug then
 		gfx.print("FPS: "..tostring(FPS), 9, 35)

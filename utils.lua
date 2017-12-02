@@ -68,10 +68,10 @@ function getBlast(size)
 	local blast = love.graphics.newCanvas(size, size)
 	love.graphics.setCanvas(blast)
 	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.circle("fill", size/2, size/2, size/2)
-	love.graphics.setCanvas()
+	love.graphics.circle("fill", size/2-cscreen_adjust[1], size/2-cscreen_adjust[2], size/2)
+  love.graphics.setCanvas()
 	return blast
-  end
+end
 
 function getExplosion(image)
 	pSystem = love.graphics.newParticleSystem(image, 30)

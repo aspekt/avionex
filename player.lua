@@ -54,6 +54,7 @@ function Player.init()
                        gfx.newImage('assets/bullet_orange.png'),
                        gfx.newImage('assets/bullet_purple.png')}
       
+  Player.reset()
 end
 
 function Player.updateTimers(dt)
@@ -111,8 +112,8 @@ end
 function Player.continue()
 
 	-- move player back to default position
-	Player.x = gfx.getWidth() / 2 - 40
-	Player.y = gfx.getHeight() - 100
+	Player.x = screenWidth / 2 - 40
+	Player.y = screenHeight - 100
 	Player.isAlive = true
 	
 	--Sounds.perfect:play()
@@ -137,7 +138,7 @@ function Player.updateMove(dt)
 					Player.x = Player.x - (Player.speed*dt)
 				end
 			elseif joystick:isGamepadDown("dpright") then
-				if Player.x < (gfx.getWidth() - Player.img:getWidth()) then
+				if Player.x < (screenWidth - Player.img:getWidth()) then
 					Player.x = Player.x + (Player.speed*dt)
 				end
 			end
@@ -147,7 +148,7 @@ function Player.updateMove(dt)
 					Player.y = Player.y - (Player.speed*dt)
 				end
 			elseif joystick:isGamepadDown("dpdown") then
-				if Player.y < (gfx.getHeight() - 55) then
+				if Player.y < (screenHeight - 55) then
 					Player.y = Player.y + (Player.speed*dt)
 				end
 			end
@@ -168,7 +169,7 @@ function Player.updateMove(dt)
 		end
 	elseif love.keyboard.isDown('right','d') then
 		Player.isTurningRight = true
-		if Player.x < (gfx.getWidth() - Player.img:getWidth()) then
+		if Player.x < (screenWidth - Player.img:getWidth()) then
 			Player.x = Player.x + (Player.speed*dt)
 		end
 	end
@@ -178,7 +179,7 @@ function Player.updateMove(dt)
 		Player.y = Player.y - (Player.speed*dt)
 	end
 	elseif love.keyboard.isDown('down', 's') then
-		if Player.y < (gfx.getHeight() - 55) then
+		if Player.y < (screenHeight - 55) then
 			Player.y = Player.y + (Player.speed*dt)
 		end
 	end
@@ -239,8 +240,8 @@ function Player.reset()
 	Player.createEnemyTimer = createEnemyTimerMax
   
 	-- move player back to default position
-	Player.x = gfx.getWidth() / 2 - 40
-	Player.y = gfx.getHeight() - 100
+	Player.x = screenWidth / 2 - 40
+	Player.y = screenHeight - 100
   Player.isAlive = true
 	Player.lives = 3
 end

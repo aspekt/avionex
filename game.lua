@@ -13,7 +13,7 @@ currentBulletSpeed = baseBulletSpeed
 maxEnemiesAtOnce = 200
 enemiesToNextLevel = 20
 
-showBoundingBoxes = false
+showBoundingBoxes = true
 useEffect = true
 
 playerLevel = 1

@@ -9,6 +9,7 @@ wapi = require "libs/webapi"
 json = require "libs/json"
 object = require("libs/object")
 splashy = require("libs/splashy/splashy")
+cscreen = require "libs/cscreen"
 
 require 'boss'
 require 'game'
@@ -39,12 +40,23 @@ playerInitials = "DIE"          -- hay que pedir esto por teclado una vez al men
 joystick = nil
 isShowingSplash = true
 
+-- Fixes game size, and later it is scaled to window/fullscreen
+screenWidth = 600
+screenHeight = 500
+
 -- Loading
 function love.load(arg)
   
  	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	math.randomseed(os.time())
-
+  
+  if useEffect then
+    cscreen.init(screenWidth, screenHeight, true, 3)
+  else
+    cscreen.init(screenWidth, screenHeight, true, 1)
+  end
+  cscreen_adjust = cscreen.getData()
+  
 	splashy.addSplash(love.graphics.newImage("assets/splash1.png")) -- Adds splash images.	
 	splashy.onComplete(function() print("Splash end.")
 																isShowingSplash = false
@@ -63,11 +75,11 @@ function love.load(arg)
 		local w = gfx:getWidth()
 		local h = gfx:getHeight()
 
-		speedEffect =  moonshine(moonshine.effects.godsray).
-										chain(moonshine.effects.scanlines)
+		speedEffect =  moonshine(moonshine.effects.godsray)
+    --              .chain(moonshine.effects.scanlines)
 
-		speedEffect.scanlines.opacity = 0.5
-		speedEffect.scanlines.width = 1
+		--speedEffect.scanlines.opacity = 0.5
+		--speedEffect.scanlines.width = 1
 
 		speedEffect.godsray.light_x = 0.5
 		speedEffect.godsray.light_y = 0
@@ -75,16 +87,15 @@ function love.load(arg)
 		speedEffect.godsray.exposure = 0.5
 		speedEffect.godsray.decay = 0.9
 
-    normalEffect = moonshine(moonshine.effects.glow).
-              		chain(moonshine.effects.scanlines)
-               --chain(moonshine.effects.crt)
-					
+    normalEffect = moonshine(moonshine.effects.scanlines)
+                    --moonshine(moonshine.effects.glow).
+                    --chain(moonshine.effects.crt)
 								
 		normalEffect.scanlines.opacity = 0.5
 		normalEffect.scanlines.width = 1
 
-    normalEffect.glow.min_luma = 0.3
-		normalEffect.glow.strength = 10
+    --normalEffect.glow.min_luma = 0.3
+		--normalEffect.glow.strength = 10
 		
   --	effect.pixelate.size = {2,2}
     --effect.pixelate.feedback = 0.2
@@ -166,8 +177,6 @@ function love.update(dt)
   
 	 --lue:update(dt)
 	Timer.update(dt)
-	screenHeight = gfx:getHeight()
- 	screenWidth = gfx:getWidth()
 
 	--psystem:update(dt)
 	animPlane:update(dt)
@@ -286,15 +295,12 @@ end
 
 function draw_all(dt)
 
+  cscreen.apply()
+
   gfx.draw(backgroundImage1, back_coord.x1+(250-Player.x)/50,back_coord.y1+(600-Player.y)/50)
   gfx.draw(backgroundImage2, back_coord.x2+(250-Player.x)/50,back_coord.y2+(600-Player.y)/50)
 
-
-  -- draw explosions particle systems
-  for i = table.getn(explosions), 1, -1 do
-    local explosion = explosions[i]
-    gfx.draw(explosion, 0, 0)
-  end
+ 
 
   Player.drawAll()
   Enemy.drawAll()
@@ -306,6 +312,13 @@ function draw_all(dt)
 	end
 	
 	HUD.draw(dt)
-
-	
+  
+  -- draw explosions particle systems
+  for i = table.getn(explosions), 1, -1 do
+    local explosion = explosions[i]
+    gfx.draw(explosion, 0, 0)
+  end
+  
+  cscreen.cease()
+  
 end

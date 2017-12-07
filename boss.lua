@@ -97,7 +97,7 @@ BossTwo = Boss:extend(function(class,parent)
     self.shootTimer = self.shootTimer - (1*dt)
     if self.shootTimer < 0 then
       Sounds.blast:play() 
-      Ballistics.bossTwoShotDown(self, Player)
+      Ballistics.bossTwoShotDown(self, Player.getRandomPlayer())
       if (self.rafaga == 0) then
         self.shootTimer = 2 + math.random(self.bossShootTimer)
         self.rafaga = 3

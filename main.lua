@@ -112,7 +112,7 @@ function love.load(arg)
     --effect.crt.feather = 0.01
 	end
 	
-	loadLeaderboard()	
+	--loadLeaderboard()	
 	lue:setColor("my-color", {200, 100, 255})
 	
 end

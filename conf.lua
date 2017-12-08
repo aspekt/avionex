@@ -7,7 +7,7 @@ function love.conf(t)
 	t.window.resizable = true
 	t.window.fullscreentype = "desktop" -- desktop / exclusive
 
-	t.window.fullscreen = true  
+	t.window.fullscreen = false  
 	
 	-- For Windows debugging
 	t.console = true

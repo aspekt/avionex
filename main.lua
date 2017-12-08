@@ -16,6 +16,8 @@ require 'input'
 require 'game'
 require 'hud'
 require 'enemies'
+require 'enemy'
+require 'waves'
 require 'player'
 require 'utils'
 require 'powerups'
@@ -121,7 +123,7 @@ local back_coord
 
 function gameStart()
 
-	Enemy.init()
+	Enemies.init()
 	Player.init()
   PowerUps.init()
 	Sounds.init()
@@ -183,32 +185,30 @@ function love.update(dt)
 	 --lue:update(dt)
 	Timer.update(dt)
 
-	--psystem:update(dt)
-	animPlane:update(dt)
 	updateExplosions(dt)
 
   -- First update timers
   Game.updateTimers(dt)  --Enemy and level creation is moved here
 	Player.updateTimers(dt)
-  Enemy.updateTimers(dt)
+  Enemies.updateTimers(dt)
   PowerUps.updateTimers(dt);
   
 	-- Update positions
 	Player.updateBulletPositions(dt)
-	Enemy.updatePositions(dt)
+	Enemies.updatePositions(dt)
 	Ballistics.updatePositions(dt)
   PowerUps.updatePositions(dt)
 
 	-- run our collision detection
 	-- Since there will be fewer enemies on screen than bullets we'll loop them first
 	-- Also, we need to see if the enemies hit our player
-	for i, enemy in ipairs(Enemy.enemies) do
+	for i, enemy in ipairs(Enemies.enemies) do
     for w, player in ipairs(Player.players) do
       for j, bullet in ipairs(player.bullets) do
         if CheckCollisionEnemyBullet(enemy, bullet) then
           
           Player.bulletHit(j, player)
-          enemyKilled = Enemy.enemyHit(enemy, i)
+          enemyKilled = Enemies.enemyHit(enemy, i)
           
           player.score = player.score + 1
           
@@ -223,7 +223,7 @@ function love.update(dt)
       end
 
       if CheckCollisionEnemyPlayer(enemy, player) and player.isAlive then
-        Enemy.enemyHit(enemy, i)
+        Enemies.enemyHit(enemy, i)
         if not player.isShieldOn or enemy.enemyType==4 then
           Player.dead(player)
         end
@@ -260,7 +260,7 @@ function love.update(dt)
     else 
       -- Reset players and enemies
       Player.spawnPlayer(startButton[1])
-      Enemy.reset()
+      Enemies.reset()
        
       -- reset our game state
       Game.startNewGame()
@@ -305,7 +305,7 @@ function draw_all(dt)
   gfx.draw(backgroundImage2, back_coord.x2+(250-Player.x)/50,back_coord.y2+(600-Player.y)/50)
 
   Player.drawAll()
-  Enemy.drawAll()
+  Enemies.drawAll()
   Ballistics.drawAll()
   PowerUps.drawAll()
 

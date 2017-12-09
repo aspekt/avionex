@@ -1,11 +1,14 @@
 -- Timers
 -- We declare these here so we don't have to edit them multiple place
 createEnemyTimerMax = 2
-createPowerUpTimeMax = 40
+createPowerUpTimeMax = 15
+
+-- Shields
+timeToShieldOn = 10
+timeToShieldOff = 2
 
 --bulletSpeed = 400
 enemySpeed = 150
-playerSpeed = 250
 kamikazeSpeed = 50
 baseBulletSpeed = 250
 enemyMainShootTimer = 3
@@ -122,6 +125,9 @@ end
 
 function Game.enemyKilled(enemy)
   -- if boss killed, go up level
+  local points = "+".. tostring(enemy.score)
+  HUD.ShowText(points, enemy.x+enemy.width/2-(points:len()*12)/2, enemy.y+enemy.height/2-10, 1)
+  
   if enemy.isBoss then
     enemy.isHit = true
 
@@ -154,7 +160,7 @@ function Game.startNewGame()
   Game.playing = true
   score = 0
   playerLevel = 1
-  playerSpeed = 250
+  playerSpeed = 200
   enemySpeed = 150
 	showTextReady = true
 	showNewLevel = true
@@ -170,6 +176,7 @@ function Game.startNewGame()
   Player.numAlive = 0
   Player.playersAlive = false
   Enemies.reset()
+  PowerUps.reset()
   Ballistics.reset()
   Game.currentWave = nil
   Game.timeBetweenWaves = math.random(2)

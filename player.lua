@@ -6,6 +6,7 @@ Player = {
   superSpeed1 = false,
   superSpeed2 = false,
   superSpeed = false,
+  originalSpeed = 0,
   numPlayers = 0,
   numAlive = 0,
   x = 0,
@@ -16,9 +17,6 @@ Player = {
 --Player.x = (love.graphics.getWidth() / 2) - (Player.width / 2) -- medio trucho pero funca
 
 function Player.init()
-  
-  timeToShieldOn = 5
-  timeToShieldOff = 10
   
   playerImages = {gfx.newImage('assets/new_player1.png'), gfx.newImage('assets/new_player2.png'), gfx.newImage('assets/new_player3.png'), gfx.newImage('assets/new_player4.png')}
   playerBoxes = { {{34,6,14,58},{18,37,46,28},{26,22,30,15}},
@@ -48,7 +46,8 @@ function Player.spawnPlayer(input)
       canShootTimer = 1,      -- Timer to next shot
       x =  0, 
       y = 710, 
-      speed = playerSpeed, 
+      speed = playerSpeed,
+      originalSpeed = playerSpeed,
       input = input,
       img = playerImages[1],
       thumbnail = Player.thumbnail,
@@ -56,6 +55,8 @@ function Player.spawnPlayer(input)
       shieldImg = Player.shieldImg,
       isShieldOn = false,
       shieldTimer = timeToShieldOn,
+      timeToShieldOn = timeToShieldOn,
+      timeToShieldOff = timeToShieldOff,
       isAlive = true,
       bullets = {},            -- array of user shot bullets being drawn and updated
       superSpeed = false,
@@ -93,7 +94,7 @@ function Player.updateTimers(dt)
   
     if player.isShieldOn and player.shieldTimer <= 0 then
       player.isShieldOn=false
-      player.shieldTimer=timeToShieldOn
+      player.shieldTimer=player.timeToShieldOn
     end
   end
 
@@ -163,9 +164,15 @@ function Player.continue(player)
 	player.x = screenWidth / 2 - 40
 	player.y = screenHeight - 100
 	player.isAlive = true
-  Player.numAlive = Player.numAlive + 1
+  player.originalSpeed = playerSpeed
+  player.speed = playerSpeed
+  player.timeToShieldOn = timeToShieldOn
+  player.timeToShieldOff = timeToShieldOff
   player.isShieldOn = true
   player.shieldTimer = 3
+  player.numShots = 1
+  
+  Player.numAlive = Player.numAlive + 1
 	--Sounds.perfect:play()
 end
 
@@ -302,11 +309,21 @@ function Player.addPowerUp(powerUp, player)
         player.lives = player.lives + 1
         Sounds.perfect:play()
       end
-    else
-      if (player.numShots < 3) then
+    elseif (powerUp.type == PowerUps.POWERUP_TYPE_SHOT) then
+      if player.numShots < 3 then
         player.numShots = player.numShots+1  
         player.img = playerImages[player.numShots]
         player.boxes = playerBoxes[player.numShots]
+      end
+    elseif (powerUp.type == PowerUps.POWERUP_TYPE_SHIELD) then  
+      if player.timeToShieldOff < 5 then
+        player.timeToShieldOn = player.timeToShieldOn - 1
+        player.timeToShieldOff = player.timeToShieldOff + 1
+      end
+    elseif (powerUp.type == PowerUps.POWERUP_TYPE_SPEED) then    
+      if (player.originalSpeed < 400) then
+        player.originalSpeed = player.originalSpeed + 50
+        player.speed = player.speed + 50
       end
     end
   end
@@ -315,10 +332,10 @@ end
 function Player.setSuperSpeed(player, flag)
   if flag then
     player.superSpeed = true
-    player.speed = 500 + (10 * playerLevel)
+    player.speed = player.originalSpeed * 2
 	else
     player.superSpeed = false
-		player.speed = 300
+		player.speed = player.originalSpeed
   end
   if (player.num == 1) then
     Player.superSpeed1 = player.superSpeed
@@ -331,7 +348,7 @@ end
 function Player.setShield(player)
   if (not player.isShieldOn and player.shieldTimer <= 0) then
     player.isShieldOn = true
-		player.shieldTimer = timeToShieldOff
+		player.shieldTimer = player.timeToShieldOff
 		Sounds.shieldUp:play()
   end
 end

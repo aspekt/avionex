@@ -10,6 +10,7 @@ Boss = object:extend(function(class)
     self.boxes = Boss.boss_boxes[index]
     self.width = self.img:getWidth()
     self.height = self.img:getHeight() 
+    self.score = 1000
     
     self.x = (screenWidth - self.width) / 2
     self.y = -100
@@ -26,6 +27,7 @@ Boss = object:extend(function(class)
     self.bossLevel = level
     self.hitCounter = level * 30
     self.speed = 100 * level
+    self.score = 1000 * level
     self.bossShootTimer = 3 - level
     self.shootTimer = self.bossShootTimer
   end

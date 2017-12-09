@@ -17,12 +17,14 @@ Enemy = object:extend(function(class)
     self.enemyType = enemyType
     self.width=self.img:getWidth()
     self.height=self.img:getHeight()
+    self.score = 10
   end
   
   function class:setLevel(level)
     self.level = level
     self.speed = 100 + level * 25
     self.hitCounter = level+1
+    self.score = 10 + (level-1)*20
   end
  
   function class:updateTimers(dt)

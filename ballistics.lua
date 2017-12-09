@@ -32,6 +32,26 @@ function Ballistics.threeShotDown(x,y)
   Ballistics.createShot(x,y,vector[1],vector[2],2)
 end
 
+function Ballistics.circularShots(x,y,cnt)
+  speed = 3.5 +playerLevel/2
+  
+  -- Diag up left
+  vector = createDirectionVector(x,y,x-100,y-100,speed)
+  Ballistics.createShot(x,y,vector[1],vector[2],5)
+  
+  -- Diag down left
+  vector = createDirectionVector(x,y,x-100,y+100,speed)
+  Ballistics.createShot(x,y,vector[1],vector[2],5)
+  
+  -- Diag up right
+  vector = createDirectionVector(x,y,x+100,y-100,speed)
+  Ballistics.createShot(x,y,vector[1],vector[2],5)
+  
+  -- Diag down right
+  vector = createDirectionVector(x,y,x+100,y+100,speed)
+  Ballistics.createShot(x,y,vector[1],vector[2],5)
+end
+
 function Ballistics.bossOneShotDown(boss)
   speed = 5 + 2 * boss.bossLevel
   
@@ -59,7 +79,7 @@ end
 
 function Ballistics.createShot(x,y,vX,vY,shotType) 
     newShot = nil
-    if shotType == 1 then
+    if shotType == 1 or shotType == 5 then
       newShot = {x=x, y=y, vX=vX, vY=vY, shotType=shotType, radius=5}
       newShot.box = {-newShot.radius/2+1, -newShot.radius/2+1, newShot.radius-1, newShot.radius-1}
     elseif shotType == 2 then
@@ -113,7 +133,7 @@ function Ballistics.checkCollisionsPlayer(player)
 end
 
 function Ballistics.drawShot(shot)
-  if shot.shotType == 1 then
+  if shot.shotType == 1 or shot.shotType == 5 then
     gfx.setColor(255, 255, 255)
     gfx.circle("fill", shot.x, shot.y, shot.radius, 8)
   elseif shot.shotType == 2 then

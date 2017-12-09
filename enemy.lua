@@ -39,7 +39,7 @@ Enemy = object:extend(function(class)
         if self.shotType == 1 then
           Sounds.blast:play()                    
           Ballistics.shootAtPlayer(self.x + self.width/2, self.y+self.height)
-        else
+        elseif self.shotType == 2 then
           Sounds.threeShotDown:play()          
           Ballistics.threeShotDown(self.x + self.width/2, self.y+self.height)
         end
@@ -51,6 +51,10 @@ Enemy = object:extend(function(class)
 
   function class:moveEnemy(dt, index)
     -- must override
+  end
+  
+  function class:enemyKilled()
+    -- does nothing unless overriden
   end
   
   function class:draw()
@@ -136,6 +140,13 @@ EnemyLeftRight = Enemy:extend(function(class,parent)
     self.maxY = maxY
     self.y = self.minY
     self.shotType = 1
+  end
+  
+  function class:setLevel(level)
+    self.level = level
+    self.speed = 120 + level * 50
+    self.hitCounter = level+1
+    self.score = 10 + (level-1)*30
   end
   
   function class:moveEnemy(dt, index)
@@ -232,5 +243,53 @@ EnemyAsteroid = Enemy:extend(function(class,parent)
   function class:moveEnemy(dt, index)
     self.y = self.y + (self.speed * dt) * self.dY
     self.x = self.x + (self.speed * dt) * self.dX
+  end
+end)
+
+EnemyMine = Enemy:extend(function(class,parent)
+  
+  function class:init()
+    parent.init(self, 5)
+    self.willShoot = false
+    self.boxes = { {0,0,self.img:getWidth(),self.img:getHeight()}}
+    self.x = 0
+    self.y = 0
+    self.dY = 1
+    self.shotType = 2
+    self.blowUpTimer = 15
+  end
+  
+  function class:updateTimers(dt)
+    parent.updateTimers(self,dt)
+    self.blowUpTimer = self.blowUpTimer - (1*dt)
+    if (self.blowUpTimer < 0 or self.y > screenHeight/2 ) then
+      self.score = 0
+      self.hitCounter = 0
+      
+      local index = 0
+      for i, enemy in ipairs(Enemies.enemies) do
+        if enemy == self then
+          index = i
+          break
+        end
+      end
+      
+      Enemies.enemyHit(self, index)
+      Game.enemyKilled(self)
+    
+    end
+  end
+  
+  function class:enemyKilled()
+    self:blowUp()
+  end
+  
+  function class:blowUp()
+    Sounds.threeShotDown:play()          
+    Ballistics.circularShots(self.x + self.width/2, self.y+self.height, 4)
+ end
+
+  function class:moveEnemy(dt, index)
+    self.y = self.y + (self.speed/2 * dt) * self.dY
   end
 end)

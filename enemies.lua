@@ -11,9 +11,10 @@ function Enemies.init()
   Enemies.createEnemyTimer = createEnemyTimerMax
 
   Enemies.enemyImgs = {gfx.newImage('assets/enemies/enemy_1.png'),
-                     gfx.newImage('assets/enemies/enemy_2.png'), 
-                     gfx.newImage('assets/enemies/enemy_3.png'),
-                     gfx.newImage('assets/enemies/enemy_4.png')}
+                       gfx.newImage('assets/enemies/enemy_2.png'), 
+                       gfx.newImage('assets/enemies/enemy_3.png'),
+                       gfx.newImage('assets/enemies/enemy_4.png'),
+                       gfx.newImage('assets/enemies/enemy_5.png')}
 
   Enemies.asteroidImgs = {gfx.newImage('assets/asteroids/asteroid_L_1.png'),
                         gfx.newImage('assets/asteroids/asteroid_L_2.png'), 
@@ -141,7 +142,7 @@ function Enemies.enemyHit(enemy, index)
   end
 
   -- enemy downed if hitcounter reaches 0
-  if enemy.hitCounter == 0 then
+  if enemy.hitCounter <= 0 then
     
     table.remove(Enemies.enemies, index)
     isKill = true;

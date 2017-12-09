@@ -59,7 +59,7 @@ function Game.updateLevelWithEnemies(dt)
     
     if (Game.timeBetweenWaves < 0 and Game.currentWave == nil) then
       
-      local waveType = math.random(5)
+      local waveType = math.random(6)
       if (waveType == 1) then
         Game.currentWave = WaveKamikaze:new();
       elseif (waveType == 2) then
@@ -70,6 +70,8 @@ function Game.updateLevelWithEnemies(dt)
         Game.currentWave = WaveOneShots:new();
       elseif (waveType == 5) then
         Game.currentWave = WaveRandom:new();
+      elseif (waveType == 6) then
+        Game.currentWave = WaveMines:new();
       end
       
       local enemyLevel = math.ceil(playerLevel/2);
@@ -125,8 +127,10 @@ end
 
 function Game.enemyKilled(enemy)
   -- if boss killed, go up level
-  local points = "+".. tostring(enemy.score)
-  HUD.ShowText(points, enemy.x+enemy.width/2-(points:len()*12)/2, enemy.y+enemy.height/2-10, 1)
+  if (enemy.score > 0) then
+    local points = "+".. tostring(enemy.score)
+    HUD.ShowText(points, enemy.x+enemy.width/2-(points:len()*12)/2, enemy.y+enemy.height/2-10, 1)
+  end
   
   if enemy.isBoss then
     enemy.isHit = true
@@ -136,6 +140,7 @@ function Game.enemyKilled(enemy)
     end
     
   else
+    enemy:enemyKilled()
     enemiesToNextLevel = enemiesToNextLevel - 1
     
     if not (Game.currentWave == nil) then

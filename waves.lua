@@ -71,7 +71,8 @@ WaveOneShots = Wave:extend(function(class,parent)
     
     for i=1, table.getn(moves) do
       for j=1, moves[i] do
-        local newEnemy = EnemyLeftRight:new(j%2, j*10 + math.random(30), j*30 + math.random(100))
+        local down = math.random(100)
+        local newEnemy = EnemyLeftRight:new(j%2, down, down+150)
         newEnemy:setLevel(level)
         table.insert(self.enemies, newEnemy)
         if (j == moves[i]) then
@@ -159,6 +160,31 @@ WaveRandom = Wave:extend(function(class,parent)
   end
   
 end)
+
+-- Random Waves
+WaveMines = Wave:extend(function(class,parent)
+  
+  function class:init()
+    parent.init(self)
+  end
+  
+  function class:setLevel(level)
+    local enemyTimer = 1-(level-1)*0.2
+    for j=1,2 do
+      for i=1,(math.random(4)+level*2) do
+        local newEnemy = EnemyMine:new()
+        newEnemy.x = math.random(screenWidth)
+        newEnemy:setLevel(level)
+        table.insert(self.enemies, newEnemy)
+        table.insert(self.enemyTimers, enemyTimer)
+        self.enemyStillAlive = self.enemyStillAlive + 1
+      end
+      self.enemyTimers[table.getn(self.enemyTimers)] = 5
+    end
+  end
+  
+end)
+
 
 -- Wave of straight down enemies
 WaveOne = Wave:extend(function(class,parent)

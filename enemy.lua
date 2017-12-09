@@ -10,6 +10,7 @@ Enemy = object:extend(function(class)
     self.enemyType = 0
     self.level = 1
     self.speed = 100
+    self.hitClock = 0
     self.hitCounter = 1
     self.isBoss = false
     self.img = Enemies.enemyImgs[enemyType]
@@ -20,13 +21,15 @@ Enemy = object:extend(function(class)
   
   function class:setLevel(level)
     self.level = level
-    self.speed = 100 + level * 50
-    self.hitCounter = level
+    self.speed = 100 + level * 25
+    self.hitCounter = level+1
   end
  
   function class:updateTimers(dt)
     self.shootTimer = self.shootTimer - (1*dt)
-    
+    if (self.hitClock > 0) then
+      self.hitClock  = self.hitClock - (1*dt)
+    end
     if self.willShoot then
       self.shootTimer = self.shootTimer - (1*dt)
       if self.shootTimer < 0 then
@@ -49,7 +52,13 @@ Enemy = object:extend(function(class)
   end
   
   function class:draw()
-    gfx.draw(self.img, self.x, self.y)
+    if (self.hitClock > 0) then
+      gfx.setColor(lue:getHueColor(100, 100))
+      gfx.draw(self.img, self.x, self.y)
+      gfx.setColor(255,255,255)
+    else
+      gfx.draw(self.img, self.x, self.y)
+    end
   end
   
 end)
@@ -60,11 +69,13 @@ EnemyKamikaze = Enemy:extend(function(class,parent)
     parent.init(self, 1)
     self.boxes = { {1,1,72,66} }
     self.followPlayer = Player.getRandomPlayer()
+    self.tween = nil
   end
   
   function class:moveEnemy(dt, index)
+    --[[
     if (self.timeToVector == nil or self.timeToVector <= 0) then
-      local vector = createDirectionVector(self.x, self.y, self.followPlayer.x, self.followPlayer.y, self.speed/90)
+      local vector = createDirectionVector(self.x, self.y, self.followPlayer.x, self.followPlayer.y, self.speed/50)
       self.dX = vector[1]
       self.dY = vector[2]
       self.timeToVector = 1
@@ -72,6 +83,20 @@ EnemyKamikaze = Enemy:extend(function(class,parent)
     self.timeToVector = self.timeToVector - dt
     self.x = self.x + self.dX
     self.y = self.y + self.dY
+    --]]
+    
+    if (self.tween == nil) then
+      local vector = createDirectionVector(self.x, self.y, self.followPlayer.x, self.followPlayer.y, self.speed/50)
+      local xTo = self.x + vector[1] * 100
+      local yTo = self.y + vector[2] * 100
+      self.tween = tween.new(2-(self.level-1)*0.3, self, {x=xTo, y=yTo}, tween.easing.outCirc)
+    end
+
+    -- if complete, set to nil
+    if (self.tween:update(dt)) then
+      self.tween = nil
+    end
+    
   end
   
   function class:draw()
@@ -79,22 +104,35 @@ EnemyKamikaze = Enemy:extend(function(class,parent)
     if (self.y<=self.followPlayer.y) then
       angle = math.atan((self.x-self.followPlayer.x)/math.abs(self.y-self.followPlayer.y)) - math.pi
     end
-    gfx.draw(self.img, self.x+self.width/2, self.y+self.height/2, angle, 1, 1, self.width/2, self.height/2)
+    if (self.hitClock>0) then
+      gfx.setColor(lue:getHueColor(100, 100))
+      gfx.draw(self.img, self.x+self.width/2, self.y+self.height/2, angle, 1, 1, self.width/2, self.height/2)
+      gfx.setColor(255,255,255)
+    else
+      gfx.draw(self.img, self.x+self.width/2, self.y+self.height/2, angle, 1, 1, self.width/2, self.height/2)
+    end
   end
   
 end)
 
 EnemyLeftRight = Enemy:extend(function(class,parent)
   
-  function class:init(x)
+  function class:init(side, minY, maxY)
     parent.init(self, 2)
     self.willShoot = true
     self.boxes = { {26,8,25,49}, {12,26,54,31} }
-    self.x = 0 - self.width
-    self.dX = 1
-    self.minY = math.random(40)
-    self.maxY = 100 + math.random(100)
-    self.y = self.maxY
+    if (side == 1) then
+      self.x = 0 - self.width
+      self.dX = 1
+    else
+      self.x = screenWidth + self.width
+      self.dX = -1
+    end
+    
+    self.shootTime = 1.5
+    self.minY = minY
+    self.maxY = maxY
+    self.y = self.minY
     self.shotType = 1
   end
   
@@ -144,8 +182,15 @@ EnemyStraight = Enemy:extend(function(class,parent)
     parent.init(self, 4)
     self.willShoot = false
     self.boxes = { {0,0,62,56}}
+    self.speed = self.speed + 70
     self.y = -50
     self.dY = 1
+  end
+  
+  function class:setLevel(level)
+    self.level = level
+    self.speed = 125 + level * 50
+    self.hitCounter = level
   end
   
   function class:moveEnemy(dt, index)
@@ -161,12 +206,15 @@ EnemyAsteroid = Enemy:extend(function(class,parent)
     local asteroidImg = Enemies.asteroidImgs[asteroidType]
     local randomPosition = 100 + math.random(screenWidth-asteroidImg:getWidth()-100)
     
+    self.hitClock = 0
     self.x = randomPosition
     self.y = -40
     self.img = asteroidImg
     self.width=self.img:getWidth()
     self.height=self.img:getHeight()
-    self.speed = 200+level*50
+    level = level/2
+    if (level>3) then level = 3 end
+    self.speed = 150+math.random(50) + level*30
     self.hitCounter=1000
     self.boxes = {{1,1,asteroidImg:getWidth()-2, asteroidImg:getHeight()-2}}
     self.willShoot = false

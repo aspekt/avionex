@@ -164,6 +164,8 @@ function Player.continue(player)
 	player.y = screenHeight - 100
 	player.isAlive = true
   Player.numAlive = Player.numAlive + 1
+  player.isShieldOn = true
+  player.shieldTimer = 3
 	--Sounds.perfect:play()
 end
 
@@ -185,6 +187,13 @@ function Player.updateMove(dt)
   end
   
   Input.handlePlayerMovement(dt)
+  
+  for i, player in ipairs(Player.players) do
+    if (player.x < -player.width/2) then player.x = -player.width/2 end
+    if (player.x > screenWidth - player.width/2) then player.x = screenWidth - player.width/2 end
+    if (player.y > screenHeight - player.height) then player.y = screenHeight - player.height end
+    if (player.y < -player.height/2) then player.y = -player.height/2 end
+  end
 
 end
 

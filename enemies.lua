@@ -165,6 +165,14 @@ function Enemies.enemyHit(enemy, index)
     
     return true
   else
+    if not enemy.isBoss then
+      enemy.hitClock = 0.2
+      if (Sounds.explodeSound:isPlaying()) then
+        Sounds.explodeSound:rewind()
+      else
+        Sounds.explodeSound:play()
+      end
+    end
     return false
   end
 end

@@ -13,7 +13,7 @@ currentBulletSpeed = baseBulletSpeed
 maxEnemiesAtOnce = 200
 enemiesToNextLevel = 20
 
-showBoundingBoxes = true
+showBoundingBoxes = false
 useEffect = true
 
 playerLevel = 1
@@ -55,8 +55,23 @@ function Game.updateLevelWithEnemies(dt)
     Game.timeBetweenWaves = Game.timeBetweenWaves - (1*dt)
     
     if (Game.timeBetweenWaves < 0 and Game.currentWave == nil) then
-      Game.currentWave = WaveTwo:new();
-      Game.currentWave:setLevel(1);
+      
+      local waveType = math.random(5)
+      if (waveType == 1) then
+        Game.currentWave = WaveKamikaze:new();
+      elseif (waveType == 2) then
+        Game.currentWave = WaveOne:new();
+      elseif (waveType == 3) then
+        Game.currentWave = WaveThreeShots:new();
+      elseif (waveType == 4) then
+        Game.currentWave = WaveOneShots:new();
+      elseif (waveType == 5) then
+        Game.currentWave = WaveRandom:new();
+      end
+      
+      local enemyLevel = math.ceil(playerLevel/2);
+      if (enemyLevel > 3) then enemyLevel = 3 end
+      Game.currentWave:setLevel(enemyLevel);
     end
     
     if not (Game.currentWave == nil) then
@@ -95,7 +110,7 @@ function Game.updateAsteroidRain(dt)
   Enemies.createEnemyTimer = Enemies.createEnemyTimer - (1 * dt)
   if Enemies.createEnemyTimer < 0 then
     Enemies.createEnemyTimer = createEnemyTimerMax/3 
-    local asteroidSpeed = math.random(10, (50 * playerLevel))
+    local asteroidSpeed = math.random(10, (35 * playerLevel))
     Enemies.spawnAsteroid(playerLevel)
     asteroidRainCount = asteroidRainCount + 1
     
@@ -156,6 +171,8 @@ function Game.startNewGame()
   Player.playersAlive = false
   Enemies.reset()
   Ballistics.reset()
+  Game.currentWave = nil
+  Game.timeBetweenWaves = math.random(2)
 end
 
 function Game.levelUp()

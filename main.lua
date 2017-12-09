@@ -45,8 +45,8 @@ joystick2 = nil
 isShowingSplash = true
 
 -- Fixes game size, and later it is scaled to window/fullscreen
-screenWidth = 700
-screenHeight = 600
+screenWidth = 1000
+screenHeight = 720
 
 -- Loading
 function love.load(arg)
@@ -223,9 +223,12 @@ function love.update(dt)
       end
 
       if CheckCollisionEnemyPlayer(enemy, player) and player.isAlive then
-        Enemies.enemyHit(enemy, i)
+        enemyKilled = Enemies.enemyHit(enemy, i)
         if not player.isShieldOn or enemy.enemyType==4 then
           Player.dead(player)
+        end
+        if enemyKilled then
+          Game.enemyKilled(enemy)
         end
       end
 

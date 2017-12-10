@@ -29,7 +29,7 @@ lue = require "libs/lue/lue" --require the library
 tween = require 'libs/tween/tween'
 local moonshine = require 'libs/moonshine'
 
-debug = true
+debug = true -- dev mode on
 
 FPS = 0
 score  = 0
@@ -44,9 +44,7 @@ joystick1 = nil
 joystick2 = nil
 isShowingSplash = true
 
--- Fixes game size, and later it is scaled to window/fullscreen
-screenWidth = 1000
-screenHeight = 720
+
 
 -- Loading
 function love.load(arg)
@@ -61,12 +59,7 @@ function love.load(arg)
   end
   cscreen_adjust = cscreen.getData()
   
-  splashy.addSplash(love.graphics.newImage("assets/splash1.png")) -- Adds splash images.	
-	splashy.onComplete(function() print("Splash end.")
-																isShowingSplash = false
-																gameStart()
-															 end) -- Runs the argument once all splashes are done.
-
+ 
 
 	local joysticks = love.joystick.getJoysticks()
 	if (table.getn(joysticks) > 0) then 
@@ -116,7 +109,18 @@ function love.load(arg)
 	
 	--loadLeaderboard()	
 	lue:setColor("my-color", {200, 100, 255})
-	
+  
+  if (not debug) then
+    
+    splashy.addSplash(love.graphics.newImage("assets/splash1.png")) -- Adds splash images.	
+    splashy.onComplete(function() print("Splash end.")
+                                  isShowingSplash = false
+                                  gameStart()
+                                end) -- Runs the argument once all splashes are done.
+  else
+    gameStart()
+  end
+
 end
 
 local back_coord
@@ -160,9 +164,13 @@ end
 function love.update(dt)
 
   wapi.update()
-	
-	splashy.update(dt) -- Updates the fading of the splash images.
-	if (isShowingSplash) then return end
+  
+  if ( not debug) then
+    splashy.update(dt) -- Updates the fading of the splash images.
+    if (isShowingSplash) then return end
+    
+  end
+
 	
 	if (isGamePaused) then return end
 
@@ -281,11 +289,13 @@ newLevelFramesShown = 0
 -- Drawing
 function love.draw(dt)
 
-	FPS = love.timer.getFPS()
-	if (isShowingSplash) then
-		splashy.draw() -- Draws the splashes to the screen.
-		return 
-	end
+  FPS = love.timer.getFPS()
+  if (not debug) then
+    if (isShowingSplash) then
+      splashy.draw() -- Draws the splashes to the screen.
+      return 
+    end
+  end
 
 	if (useEffect) then
 		if (Player.superSpeed) then

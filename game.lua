@@ -8,7 +8,7 @@ timeToShieldOn = 10
 timeToShieldOff = 2
 
 --bulletSpeed = 400
-enemySpeed = 150
+enemySpeed = 200
 kamikazeSpeed = 50
 baseBulletSpeed = 250
 enemyMainShootTimer = 3
@@ -22,7 +22,7 @@ useEffect = true
 playerLevel = 1
 
 bulletSpeeds = {250, 300, 400, 500, 500} -- FIXME: Cambiar esto por algo decente y que sea dinamico
-bulletShootTimer = {0.3, 0.25, 0.2, 0.2, 0.1} -- FIXME: Igual que arriba
+bulletShootTimer = {0.1, 0.08, 0.07, 0.05, 0.04} -- FIXME: Igual que arriba
 
 missedEnemies = 0
 asteroidRainCount = 0
@@ -165,7 +165,7 @@ function Game.startNewGame()
   Game.playing = true
   score = 0
   playerLevel = 1
-  playerSpeed = 200
+  playerSpeed = 300
   enemySpeed = 150
 	showTextReady = true
 	showNewLevel = true

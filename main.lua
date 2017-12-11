@@ -46,10 +46,11 @@ isShowingSplash = true
 
 -- MAIN VFX EFFECTS SECTION
 useEffect = true
-useEffectScanlines = true
+useEffectScanlines = false
 useEffectGlow = true
 useEffectGodsRay = true
 useEffectCRT = false
+useEffectChromatik = true
 
 -- Loading
 function love.load(arg)
@@ -107,6 +108,20 @@ function love.load(arg)
      end
     end
 
+
+    if (useEffectChromatik) then
+      if (normalEffect ~= nil) then
+        normalEffect.chain(moonshine.effects.chromasep) 
+      else
+        normalEffect = moonshine(moonshine.effects.chromasep) 
+     end
+
+     normalEffect.chromasep.angle = 1
+     normalEffect.chromasep.radius = 1
+
+    end
+
+
     -- speed effect
 		speedEffect =  moonshine(moonshine.effects.godsray)
 
@@ -117,7 +132,8 @@ function love.load(arg)
 
 	end
 	
-	--loadLeaderboard()	
+--	loadLeaderboard()	-- esta dando Internal Server Error
+
 	lue:setColor("my-color", {200, 100, 255})
   
   if (not debug) then
@@ -229,7 +245,7 @@ function love.update(dt)
           enemyKilled = Enemies.enemyHit(enemy, i)
           
           -- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
-          if (player.score % 20 == 0) then
+          if (player.score % 100 == 0) then
             Sounds.combos[math.random(6)]:play()
           end
           if enemyKilled then

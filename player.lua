@@ -169,7 +169,7 @@ function Player.continue(player)
   player.timeToShieldOn = timeToShieldOn
   player.timeToShieldOff = timeToShieldOff
   player.isShieldOn = true
-  player.shieldTimer = 3
+  player.shieldTimer = 5
   player.numShots = 1
   
   Player.numAlive = Player.numAlive + 1

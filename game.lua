@@ -17,7 +17,6 @@ maxEnemiesAtOnce = 200
 enemiesToNextLevel = 20
 
 showBoundingBoxes = false
-useEffect = true
 
 playerLevel = 1
 
@@ -211,4 +210,5 @@ function Game.levelUp()
   
   Game.currentWave = nil
   Game.timeBetweenWaves = math.random(2)
+  Sounds:skipToNextMusicTrack()
 end

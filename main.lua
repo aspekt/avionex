@@ -44,7 +44,12 @@ joystick1 = nil
 joystick2 = nil
 isShowingSplash = true
 
-
+-- MAIN VFX EFFECTS SECTION
+useEffect = true
+useEffectScanlines = true
+useEffectGlow = true
+useEffectGodsRay = true
+useEffectCRT = false
 
 -- Loading
 function love.load(arg)
@@ -73,38 +78,43 @@ function love.load(arg)
 		-- some pixel shaders to give that 80s looooook (stranger things is in da haus)	
 				
 		local w = gfx:getWidth()
-		local h = gfx:getHeight()
+    local h = gfx:getHeight()
+    
+    if (useEffectScanlines) then
+      normalEffect = moonshine(moonshine.effects.scanlines)
+      
+      normalEffect.scanlines.opacity = 0.5
+      normalEffect.scanlines.width = 1
+  
+    end
 
+    if (useEffectGlow) then
+      if (normalEffect ~= nil) then
+         normalEffect.chain(moonshine.effects.glow) 
+      else
+        normalEffect = moonshine(moonshine.effects.glow) 
+      end
+
+      normalEffect.glow.min_luma = 0.3
+      normalEffect.glow.strength = 10
+    end
+
+    if (useEffectCRT) then
+      if (normalEffect ~= nil) then
+        normalEffect.chain(moonshine.effects.crt) 
+      else
+        normalEffect = moonshine(moonshine.effects.crt) 
+     end
+    end
+
+    -- speed effect
 		speedEffect =  moonshine(moonshine.effects.godsray)
-    --              .chain(moonshine.effects.scanlines)
-
-		--speedEffect.scanlines.opacity = 0.5
-		--speedEffect.scanlines.width = 1
 
 		speedEffect.godsray.light_x = 0.5
 		speedEffect.godsray.light_y = 0
-		
 		speedEffect.godsray.exposure = 0.5
 		speedEffect.godsray.decay = 0.9
 
-    normalEffect = moonshine(moonshine.effects.scanlines)
-                    --moonshine(moonshine.effects.glow).
-                    --chain(moonshine.effects.crt)
-								
-		normalEffect.scanlines.opacity = 0.5
-		normalEffect.scanlines.width = 1
-
-    --normalEffect.glow.min_luma = 0.3
-		--normalEffect.glow.strength = 10
-		
-  --	effect.pixelate.size = {2,2}
-    --effect.pixelate.feedback = 0.2
-
-
-    --playerEffect = moonshine(moonshine.effects.scanlines).chain(moonshine.effects.crt)
-    
-    --effect.crt.distortionFactor = {1.06, 1.06}
-    --effect.crt.feather = 0.01
 	end
 	
 	--loadLeaderboard()	
@@ -175,9 +185,9 @@ function love.update(dt)
 	if (isGamePaused) then return end
 
 	if (Player.superSpeed) then
-		backgroundSpeed = 1
+		backgroundSpeed = 1.7
 	else
-		backgroundSpeed = 0.5
+		backgroundSpeed = 1
 	end
 
   -- Update Background Images 
@@ -324,13 +334,14 @@ function draw_all(dt)
     drawLeaderboard()
 	end
 	
-	HUD.draw(dt)
   
   -- draw explosions particle systems
   for i = table.getn(explosions), 1, -1 do
     local explosion = explosions[i]
     gfx.draw(explosion, 0, 0)
   end
+
+  HUD.draw(dt)  
   
   cscreen.cease()
   

@@ -70,14 +70,14 @@ function Sounds.skipToNextMusicTrack()
 
 function Sounds.setMusicForBossBattle()
    
-    Sounds.music:setVolume(0.1) 
-    Sounds.musicBossBattle:play()
+    --Sounds.music:setVolume(0.1) 
+    --Sounds.musicBossBattle:play()
     
 end
 
 function Sounds.setMusicForNormalPlay()    
-     Sounds.music:setVolume(Sounds.mainVolume) 
-     Sounds.musicBossBattle:stop()     
+     --Sounds.music:setVolume(Sounds.mainVolume) 
+     --Sounds.musicBossBattle:stop()     
 end
 
 

@@ -59,7 +59,7 @@ function HUD.draw(dt)
   gfx.setColor(255, 255, 255)
   if (Game.playing) then
     for index, player in ipairs(Player.players) do
-      local xPos = screenWidth - 150
+      local xPos = screenWidth - 180
       if (index == 2) then
         xPos = 20
       end
@@ -90,6 +90,26 @@ function HUD.draw(dt)
         gfx.rectangle("fill",xPos + 70, screenHeight - 23, sizeBar, 15)
         gfx.setColor(255, 255, 255)
       end
+      
+       -- draw speed bar
+       gfx.setColor(255, 255, 255)
+       gfx.print("WARP ", xPos, screenHeight - 60)
+       if player.isShieldOn then
+         gfx.setColor(0, 0, 255)
+         local sizeBar = player.shieldTimer/timeToShieldOff * 100
+         gfx.rectangle("fill", xPos + 50, screenHeight - 53, sizeBar, 15)
+       else
+         gfx.setColor(255, 255, 255)    
+         local sizeBar = 100
+         if player.shieldTimer > 0 then
+           sizeBar = (timeToShieldOn-player.shieldTimer)/timeToShieldOn * 60
+         else
+           gfx.setColor(0, 0, 255)
+         end
+         gfx.rectangle("fill",xPos + 70, screenHeight - 53, sizeBar, 15)
+         gfx.setColor(255, 255, 255)
+       end
+
       
     end
   end

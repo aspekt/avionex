@@ -165,7 +165,7 @@ function gameStart()
   backgroundImage1 = gfx.newImage('assets/background1.jpg')
   backgroundImage2 = gfx.newImage('assets/background2.jpg')
 
-	Sounds.music:play()
+	--Sounds.music:play()
 	Sounds.ready:play() -- ready sfx
 	
 	HUD.init()

@@ -9,7 +9,7 @@ function Ballistics.shootAtPlayer(x,y)
   local player = Player.getRandomPlayer()
   x1 = player.x + player.width/2
   y1 = player.y + player.height/2
-  speed = 3 + playerLevel
+  speed = 4 + playerLevel/2
   
   vector = createDirectionVector(x,y,x1,y1,speed)
   
@@ -35,6 +35,15 @@ end
 function Ballistics.circularShots(x,y,cnt)
   speed = 3.5 +playerLevel/2
   
+  for i=1,cnt do 
+    vector = createDirectionVector(x,y,x+100*math.cos(i*math.pi/cnt*2+math.pi/4), y+100*math.sin(i*math.pi/cnt*2+math.pi/4),speed)
+    Ballistics.createShot(x,y,vector[1],vector[2],5)
+  end
+  --[[
+  --C′′x=rcosα
+  --and
+  --C′′y=rsinα
+  
   -- Diag up left
   vector = createDirectionVector(x,y,x-100,y-100,speed)
   Ballistics.createShot(x,y,vector[1],vector[2],5)
@@ -50,6 +59,7 @@ function Ballistics.circularShots(x,y,cnt)
   -- Diag down right
   vector = createDirectionVector(x,y,x+100,y+100,speed)
   Ballistics.createShot(x,y,vector[1],vector[2],5)
+  --]]
 end
 
 function Ballistics.bossOneShotDown(boss)

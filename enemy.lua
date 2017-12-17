@@ -12,6 +12,7 @@ Enemy = object:extend(function(class)
     self.speed = 100
     self.hitClock = 0
     self.hitCounter = 1
+    self.maxHitCounter = 1
     self.isBoss = false
     self.img = Enemies.enemyImgs[enemyType]
     self.enemyType = enemyType
@@ -22,8 +23,9 @@ Enemy = object:extend(function(class)
   
   function class:setLevel(level)
     self.level = level
-    self.speed = 100 + level * 25
+    self.speed = 120 + level * 15
     self.hitCounter = level+1
+    self.maxHitCounter = self.hitCounter
     self.score = 10 + (level-1)*20
   end
  
@@ -79,20 +81,9 @@ EnemyKamikaze = Enemy:extend(function(class,parent)
   end
   
   function class:moveEnemy(dt, index)
-    --[[
-    if (self.timeToVector == nil or self.timeToVector <= 0) then
-      local vector = createDirectionVector(self.x, self.y, self.followPlayer.x, self.followPlayer.y, self.speed/50)
-      self.dX = vector[1]
-      self.dY = vector[2]
-      self.timeToVector = 1
-    end
-    self.timeToVector = self.timeToVector - dt
-    self.x = self.x + self.dX
-    self.y = self.y + self.dY
-    --]]
     
     if (self.tween == nil) then
-      local vector = createDirectionVector(self.x, self.y, self.followPlayer.x, self.followPlayer.y, self.speed/50)
+      local vector = createDirectionVector(self.x, self.y, self.followPlayer.x, self.followPlayer.y, math.min(self.speed/50, 3))
       local xTo = self.x + vector[1] * 100
       local yTo = self.y + vector[2] * 100
       self.tween = tween.new(2-(self.level-1)*0.3, self, {x=xTo, y=yTo}, tween.easing.outCirc)
@@ -123,7 +114,7 @@ end)
 
 EnemyLeftRight = Enemy:extend(function(class,parent)
   
-  function class:init(side, minY, maxY)
+  function class:init(side, minX, maxX, minY, maxY)
     parent.init(self, 2)
     self.willShoot = true
     self.boxes = { {26,8,25,49}, {12,26,54,31} }
@@ -135,9 +126,11 @@ EnemyLeftRight = Enemy:extend(function(class,parent)
       self.dX = -1
     end
     
-    self.shootTime = 1.5
+    self.shootTimer = 1.5
     self.minY = minY
     self.maxY = maxY
+    self.minX = minX
+    self.maxX = maxX
     self.y = self.minY
     self.shotType = 1
   end
@@ -146,18 +139,21 @@ EnemyLeftRight = Enemy:extend(function(class,parent)
     self.level = level
     self.speed = 120 + level * 50
     self.hitCounter = level+1
+    self.maxHitCounter = self.hitCounter
     self.score = 10 + (level-1)*30
+    self.maxShootTimer = 6 - level/2
+    self.shootTimer = 1.5
   end
   
   function class:moveEnemy(dt, index)
     self.y = self.maxY - math.sin((screenWidth - self.x)/screenWidth * math.pi) * (self.maxY-self.minY) 
     self.x = self.x + (self.speed * dt) * self.dX
     
-    if (self.x < 0) then
+    if (self.x < self.minX) then
       self.dX = 1
     end
     
-    if (self.x > screenWidth - self.width) then
+    if (self.x > self.maxX) then
       self.dX = -1
     end
   end
@@ -198,16 +194,33 @@ EnemyStraight = Enemy:extend(function(class,parent)
     self.speed = self.speed + 70
     self.y = -50
     self.dY = 1
+    self.dX = 0
   end
   
   function class:setLevel(level)
     self.level = level
-    self.speed = 125 + level * 50
-    self.hitCounter = level
+    self.speed = 135 + level * 15
+    self.hitCounter = level+1
+    self.maxHitCounter = self.hitCounter
+  end
+  
+  function class:updateTimers(dt)
+    parent.updateTimers(self, dt)
+    if (self.dX == 0 and self.dY == 1 and self.y > screenHeight/2) then
+      self.speed = self.speed * 1.3
+      local vect = createDirectionVector(self.x,self.y,screenWidth/2,screenHeight-30,self.speed/60)
+      if (math.random(2) == 1) then
+        vect = createDirectionVector(self.x,self.y,self.x,screenHeight-30,self.speed/60)
+      end
+      self.dX = vect[1]
+      self.dY = vect[2]
+    end
+  
   end
   
   function class:moveEnemy(dt, index)
     self.y = self.y + self.dY*self.speed/50
+    self.x = self.x + self.dX*self.speed/50
   end
 end)
 
@@ -259,6 +272,11 @@ EnemyMine = Enemy:extend(function(class,parent)
     self.blowUpTimer = 15
   end
   
+  function class:setLevel(level)
+    parent.setLevel(self, level)
+    self.numMineShots = 3 + level
+  end
+  
   function class:updateTimers(dt)
     parent.updateTimers(self,dt)
     self.blowUpTimer = self.blowUpTimer - (1*dt)
@@ -286,7 +304,7 @@ EnemyMine = Enemy:extend(function(class,parent)
   
   function class:blowUp()
     Sounds.threeShotDown:play()          
-    Ballistics.circularShots(self.x + self.width/2, self.y+self.height, 4)
+    Ballistics.circularShots(self.x + self.width/2, self.y+self.height, self.numMineShots)
  end
 
   function class:moveEnemy(dt, index)

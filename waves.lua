@@ -35,7 +35,7 @@ WaveThreeShots = Wave:extend(function(class,parent)
   
   function class:setLevel(level)
     -- Three sets of enemies, 2-1-2 or 1-2-1 (level1), 3-2-3 or 2-3-2 (level2), 2-4-2 or 3-1-4 (level3)
-    local sets = {{{2,1,2}, {1,2,1}}, {{3,2,3}, {2,3,2}}, {{2,4,2}, {3,1,4}}}
+    local sets = {{{2,1,2}, {1,2,1}}, {{3,2,3}, {2,3,2}}, {{2,4,2}, {3,1,4}}, {{4,5,4}, {3,5,4}}, {{4,5,4}, {3,5,4}}}
     local moves = sets[level][math.random(2)]
     local enemyTimer = 4+(level-1)*2
     
@@ -65,14 +65,15 @@ WaveOneShots = Wave:extend(function(class,parent)
   
   function class:setLevel(level)
     -- Three sets of enemies, 2-1-2 or 1-2-1 (level1), 3-2-3 or 2-3-2 (level2), 2-4-2 or 3-1-4 (level3)
-    local sets = {{{2,1,2}, {1,2,1}}, {{3,2,3}, {2,3,2}}, {{2,4,2}, {3,1,4}}}
+    local sets = {{{2,1,2}, {1,2,1}}, {{3,2,3}, {2,3,2}}, {{2,4,2}, {3,1,4}}, {{4,5,4}, {3,5,4}}, {{4,5,4}, {3,5,4}}}
     local moves = sets[level][math.random(2)]
     local enemyTimer = 4+(level-1)*2
     
     for i=1, table.getn(moves) do
       for j=1, moves[i] do
-        local down = math.random(100)
-        local newEnemy = EnemyLeftRight:new(j%2, down, down+150)
+        local down = math.random(screenHeight/3)
+        local side = math.random(3)
+        local newEnemy = EnemyLeftRight:new(j%2, (side-1) * (screenWidth-77)/3, side * (screenWidth-77)/3, down, down+150)
         newEnemy:setLevel(level)
         table.insert(self.enemies, newEnemy)
         if (j == moves[i]) then
@@ -94,7 +95,7 @@ WaveKamikaze = Wave:extend(function(class,parent)
   
   function class:setLevel(level)
     -- Three sets of enemies, 2-1-2 or 1-2-1 (level1), 3-2-3 or 2-3-2 (level2), 2-4-2 or 3-1-4 (level3)
-    local sets = {{{2,3,2}, {3,2,3}}, {{4,3,4}, {3,4,3}}, {{5,6,5}, {6,5,6}}}
+    local sets = {{{2,3,2}, {3,2,3}}, {{4,3,4}, {3,4,3}}, {{5,6,5}, {6,5,6}}, {{5,6,5}, {6,5,6}}, {{5,6,5}, {6,5,6}}}
     local moves = sets[level][math.random(2)]
     local enemyTimer = 4+(level-1)*2
     
@@ -136,26 +137,30 @@ WaveRandom = Wave:extend(function(class,parent)
   end
   
   function class:setLevel(level)
-    local enemyTimer = 1-(level-1)*0.2
-    for i=1,(math.random(4)+level) do
+    local enemyTimer = 1.5-(level-1)*0.2
+    for i=1, math.floor((math.random(4)+level/2)) do
       local enemyType = math.random(4)
       local newEnemy = nil
       if (enemyType == 1) then   
         newEnemy = EnemyKamikaze:new()
         newEnemy.x = math.random(screenWidth)
       elseif (enemyType == 2) then
-        newEnemy = EnemyLeftRight:new(math.random(2), math.random(40), 100+math.random(140))
+        local down = math.random(screenHeight/3)
+        local side = math.random(3)
+        newEnemy = EnemyLeftRight:new(math.random(2), (side-1) * (screenWidth-77)/3, side * (screenWidth-77)/3, down, down+150)
       elseif (enemyType == 3) then  
         newEnemy = EnemyUpDown:new()
-        newEnemy.x = math.random(screenWidth)
+        newEnemy.x = math.random(screenWidth-100)
+        newEnemy.startX = newEnemy.x
       elseif (enemyType == 4) then  
         newEnemy = EnemyStraight:new()  
-        newEnemy.x = math.random(screenWidth)
+        newEnemy.x = math.random(screenWidth-100)
       end
       newEnemy:setLevel(level)
       table.insert(self.enemies, newEnemy)
       table.insert(self.enemyTimers, enemyTimer)
       self.enemyStillAlive = self.enemyStillAlive + 1
+      newEnemy = nil
     end
   end
   
@@ -169,9 +174,9 @@ WaveMines = Wave:extend(function(class,parent)
   end
   
   function class:setLevel(level)
-    local enemyTimer = 1-(level-1)*0.2
+    local enemyTimer = 1.5-(level-1)*0.2
     for j=1,2 do
-      for i=1,(math.random(4)+level*2) do
+      for i=1,(math.random(4)+level) do
         local newEnemy = EnemyMine:new()
         newEnemy.x = math.random(screenWidth)
         newEnemy:setLevel(level)
@@ -196,7 +201,7 @@ WaveOne = Wave:extend(function(class,parent)
   function class:setLevel(level)
     local loop = math.random() < 0.5
     local moveType = math.random(3)
-    local numEnemies = 4+level
+    local numEnemies = 3+level
     local enemyTimer = 1-(level-1)*0.2
     
     if (moveType == 1) then

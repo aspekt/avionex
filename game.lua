@@ -74,7 +74,7 @@ function Game.updateLevelWithEnemies(dt)
       end
       
       local enemyLevel = math.ceil(playerLevel/2);
-      if (enemyLevel > 3) then enemyLevel = 3 end
+      if (enemyLevel > 5) then enemyLevel = 5 end
       Game.currentWave:setLevel(enemyLevel);
     end
     
@@ -90,23 +90,7 @@ function Game.updateLevelWithEnemies(dt)
         end
       end
     end
-    
-    --[[
-    Enemies.createEnemyTimer = Enemies.createEnemyTimer - (1 * dt)     
 
-    if Enemies.createEnemyTimer < 0 and table.getn(Enemies.enemies) < maxEnemiesAtOnce then
-      Enemies.createEnemyTimer = createEnemyTimerMax
-
-      -- Create an enemy
-      local enemyType = math.random(3)
-      local enemySpeed = math.random(10, (50 * playerLevel/2))
-      local shootTimer = math.random()
-      
-      if (enemiesToNextLevel-table.getn(Enemies.enemies)>0) then
-        Enemies.spawnEnemy(enemyType, playerSpeed - enemySpeed, shootTimer, math.ceil(playerLevel/2))
-      end
-    end
-    --]]
   end  
 end
 
@@ -204,7 +188,7 @@ function Game.levelUp()
   enemySpeed = enemySpeed + 20
   playerLevel = playerLevel + 1
   maxEnemiesAtOnce = maxEnemiesAtOnce + math.floor(playerLevel/2)
-  enemiesToNextLevel = 20 + ((playerLevel)*4)
+  enemiesToNextLevel = 20 + ((playerLevel)*5)
   changedLevel = true;
   showNewLevel = true;
   

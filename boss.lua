@@ -26,6 +26,7 @@ Boss = object:extend(function(class)
   function class:setBossLevel(level)
     self.bossLevel = level
     self.hitCounter = level * 30
+    self.maxHitCounter = self.hitCounter
     self.speed = 100 * level
     self.score = 1000 * level
     self.bossShootTimer = 3 - level
@@ -91,6 +92,7 @@ BossTwo = Boss:extend(function(class,parent)
   function class:setBossLevel(level)
     parent.setBossLevel(self,level)
     self.hitCounter = level * 100
+    self.maxHitCounter = self.hitCounter
     self.bossShootTimer = 5 + math.random(5) - level*2
     self.rafaga = 4 + (level-1)*2
   end

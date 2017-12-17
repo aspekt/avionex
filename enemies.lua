@@ -120,16 +120,37 @@ function Enemies.draw(enemy, index)
     else
       gfx.draw(enemy.img, enemy.x, enemy.y)
     end
+    Enemies.drawLife(enemy)
   else
     -- Every enemy draws itself
     enemy:draw()
+    
+    if (not(enemy.enemyType == nil) and enemy.enemyType > 0) then
+      Enemies.drawLife(enemy)
+    end
   end
-
+  
   if showBoundingBoxes then
     for i, box in ipairs(enemy.boxes) do
         gfx.rectangle("line",enemy.x+box[1], enemy.y+box[2], box[3], box[4])
       end
   end
+end
+
+function Enemies.drawLife(enemy)
+  local offset = 2
+  local width = enemy.width/enemy.maxHitCounter
+  if (width < 10) then
+    offset=0
+  else
+    width = math.min(width-2, 10)
+  end
+  
+  for i=1,enemy.hitCounter do 
+    gfx.setColor(186, 251, 255)
+    gfx.rectangle("fill", enemy.x + (i-1)*(width+offset), enemy.y-10, width, 5)
+  end
+  gfx.setColor(255, 255, 255)
 end
 
 function Enemies.enemyHit(enemy, index)

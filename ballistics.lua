@@ -109,8 +109,8 @@ function Ballistics.createShot(x,y,vX,vY,shotType)
 end
 
 function Ballistics.updatePositions(dt)
-  for i, shot in ipairs(Ballistics.shots) do
-    
+  for i=table.getn(Ballistics.shots),1,-1 do
+    local shot = Ballistics.shots[i]
     if shot.y + shot.box[2] > screenHeight or shot.x + shot.box[1] > screenWidth or shot.x + shot.box[1] - shot.box[3] < 0 then -- remove enemies when they pass off the screen
 			table.remove(Ballistics.shots, i)
 		else
@@ -133,7 +133,8 @@ function Ballistics.drawAll()
 end
 
 function Ballistics.checkCollisionsPlayer(player)
-  for j, shot in ipairs(Ballistics.shots) do
+  for j=table.getn(Ballistics.shots),1,-1 do
+    local shot = Ballistics.shots[j]
 			if CheckCollisionShotPlayer(shot, player) then  
         table.remove(Ballistics.shots, j)
         return true

@@ -87,7 +87,8 @@ function PowerUps.spawnPowerUp()
 end
 
 function PowerUps.updatePositions(dt)
-  for i, powerup in ipairs(PowerUps.powerups) do
+  for i=table.getn(PowerUps.powerups), 1, -1 do
+    local powerup =PowerUps.powerups[i] 
     powerup.x = powerup.x + powerup.dx
     powerup.y = powerup.y + powerup.dy
     
@@ -122,12 +123,13 @@ function PowerUps.drawAll(enemy, index)
 end
 
 function PowerUps.checkCollisionsPlayer(player)
-  for j, powerup in ipairs(PowerUps.powerups) do
-			if CheckCollisionPowerUpPlayer(powerup, player) then  
-        Player.addPowerUp(powerup, player)
-        table.remove(PowerUps.powerups, j)
-        Sounds.powerup:play()
-      end
+  for j=table.getn(PowerUps.powerups),1,-1 do
+    local powerup = PowerUps.powerups[j]
+		if CheckCollisionPowerUpPlayer(powerup, player) then  
+      Player.addPowerUp(powerup, player)
+      table.remove(PowerUps.powerups, j)
+      Sounds.powerup:play()
+    end
   end
 end
 

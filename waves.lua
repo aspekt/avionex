@@ -22,7 +22,7 @@ Wave = object:extend(function(class)
   
   function class:enemyRemoved()
     self.enemyStillAlive = self.enemyStillAlive - 1
-    self.finished = (self.enemyStillAlive == 0)
+    self.finished = (self.enemyStillAlive <= 0)
   end
   
 end)

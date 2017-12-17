@@ -103,9 +103,9 @@ end
 
 function Player.updateBulletPositions(dt)
   for index, player in ipairs(Player.players) do
-    for index2, bullet in ipairs(player.bullets) do
+    for index2=table.getn(player.bullets),1,-1 do
+      local bullet = player.bullets[index2]
       bullet.y = bullet.y - (bullet.speed * dt)
-
       if bullet.y < 0 then -- remove bullets when they pass off the screen
         table.remove(player.bullets, index2)
       end
@@ -171,6 +171,8 @@ function Player.continue(player)
   player.isShieldOn = true
   player.shieldTimer = 5
   player.numShots = 1
+  player.img = playerImages[player.numShots]
+  player.boxes = playerBoxes[player.numShots]
   
   Player.numAlive = Player.numAlive + 1
 	--Sounds.perfect:play()
@@ -252,6 +254,8 @@ function Player.reset(player)
 	-- reset timers
 	player.canShootTimer = 1
   player.numShots = 1
+  player.img = playerImages[player.numShots]
+  player.boxes = playerBoxes[player.numShots]
 	player.createEnemyTimer = createEnemyTimerMax
   
 	-- move player back to default position
@@ -308,22 +312,26 @@ function Player.addPowerUp(powerUp, player)
       if (player.lives < 3) then
         player.lives = player.lives + 1
         Sounds.perfect:play()
+        HUD.ShowTextPlayer("+ 1 Life!", player, 1)
       end
     elseif (powerUp.type == PowerUps.POWERUP_TYPE_SHOT) then
       if player.numShots < 3 then
         player.numShots = player.numShots+1  
         player.img = playerImages[player.numShots]
         player.boxes = playerBoxes[player.numShots]
+        HUD.ShowTextPlayer("+ Shots", player, 1)
       end
     elseif (powerUp.type == PowerUps.POWERUP_TYPE_SHIELD) then  
       if player.timeToShieldOff < 5 then
         player.timeToShieldOn = player.timeToShieldOn - 1
         player.timeToShieldOff = player.timeToShieldOff + 1
+        HUD.ShowTextPlayer("+ Shield", player, 1)
       end
     elseif (powerUp.type == PowerUps.POWERUP_TYPE_SPEED) then    
       if (player.originalSpeed < 400) then
         player.originalSpeed = player.originalSpeed + 50
         player.speed = player.speed + 50
+        HUD.ShowTextPlayer("+ Speed", player, 1)
       end
     end
   end

@@ -81,7 +81,8 @@ function Enemies.spawnBoss(level)
 end
 
 function Enemies.updatePositions(dt)
-  for i, enemy in ipairs(Enemies.enemies) do
+  for i=table.getn(Enemies.enemies),1,-1 do
+    local enemy = Enemies.enemies[i]
 		if not enemy.isBoss then
       enemy:moveEnemy(dt, i)
       if enemy.y > screenHeight then -- remove enemies when they pass off the screen
@@ -140,7 +141,7 @@ end
 function Enemies.drawLife(enemy)
   local offset = 2
   local width = enemy.width/enemy.maxHitCounter
-  if (width < 10) then
+  if (width < 6) then
     offset=0
   else
     width = math.min(width-2, 10)

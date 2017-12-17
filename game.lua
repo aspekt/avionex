@@ -1,7 +1,7 @@
 -- Timers
 -- We declare these here so we don't have to edit them multiple place
 createEnemyTimerMax = 2
-createPowerUpTimeMax = 15
+createPowerUpTimeMax = 20
 
 -- Shields
 timeToShieldOn = 10
@@ -21,7 +21,7 @@ showBoundingBoxes = false
 playerLevel = 1
 
 bulletSpeeds = {250, 300, 400, 500, 500} -- FIXME: Cambiar esto por algo decente y que sea dinamico
-bulletShootTimer = {0.1, 0.08, 0.07, 0.05, 0.04} -- FIXME: Igual que arriba
+bulletShootTimer = {0.25, 0.15, 0.1, 0.2, 0.1} -- FIXME: Igual que arriba
 
 missedEnemies = 0
 asteroidRainCount = 0
@@ -118,7 +118,7 @@ function Game.enemyKilled(enemy)
   if enemy.isBoss then
     enemy.isHit = true
 
-    if enemyKilled then
+    if enemy.hitCounter<=0 then
       Game.levelUp()
     end
     

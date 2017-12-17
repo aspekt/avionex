@@ -21,7 +21,7 @@ function HUD.init()
 end
 
 function HUD.showLevel(level)
-  HUD.ShowText("LEVEL ".. level, screenWidth/2-40, 100, HUD.playerLevelTextPos.duration)			
+  --HUD.ShowText("LEVEL ".. level, screenWidth/2-40, 100, HUD.playerLevelTextPos.duration)			
 end
 
 function HUD.ShowText(text, x, y, timeout) 
@@ -29,6 +29,13 @@ function HUD.ShowText(text, x, y, timeout)
 	local t = {text = text, x = x, y = y, timeleft = timeout}
 	table.insert(HUD.textsInScreen, t)
 end
+
+function HUD.ShowTextPlayer(text, player, timeout) 
+	-- timeout -1 means permanent, else dissapers afer timeout seconds
+	local t = {text = text, playerFollow = player, timeleft = timeout}
+	table.insert(HUD.textsInScreen, t)
+end
+
 
 function HUD.update(dt)
   for i = table.getn(HUD.textsInScreen), 1, -1 do
@@ -52,7 +59,11 @@ function HUD.draw(dt)
   
   for i = table.getn(HUD.textsInScreen), 1, -1 do
 		local t = HUD.textsInScreen[i]
-		gfx.print(t.text, t.x, t.y)
+    if not (t.x == nil) then
+      gfx.print(t.text, t.x, t.y)
+    else
+      gfx.print(t.text, t.playerFollow.x, t.playerFollow.y+t.playerFollow.height+5)
+    end
 	end
   
   -- DRAW PLAYER GUI
@@ -78,7 +89,7 @@ function HUD.draw(dt)
       if player.isShieldOn then
         gfx.setColor(255, 0, 0)
         local sizeBar = player.shieldTimer/timeToShieldOff * 100
-        gfx.rectangle("fill", xPos + 50, screenHeight - 23, sizeBar, 15)
+        gfx.rectangle("fill", xPos + 70, screenHeight - 23, sizeBar, 15)
       else
         gfx.setColor(255, 255, 255)    
         local sizeBar = 100
@@ -90,35 +101,14 @@ function HUD.draw(dt)
         gfx.rectangle("fill",xPos + 70, screenHeight - 23, sizeBar, 15)
         gfx.setColor(255, 255, 255)
       end
-      
-       -- draw speed bar
-       gfx.setColor(255, 255, 255)
-       gfx.print("WARP ", xPos, screenHeight - 60)
-       if player.isShieldOn then
-         gfx.setColor(0, 0, 255)
-         local sizeBar = player.shieldTimer/timeToShieldOff * 100
-         gfx.rectangle("fill", xPos + 50, screenHeight - 53, sizeBar, 15)
-       else
-         gfx.setColor(255, 255, 255)    
-         local sizeBar = 100
-         if player.shieldTimer > 0 then
-           sizeBar = (timeToShieldOn-player.shieldTimer)/timeToShieldOn * 60
-         else
-           gfx.setColor(0, 0, 255)
-         end
-         gfx.rectangle("fill",xPos + 70, screenHeight - 53, sizeBar, 15)
-         gfx.setColor(255, 255, 255)
-       end
-
-      
     end
   end
+  
+  gfx.setColor(255, 255, 255)
   
   if (Game.playing) then
     gfx.print("LEVEL: " .. tostring(playerLevel), screenWidth/2 - 40, screenHeight - 30)
   end
-	--gfx.print("MISSED: " .. tostring(missedEnemies), screenWidth - 100, )
-	--gfx.print("FIRED: " .. tostring(shotsFired), 10, screenHeight - 30)
   
   gfx.setColor(255, 255, 255)
 

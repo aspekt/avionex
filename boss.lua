@@ -25,7 +25,7 @@ Boss = object:extend(function(class)
  
   function class:setBossLevel(level)
     self.bossLevel = level
-    self.hitCounter = level * 30
+    self.hitCounter = level * 100
     self.maxHitCounter = self.hitCounter
     self.speed = 100 * level
     self.score = 1000 * level

@@ -236,27 +236,30 @@ function love.update(dt)
 	-- run our collision detection
 	-- Since there will be fewer enemies on screen than bullets we'll loop them first
 	-- Also, we need to see if the enemies hit our player
-	for w, player in ipairs(Player.players) do
-    for i, enemy in ipairs(Enemies.enemies) do
-      for j, bullet in ipairs(player.bullets) do
+	for w=table.getn(Player.players),1,-1 do
+    local player = Player.players[w] 
+    for i=table.getn(Enemies.enemies),1,-1 do
+      local enemy = Enemies.enemies[i]
+      for j=table.getn(player.bullets),1,-1 do
+        local bullet = player.bullets[j] 
         if CheckCollisionEnemyBullet(enemy, bullet) then
           
           Player.bulletHit(j, player)
-          enemyKilled = Enemies.enemyHit(enemy, i)
+          local enemyKilled = Enemies.enemyHit(enemy, i)
           
-          -- fixme: sfx combos are supposed to be played when you actually kill N enemies in a row/short period of time 
-          if (player.score % 100 == 0) then
-            Sounds.combos[math.random(6)]:play()
-          end
           if enemyKilled then
             player.score = player.score + enemy.score
+            if (player.score % 100 == 0) then
+              Sounds.combos[math.random(6)]:play()
+            end
             Game.enemyKilled(enemy)
+            break
           end
         end
       end
 
       if CheckCollisionEnemyPlayer(enemy, player) and player.isAlive then
-        enemyKilled = Enemies.enemyHit(enemy, i)
+        local enemyKilled = Enemies.enemyHit(enemy, i)
         if not player.isShieldOn or enemy.enemyType==4 then
           Player.dead(player)
         end

@@ -259,7 +259,10 @@ function love.update(dt)
       end
 
       if CheckCollisionEnemyPlayer(enemy, player) and player.isAlive then
-        local enemyKilled = Enemies.enemyHit(enemy, i)
+        local enemyKilled = false
+        if not (enemy.isBoss) then
+          enemyKilled = Enemies.enemyHit(enemy, i)
+        end
         if not player.isShieldOn or enemy.enemyType==4 then
           Player.dead(player)
         end

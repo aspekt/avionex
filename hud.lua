@@ -88,13 +88,14 @@ function HUD.draw(dt)
       gfx.print("SHIELD ", xPos, screenHeight - 30)
       if player.isShieldOn then
         gfx.setColor(255, 0, 0)
-        local sizeBar = player.shieldTimer/timeToShieldOff * 100
+        local sizeBar = player.shieldTimer/player.timeToShieldOff * 100
         gfx.rectangle("fill", xPos + 70, screenHeight - 23, sizeBar, 15)
+        gfx.setColor(255, 255, 255)
       else
         gfx.setColor(255, 255, 255)    
         local sizeBar = 100
         if player.shieldTimer > 0 then
-          sizeBar = (timeToShieldOn-player.shieldTimer)/timeToShieldOn * 60
+          sizeBar = (player.timeToShieldOn-player.shieldTimer)/player.timeToShieldOn * 100
         else
           gfx.setColor(0, 255, 0)
         end
@@ -113,7 +114,11 @@ function HUD.draw(dt)
   gfx.setColor(255, 255, 255)
 
   if not Game.playing then
-    gfx.print("Press 'Enter' or 'Start' to start", screenWidth/2-140, screenHeight/2+30)
+    if (Game.showGameOver) then
+      gfx.print("GAME OVER", screenWidth/2-50, screenHeight/2)
+    else
+      gfx.print("Press 'Enter' or 'Start' to start", screenWidth/2-140, screenHeight/2+30)
+    end
   else
     if not (Player.numAlive==Player.numPlayers) then
       local canContinue = false
@@ -121,9 +126,13 @@ function HUD.draw(dt)
         if (not player.isAlive and Player.canContinue(player)) then
           canContinue = true
           if Player.numPlayers == 2 then
-            gfx.print("P" .. tostring(index) .. ": Press 'Enter' or 'Start' to Continue", screenWidth/2-140, screenHeight/2+30+index*20)
+            local xPos = screenWidth - 180
+            if (index == 2) then
+              xPos = 20
+            end
+            gfx.print("Continue? " .. tostring(math.floor(player.countdown)), xPos+30, 90)
           else
-            gfx.print("Press 'Enter' or 'Start' to Continue", screenWidth/2-140, screenHeight/2+30)
+            gfx.print("Continue? " .. tostring(math.floor(player.countdown)), screenWidth/2-60, screenHeight/2+30)
           end
         end
       end

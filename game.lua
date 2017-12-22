@@ -32,11 +32,21 @@ isGamePaused = false
 Game = {
   playing = false,
   timeBetweenWaves = 1,
-  currentWave = nil
+  currentWave = nil,
+  showGameOver = false,
+  showGameOverTimer = 3
 }
 
 --Enemy and level creation is moved here
 function Game.updateTimers(dt)
+  
+  if (Game.showGameOver) then
+    Game.showGameOverTimer = Game.showGameOverTimer - 1*dt
+    if (Game.showGameOverTimer < 0) then
+      Game.showGameOver = false
+      Game.showGameOverTimer = 3
+    end
+  end
   
   -- Odd levels with enemies
   if (playerLevel % 2 == 1) then 

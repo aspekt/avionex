@@ -66,6 +66,7 @@ function Player.spawnPlayer(input)
       boxes = playerBoxes[1],
       num = Player.numPlayers,
       score = 0,
+      countdown = nil,
       lives = 3 -- how many lives left? 3 to start with
   }
   
@@ -77,6 +78,18 @@ function Player.spawnPlayer(input)
 end
 
 function Player.updateTimers(dt)
+  
+  for index, player in ipairs(Player.players) do
+    if not (player.countdown == nil) then
+      if (player.countdown < 1) then
+        player.lives = 0
+        player.countdown = nil
+        Player.setPlayersAlive()
+      else
+        player.countdown = player.countdown - 1 * dt
+      end
+    end
+  end
   
   -- No player alive, do nothing
   if not Player.playersAlive then
@@ -125,6 +138,9 @@ function Player.dead(player)
 	explosion:emit(20)
 	table.insert(explosions, explosion)
 	player.lives = player.lives - 1
+  if (player.lives > 0) then
+    player.countdown = 10
+  end
   
   if player.input == "joystick1" and joystick1:isVibrationSupported() then
     joystick1:setVibration( 0.7, 0.7, 0.6 )
@@ -151,6 +167,7 @@ function Player.setPlayersAlive()
   
   if (allLives == 0) then
     Game.playing = false
+    Game.showGameOver = true
   end
 end
 
@@ -161,6 +178,7 @@ end
 function Player.continue(player)
 
 	-- move player back to default position
+  player.countdown = nil
 	player.x = screenWidth / 2 - 40
 	player.y = screenHeight - 100
 	player.isAlive = true
@@ -169,7 +187,7 @@ function Player.continue(player)
   player.timeToShieldOn = timeToShieldOn
   player.timeToShieldOff = timeToShieldOff
   player.isShieldOn = true
-  player.shieldTimer = 5
+  player.shieldTimer = timeToShieldOff
   player.numShots = 1
   player.img = playerImages[player.numShots]
   player.boxes = playerBoxes[player.numShots]
@@ -249,7 +267,9 @@ end
 function Player.reset(player)
   player.bullets = {}
 	player.isShieldOn = false
-  player.shieldTimer = timeToShieldOn
+  player.shieldTimer = timeToShieldOff
+  player.timeToShieldOn = timeToShieldOn
+  player.timeToShieldOff = timeToShieldOff
     
 	-- reset timers
 	player.canShootTimer = 1

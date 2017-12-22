@@ -67,7 +67,7 @@ function Player.spawnPlayer(input)
       num = Player.numPlayers,
       score = 0,
       countdown = nil,
-      lives = 3 -- how many lives left? 3 to start with
+      lives = 1 -- how many lives left? 3 to start with
   }
   
   newPlayer.x = screenWidth/2 - newPlayer.width/2

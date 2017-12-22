@@ -34,7 +34,7 @@ Game = {
   timeBetweenWaves = 1,
   currentWave = nil,
   showGameOver = false,
-  showGameOverTimer = 3
+  showGameOverTimer = 0
 }
 
 --Enemy and level creation is moved here
@@ -45,6 +45,7 @@ function Game.updateTimers(dt)
     if (Game.showGameOverTimer < 0) then
       Game.showGameOver = false
       Game.showGameOverTimer = 3
+      leaderboard.startInputInitials()
     end
   end
   

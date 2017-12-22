@@ -1,13 +1,14 @@
 HUD = {
   textsInScreen = {},      -- all texts on screen that expire
 	playerLevelTextPos = {x = 0, y = 0, duration = 3},
-	Logo = nil
+	Logo = nil,
+  font = love.graphics.newFont("assets/octab-017.ttf", 26)
 }
 
 function HUD.init()
   
   --	font = gfx.newFont(14) -- the number denotes the font size
-	gfx.setNewFont("assets/octab-017.ttf", 26)
+	gfx.setFont(HUD.font)
 
 	--HUD.ShowText("READY!", screenWidth / 2 - 50, 400, 3)
 	

@@ -196,9 +196,13 @@ function love.update(dt)
     if (isShowingSplash) then return end
     
   end
-
 	
 	if (isGamePaused) then return end
+  
+  if (leaderboard.inputInitials) then
+    leaderboard.updateTimers(dt)
+    return
+  end
 
 	if (Player.superSpeed) then
 		backgroundSpeed = 1.7
@@ -364,6 +368,10 @@ function draw_all(dt)
   end
 
   HUD.draw(dt)  
+  
+  if (leaderboard.inputInitials) then
+    leaderboard.draw()
+  end
   
   cscreen.cease()
   

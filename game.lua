@@ -34,7 +34,8 @@ Game = {
   timeBetweenWaves = 1,
   currentWave = nil,
   showGameOver = false,
-  showGameOverTimer = 0
+  showGameOverTimer = 3,
+  waitForNextGameTimer = 0
 }
 
 --Enemy and level creation is moved here

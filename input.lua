@@ -56,11 +56,11 @@ function Input.handlePlayerMovement(dt)
 			player.y = player.y + joystick1:getGamepadAxis("lefty") * (player.speed*dt)
 				
       if joystick1:isGamepadDown("dpleft") then
-				if player.x > 0 then -- binds us to the map
+				if player.x > 0 - player.img:getWidth()/2 then-- binds us to the map
 					player.x = player.x - (player.speed*dt)
 				end
 			elseif joystick1:isGamepadDown("dpright") then
-				if player.x < (screenWidth - player.img:getWidth()) then
+				if player.x < (screenWidth - player.img:getWidth()/2) then
 					player.x = player.x + (player.speed*dt)
 				end
 			end
@@ -93,11 +93,11 @@ function Input.handlePlayerMovement(dt)
 			player.y = player.y + joystick2:getGamepadAxis("lefty") * (player.speed*dt)
 				
       if joystick2:isGamepadDown("dpleft") then
-				if player.x > 0 then -- binds us to the map
+				if player.x > 0 - player.img:getWidth()/2 then -- binds us to the map
 					player.x = player.x - (player.speed*dt)
 				end
 			elseif joystick2:isGamepadDown("dpright") then
-				if player.x < (screenWidth - player.img:getWidth()) then
+				if player.x < (screenWidth - player.img:getWidth()/2) then
 					player.x = player.x + (player.speed*dt)
 				end
 			end
@@ -126,12 +126,12 @@ function Input.handlePlayerMovement(dt)
   if not (player == nil) then
     if love.keyboard.isDown('left','a') then
       player.isTurningLeft = true
-      if player.x > 0 then -- binds us to the map
+      if player.x > 0 - player.img:getWidth()/2 then -- binds us to the map
         player.x = player.x - (player.speed*dt)
       end
     elseif love.keyboard.isDown('right','d') then
       player.isTurningRight = true
-      if player.x < (screenWidth - player.img:getWidth()) then
+      if player.x < (screenWidth - player.img:getWidth()/2) then
         player.x = player.x + (player.speed*dt)
       end
     end

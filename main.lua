@@ -46,11 +46,11 @@ isShowingSplash = true
 
 -- MAIN VFX EFFECTS SECTION
 useEffect = true
-useEffectScanlines = false
-useEffectGlow = true
+useEffectScanlines = true
+useEffectGlow = false
 useEffectGodsRay = true
 useEffectCRT = false
-useEffectChromatik = true
+useEffectChromatik = false
 
 -- Loading
 function love.load(arg)
@@ -64,8 +64,6 @@ function love.load(arg)
     cscreen.init(screenWidth, screenHeight, true, 1)
   end
   cscreen_adjust = cscreen.getData()
-  
- 
 
 	local joysticks = love.joystick.getJoysticks()
 	if (table.getn(joysticks) > 0) then 

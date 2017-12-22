@@ -3,8 +3,11 @@ leaderboard = {
     currentPlayer = nil,
     currentInitials = 'AAA',
     lastInputTimer = 0,
+    lastInitials = 'AAA',
+    lastInitials2 = 'AAA',
     currentLetter = 1,
-    font = love.graphics.newFont("assets/octab-017.ttf", 80)
+    numPlayer = 1,
+    font = love.graphics.newFont("assets/BPdotsSquare.otf", 80)
 }
 
 function loadLeaderboard() 
@@ -21,7 +24,7 @@ function loadLeaderboard()
 
 end
 
-function saveScore(initials)
+function saveScore(initials, score)
 
     local payload = "{\"initials\":\""..initials.."\",\"score\":"..score.."}"
     local args = {
@@ -78,6 +81,10 @@ end
 
 function leaderboard.startInputInitials()
   leaderboard.inputInitials = true
+  leaderboard.currentPlayer = Player.players[1]
+  leaderboard.numPlayer = 1
+  leaderboard.currentInitials = leaderboard.lastInitials
+  leaderboard.currentLetter = 1
 end
 
 function leaderboard.updateTimers(dt)
@@ -86,10 +93,38 @@ function leaderboard.updateTimers(dt)
     local input = leaderboard.handleInitialsInputs(dt)
     if not (input==nil) then
       local letter = string.byte(leaderboard.currentInitials,leaderboard.currentLetter)
-      if (input == "up") then
+      if (input == "down") then
         letter = letter - 1
-      elseif (input == "down") then
+        if (letter < 58) then
+          letter = 93
+        end
+      elseif (input == "up") then
         letter = letter + 1
+        if (letter>93) then
+          letter = 58
+        end
+      elseif (input == "left" and leaderboard.currentLetter>1) then 
+        leaderboard.currentLetter = leaderboard.currentLetter - 1
+        letter = string.byte(leaderboard.currentInitials,leaderboard.currentLetter)
+      elseif ((input == "right" or input=="click") and leaderboard.currentLetter<3) then     
+        leaderboard.currentLetter = leaderboard.currentLetter + 1
+        letter = string.byte(leaderboard.currentInitials,leaderboard.currentLetter)
+      elseif ((input == "click" and leaderboard.currentLetter ==3) or input == "start") then
+        saveScore(leaderboard.currentInitials, leaderboard.currentPlayer.score)
+        if (leaderboard.numPlayer ==1) then
+          leaderboard.lastInitials = leaderboard.currentInitials
+        else
+          leaderboard.lastInitials2 = leaderboard.currentInitials
+        end
+        
+        if (Player.numPlayers > 1 and leaderboard.numPlayer < 2) then
+          leaderboard.currentPlayer = Player.players[2];
+          leaderboard.numPlayer = 2
+          leaderboard.currentLetter = 1
+          leaderboard.currentInitials = leaderboard.lastInitials2
+        else
+          leaderboard.inputInitials = false
+        end
       end
       local newInitials = ""
       for i=1,3 do
@@ -100,17 +135,17 @@ function leaderboard.updateTimers(dt)
         end
       end
       leaderboard.currentInitials = newInitials
-      print (input)
       leaderboard.lastInputTimer=0.1
     end
   end
 end
 
 function leaderboard.draw()
-  gfx.setFont(leaderboard.font)
-  gfx.setColor(0, 0, 0, 120)
-  gfx.rectangle("fill",screenWidth/2-120, screenHeight/2-60, 240, 120)
+  gfx.setColor(0, 0, 0, 180)
+  gfx.rectangle("fill",screenWidth/2-120, screenHeight/2-80, 240, 140)
   gfx.setColor(255, 255, 255)
+  gfx.print("PLAYER " .. tostring(leaderboard.numPlayer), screenWidth/2 - 80, screenHeight/2 - 70)
+  gfx.setFont(leaderboard.font)
   for i=1,3 do
     if (leaderboard.currentLetter == i) then
       gfx.setColor(255, 255, 0)

@@ -117,7 +117,7 @@ function HUD.draw(dt)
   if not Game.playing then
     if (Game.showGameOver) then
       gfx.print("GAME OVER", screenWidth/2-50, screenHeight/2)
-    else
+    elseif not (leaderboard.inputInitials) then
       gfx.print("Press 'Enter' or 'Start' to start", screenWidth/2-140, screenHeight/2+30)
     end
   else

@@ -67,7 +67,7 @@ function Player.spawnPlayer(input)
       num = Player.numPlayers,
       score = 0,
       countdown = nil,
-      lives = 1 -- how many lives left? 3 to start with
+      lives = 3 -- how many lives left? 3 to start with
   }
   
   newPlayer.x = screenWidth/2 - newPlayer.width/2
@@ -149,7 +149,7 @@ function Player.dead(player)
   end
 	
 	if not Player.canContinue(player)	then
-		saveScore(playerInitials)
+		
 	end
   
   Sounds.gameOver:play()

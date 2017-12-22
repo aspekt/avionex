@@ -23,4 +23,4 @@ end
 
 -- Fixes game size, and later it is scaled to window/fullscreen
 screenWidth = 800
-screenHeight = 900
+screenHeight = 845

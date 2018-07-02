@@ -40,110 +40,106 @@ Game = {
 
 --Enemy and level creation is moved here
 function Game.updateTimers(dt)
-  
   if (Game.showGameOver) then
-    Game.showGameOverTimer = Game.showGameOverTimer - 1*dt
+    Game.showGameOverTimer = Game.showGameOverTimer - 1 * dt
     if (Game.showGameOverTimer < 0) then
       Game.showGameOver = false
       Game.showGameOverTimer = 3
       leaderboard.startInputInitials()
     end
   end
-  
+
   -- Odd levels with enemies
-  if (playerLevel % 2 == 1) then 
+  if (playerLevel % 2 == 1) then
     Game.updateLevelWithEnemies(dt)
   else
     Game.updateAsteroidRain(dt)
   end
-  
 end
 
 function Game.updateLevelWithEnemies(dt)
-  
   if not Game.playing then
     return
   end
-  
+
   if not Enemies.bossAlive then
-    Game.timeBetweenWaves = Game.timeBetweenWaves - (1*dt)
-    
+    Game.timeBetweenWaves = Game.timeBetweenWaves - (1 * dt)
+
     if (Game.timeBetweenWaves < 0 and Game.currentWave == nil) then
-      
       local waveType = math.random(6)
       if (waveType == 1) then
-        Game.currentWave = WaveKamikaze:new();
+        Game.currentWave = WaveKamikaze:new()
       elseif (waveType == 2) then
-        Game.currentWave = WaveOne:new();
+        Game.currentWave = WaveOne:new()
       elseif (waveType == 3) then
-        Game.currentWave = WaveThreeShots:new();
+        Game.currentWave = WaveThreeShots:new()
       elseif (waveType == 4) then
-        Game.currentWave = WaveOneShots:new();
+        Game.currentWave = WaveOneShots:new()
       elseif (waveType == 5) then
-        Game.currentWave = WaveRandom:new();
+        Game.currentWave = WaveRandom:new()
       elseif (waveType == 6) then
-        Game.currentWave = WaveMines:new();
+        Game.currentWave = WaveMines:new()
       end
-      
-      local enemyLevel = math.ceil(playerLevel/2);
-      if (enemyLevel > 5) then enemyLevel = 5 end
-      Game.currentWave:setLevel(enemyLevel);
+
+      local enemyLevel = math.ceil(playerLevel / 2)
+      if (enemyLevel > 5) then
+        enemyLevel = 5
+      end
+      Game.currentWave:setLevel(enemyLevel)
     end
-    
+
     if not (Game.currentWave == nil) then
       Game.currentWave:updateTimers(dt)
-      
+
       if (Game.currentWave.finished) then
         Game.currentWave = nil
         Game.timeBetweenWaves = math.random(2)
-        if enemiesToNextLevel <= 0  then 
+        if enemiesToNextLevel <= 0 then
           Sounds.perfect:play()
           Game.launchBoss()
         end
       end
     end
-
-  end  
+  end
 end
 
 function Game.updateAsteroidRain(dt)
   Enemies.createEnemyTimer = Enemies.createEnemyTimer - (1 * dt)
   if Enemies.createEnemyTimer < 0 then
-    Enemies.createEnemyTimer = createEnemyTimerMax/3 
+    Enemies.createEnemyTimer = createEnemyTimerMax / 3
     local asteroidSpeed = math.random(10, (35 * playerLevel))
     Enemies.spawnAsteroid(playerLevel)
     asteroidRainCount = asteroidRainCount + 1
-    
-    if (asteroidRainCount == 20+10*playerLevel/2) then
+
+    if (asteroidRainCount == 20 + 10 * playerLevel / 2) then
       Game.levelUp()
     end
-  end 
+  end
 end
 
 function Game.enemyKilled(enemy)
   -- if boss killed, go up level
   if (enemy.score > 0) then
-    local points = "+".. tostring(enemy.score)
-    HUD.ShowText(points, enemy.x+enemy.width/2-(points:len()*12)/2, enemy.y+enemy.height/2-10, 1)
+    local points = "+" .. tostring(enemy.score)
+    HUD.ShowText(points, enemy.x + enemy.width / 2 - (points:len() * 12) / 2, enemy.y + enemy.height / 2 - 10, 1)
   end
-  
+
   if enemy.isBoss then
     enemy.isHit = true
 
-    if enemy.hitCounter<=0 then
+    if enemy.hitCounter <= 0 then
       Game.levelUp()
     end
-    
   else
     enemy:enemyKilled()
     enemiesToNextLevel = enemiesToNextLevel - 1
-    
+
     if not (Game.currentWave == nil) then
       Game.currentWave:enemyRemoved()
     end
-    
+
     -- after 20 hits, spawn boss
-    if enemiesToNextLevel <= 0 and (Game.currentWave == nil or Game.currentWave.finished) then 
+    if enemiesToNextLevel <= 0 and (Game.currentWave == nil or Game.currentWave.finished) then
       Sounds.perfect:play()
       Game.launchBoss()
     end
@@ -162,14 +158,14 @@ function Game.startNewGame()
   playerLevel = 1
   playerSpeed = 300
   enemySpeed = 150
-	showTextReady = true
-	showNewLevel = true
-	shotsFired = 0
-	missedEnemies = 0
+  showTextReady = true
+  showNewLevel = true
+  shotsFired = 0
+  missedEnemies = 0
   enemyMainShootTimer = 3
   maxEnemiesAtOnce = 300
-	isAlive = true
-  enemiesToNextLevel= 20
+  isAlive = true
+  enemiesToNextLevel = 20
   createEnemyTimerMax = 2
   Player.players = {}
   Player.numPlayers = 0
@@ -183,27 +179,26 @@ function Game.startNewGame()
 end
 
 function Game.levelUp()
-  
   asteroidRainCount = 0
   enemyMainShootTimer = enemyMainShootTimer - 0.3
-  
+
   if (enemyMainShootTimer <= 1) then
     enemyMainShootTimer = 1
   end
-  
+
   createEnemyTimerMax = createEnemyTimerMax - 0.3
-  
+
   if (createEnemyTimerMax <= 1) then
     createEnemyTimerMax = 1
   end
 
   enemySpeed = enemySpeed + 20
   playerLevel = playerLevel + 1
-  maxEnemiesAtOnce = maxEnemiesAtOnce + math.floor(playerLevel/2)
-  enemiesToNextLevel = 20 + ((playerLevel)*5)
-  changedLevel = true;
-  showNewLevel = true;
-  
+  maxEnemiesAtOnce = maxEnemiesAtOnce + math.floor(playerLevel / 2)
+  enemiesToNextLevel = 20 + ((playerLevel) * 5)
+  changedLevel = true
+  showNewLevel = true
+
   Game.currentWave = nil
   Game.timeBetweenWaves = math.random(2)
   Sounds:skipToNextMusicTrack()
